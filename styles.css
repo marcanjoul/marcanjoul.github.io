@@ -4,11 +4,12 @@
   --text-secondary: #B0B0B0;
   --accent: #00D4FF;
   --accent-light: #1E3A5F;
-  --card-bg: #1A1A1A;
-  --card-border: #333333;
-  --tag-bg: #2A2A2A;
-  --nav-bg: rgba(10, 10, 10, 0.85);
-  --section-alt: #141414;
+  --card-bg: rgba(26, 26, 26, 0.4);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --tag-bg: rgba(42, 42, 42, 0.5);
+  --nav-bg: rgba(10, 10, 10, 0.7);
+  --section-alt: rgba(20, 20, 20, 0.3);
+  --glass-glow: rgba(0, 212, 255, 0.15);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -39,9 +40,10 @@ nav {
   right: 0;
   z-index: 100;
   background: var(--nav-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
   border-bottom: 1px solid var(--card-border);
+  box-shadow: 0 8px 32px rgba(0, 212, 255, 0.08);
   transition: transform 0.3s ease;
 }
 
@@ -185,26 +187,32 @@ nav .nav-links a:hover::after { width: 100%; }
 }
 
 .btn-primary {
-  background: var(--text);
+  background: rgba(255, 255, 255, 0.95);
   color: var(--bg);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.3);
 }
 
 .btn-primary:hover {
-  background: var(--accent);
+  background: rgba(0, 212, 255, 0.9);
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 212, 255, 0.2);
+  box-shadow: 0 12px 48px rgba(0, 212, 255, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 .btn-secondary {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.08);
   color: var(--text);
-  border: 1.5px solid var(--card-border);
+  border: 1.5px solid rgba(0, 212, 255, 0.3);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.1);
 }
 
 .btn-secondary:hover {
   border-color: var(--accent);
+  background: rgba(0, 212, 255, 0.15);
   color: var(--accent);
   transform: translateY(-2px);
+  box-shadow: 0 12px 48px rgba(0, 212, 255, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 .scroll-hint {
@@ -312,15 +320,29 @@ section {
 
 .detail-card {
   background: var(--card-bg);
+  backdrop-filter: blur(10px) saturate(1.5);
+  -webkit-backdrop-filter: blur(10px) saturate(1.5);
   border: 1px solid var(--card-border);
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 1.5rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.4s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.detail-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 212, 255, 0.01));
+  pointer-events: none;
 }
 
 .detail-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(0, 212, 255, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  background: rgba(30, 58, 95, 0.15);
 }
 
 .detail-card .icon {
@@ -350,12 +372,15 @@ section {
 
 .project-card {
   background: var(--card-bg);
+  backdrop-filter: blur(12px) saturate(1.6);
+  -webkit-backdrop-filter: blur(12px) saturate(1.6);
   border: 1px solid var(--card-border);
-  border-radius: 20px;
+  border-radius: 24px;
   padding: 2.25rem;
-  transition: all 0.35s ease;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
   overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.1);
 }
 
 .project-card::before {
@@ -364,18 +389,24 @@ section {
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: var(--accent);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.4s ease;
+  transition: transform 0.5s ease;
+  opacity: 0;
 }
 
-.project-card:hover::before { transform: scaleX(1); }
+.project-card:hover::before { 
+  transform: scaleX(1);
+  opacity: 1;
+}
 
 .project-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.07);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 64px rgba(0, 212, 255, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  background: rgba(30, 58, 95, 0.2);
+  border-color: rgba(0, 212, 255, 0.4);
 }
 
 .project-card .project-type {
@@ -411,11 +442,22 @@ section {
 
 .project-tags span {
   background: var(--tag-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   padding: 0.3rem 0.75rem;
   border-radius: 100px;
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--text-secondary);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.project-tags span:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 212, 255, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.12);
 }
 
 .project-link {
@@ -547,19 +589,24 @@ section {
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border-radius: 100px;
-  border: 1.5px solid var(--card-border);
+  border: 1.5px solid rgba(0, 212, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   text-decoration: none;
   color: var(--text);
   font-size: 0.88rem;
   font-weight: 500;
-  transition: all 0.25s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.1);
 }
 
 .contact-link:hover {
   border-color: var(--accent);
+  background: rgba(0, 212, 255, 0.15);
   color: var(--accent);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 212, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.15);
 }
 
 /* ========== FOOTER ========== */
