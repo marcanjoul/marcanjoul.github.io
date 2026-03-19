@@ -1,6 +1,14 @@
 <!DOCTYPE html>
+<!--
+  This is a simple single-page portfolio site.
+  Structure:
+    - <nav> contains the top menu (links match section ids)
+    - <section id="..."> blocks hold the main content (hero, about, projects, etc.)
+    - A small script at the bottom adds fade-in animation when you scroll.
+  To update content, edit the matching <section id="..."> block below.
+-->
 <html lang="en">
-  <!-- The title that shows in th tab -->>
+  <!-- The title that shows in the tab -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,27 +19,29 @@
 <body>
 
 <!-- NAV -->
+<!-- Top navigation bar with in-page links. Edit/add <li> items to change which sections show in the menu. -->
 <nav>
   <div class="nav-inner">
-    <a href="#" class="logo">Mark Anjoul.</a>
+    <a href="#" class="logo">Mark Anjoul.</a> <!-- href="#" goes to the top of the page -->
     <ul class="nav-links">
-      <li><a href="#about">About</a></li>
-      <li><a href="#projects">Projects</a></li>
-      <li><a href="#experience">Experience</a></li>
-      <li><a href="#contact">Contact</a></li>
+      <li><a href="#about">About</a> <!-- jumps to <section id="about"> --> </li>
+      <li><a href="#projects">Projects</a> <!-- jumps to <section id="projects"> --> </li>
+      <li><a href="#experience">Experience</a> <!-- jumps to <section id="experience"> --> </li>
+      <li><a href="#contact">Contact</a> <!-- jumps to <section id="contact"> --> </li>
     </ul>
   </div>
 </nav>
 
 <!-- HERO -->
+<!-- Hero section: the first thing visitors see. -->
 <section class="hero">
   <div class="hero-content">
-    <div class="hero-label">CS @ University of South Florida</div>
+    <div class="hero-label">CS @ University of South Florida</div> <!-- small label text above the main headline -->
     <h1>Building at the intersection of <em>AI</em>, <em>Mobile</em> &amp; <em>Robotics</em></h1>
     <p>Undergraduate student and developer focused on making intelligent programs that understand and communicate with people.</p>
     <div class="hero-cta">
-      <a href="#projects" class="btn btn-primary">View my work ↓</a>
-      <a href="#contact" class="btn btn-secondary">Get in touch</a>
+      <a href="#projects" class="btn btn-primary">View my work ↓</a> <!-- button that scrolls to the Projects section -->
+      <a href="#contact" class="btn btn-secondary">Get in touch</a> <!-- button that scrolls to the Contact section -->
     </div>
   </div>
   <div class="scroll-hint">
@@ -41,8 +51,9 @@
 </section>
 
 <!-- ABOUT -->
+<!-- About section: update the bio, research, and skills shown here. -->
 <section id="about">
-  <div class="section-inner fade-in">
+  <div class="section-inner fade-in"> <!-- class="fade-in" makes this content animate into view as you scroll -->
     <div class="about-grid">
       <div class="about-text">
         <div class="section-label">About</div>
@@ -58,6 +69,7 @@
         </p>
       </div>
       <div class="about-details">
+        <!-- Detail cards are the little info boxes (Education, Research, etc.). Copy this block to add a new card and update the icon/title/text below. -->
         <div class="detail-card">
           <div class="icon">🎓</div>
           <h4>Education</h4>
@@ -84,6 +96,7 @@
 </section>
 
 <!-- PROJECTS -->
+<!-- Projects section: show off work, links, and tech used. Copy a .project-card block to add more projects. -->
 <section id="projects">
   <div class="section-inner">
     <div class="section-label fade-in">Projects</div>
@@ -93,10 +106,11 @@
     <div class="project-grid">
 
       <!-- AppNest -->
+      <!-- Project cards are repeated blocks. Copy this entire <div class="project-card"> block and update the title/description/tags/link to add a new project. -->
       <div class="project-card fade-in">
         <div class="project-type">Mobile App</div>
         <h3>AppNest</h3>
-        <p>.A job application tracker that parses pasted confirmation emails using Apple’s on-device NaturalLanguage framework (no APIs), with SwiftData persistence, a centralized design system, search/sort/filter options, CSV export, and a profile stats dashboard.</p>
+        <p>A job application tracker that parses pasted confirmation emails using Apple’s on-device NaturalLanguage framework (no APIs), with SwiftData persistence, a centralized design system, search/sort/filter options, CSV export, and a profile stats dashboard.</p>
         <div class="project-tags">
           <span>SwiftUI</span>
           <span>SwiftData</span>
@@ -104,7 +118,7 @@
           <span>NaturalLanguage</span>
           <span>AI</span>
         </div>
-        <a href="https://github.com/marcanjoul/AppNest" target="_blank" class="project-link">View project →</a>
+        <a href="https://github.com/marcanjoul/AppNest" target="_blank" class="project-link">View project →</a> <!-- target="_blank" opens the link in a new browser tab -->
       </div>
 
       <!-- Spotify Predictor -->
@@ -117,7 +131,7 @@
           <span>Scikit-learn</span>
           <span>Data Analysis</span>
         </div>
-        <a href="https://github.com/marcanjoul/hit-song-predictor" target="_blank" class="project-link">View project →</a>
+        <a href="https://github.com/marcanjoul/hit-song-predictor" target="_blank" class="project-link">View project →</a> <!-- opens in a new tab -->
       </div>
 
       <!-- Groov -->
@@ -131,7 +145,7 @@
           <span>Storyboard</span>
           <span>API</span>
         </div>
-        <a href="https://github.com/marcanjoul/Groov" target="_blank" class="project-link">View project →</a>
+        <a href="https://github.com/marcanjoul/Groov" target="_blank" class="project-link">View project →</a> <!-- opens in a new tab -->
       </div>
 
       <!-- Noteweb -->
@@ -144,7 +158,7 @@
           <span>Local LLM</span>
           <span>RAG</span>
         </div>
-        <a href="https://github.com/marcanjoul/NoteWeb" target="_blank" class="project-link">View project →</a>
+        <a href="https://github.com/marcanjoul/NoteWeb" target="_blank" class="project-link">View project →</a> <!-- opens in a new tab -->
       </div>
 
     </div>
@@ -152,6 +166,7 @@
 </section>
 
 <!-- EXPERIENCE -->
+<!-- Experience timeline: each item shows a role or milestone. Copy a .timeline-item block to add more entries. -->
 <section id="experience">
   <div class="section-inner">
     <div class="section-label fade-in">Experience</div>
@@ -184,6 +199,7 @@
 </section>
 
 <!-- CONTACT -->
+<!-- Contact section: update email, social links, and resume link here. -->
 <section id="contact">
   <div class="section-inner">
     <div class="contact-box fade-in">
@@ -191,21 +207,23 @@
       <h2 class="section-title">Let's connect.</h2>
       <p>I'm currently looking for Summer 2026 internships in AI, mobile development, and intelligent systems. If you're building something cool, I'd love to hear about it.</p>
       <div class="contact-links">
-        <a href="mailto:marc.anjoul@gmail.com" class="contact-link">✉ Email</a>
-        <a href="https://github.com/marcanjoul" target="_blank" class="contact-link">⌘ GitHub</a>
-        <a href="https://www.linkedin.com/in/markanjoul/" target="_blank" class="contact-link">in LinkedIn</a>
-        <a href="Mark_Anjoul_Resume.pdf" target="_blank" class="contact-link">📄 Resume</a>
+        <a href="mailto:marc.anjoul@gmail.com" class="contact-link">✉ Email</a> <!-- mailto: opens your email app to send a message -->
+        <a href="https://github.com/marcanjoul" target="_blank" class="contact-link">⌘ GitHub</a> <!-- opens in a new tab -->
+        <a href="https://www.linkedin.com/in/markanjoul/" target="_blank" class="contact-link">in LinkedIn</a> <!-- opens in a new tab -->
+        <a href="Mark_Anjoul_Resume.pdf" target="_blank" class="contact-link">📄 Resume</a> <!-- opens the resume PDF in a new tab -->
       </div>
     </div>
   </div>
 </section>
 
 <!-- FOOTER -->
+<!-- Footer is the bottom of the page. Update the copyright text here. -->
 <footer>
   <p>Built by Mark · © 2026</p>
 </footer>
 
 <!-- SCROLL ANIMATIONS -->
+<!-- This script watches elements with class="fade-in" and adds "visible" when they scroll into view, triggering the CSS fade-in animation. -->
 <script>
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {

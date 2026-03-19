@@ -1,30 +1,32 @@
+/* Root CSS variables: change these to update colors and theme across the whole site. */
 :root {
-  --bg: #0a0a0a;
-  --text: #FFFFFF;
-  --text-secondary: #B0B0B0;
-  --accent: #00D4FF;
-  --accent-light: #1E3A5F;
-  --card-bg: rgba(26, 26, 26, 0.4);
-  --card-border: rgba(255, 255, 255, 0.1);
-  --tag-bg: rgba(42, 42, 42, 0.5);
-  --nav-bg: rgba(10, 10, 10, 0.7);
-  --section-alt: rgba(20, 20, 20, 0.3);
-  --glass-glow: rgba(0, 212, 255, 0.15);
+  --bg: #0a0a0a; /* page background */
+  --text: #FFFFFF; /* main text color */
+  --text-secondary: #B0B0B0; /* subtitle / secondary text color */
+  --accent: #00D4FF; /* highlight color (links, buttons, labels) */
+  --accent-light: #1E3A5F; /* lighter accent used in gradients */
+  --card-bg: rgba(26, 26, 26, 0.4); /* background for cards/panels */
+  --card-border: rgba(255, 255, 255, 0.1); /* border color for cards/panels */
+  --tag-bg: rgba(42, 42, 42, 0.5); /* background for tag pills */
+  --nav-bg: rgba(10, 10, 10, 0.7); /* semi-transparent nav bar background */
+  --section-alt: rgba(20, 20, 20, 0.3); /* alternate section background */
+  --glass-glow: rgba(0, 212, 255, 0.15); /* glow highlight used in some elements */
 }
 
+/* Basic reset: removes default browser margins/padding and makes sizing easier to reason about. */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html {
-  scroll-behavior: smooth;
-  font-size: 16px;
+  scroll-behavior: smooth; /* smooth scrolling for in-page anchors */
+  font-size: 16px; /* base font size; 1rem equals this value */
 }
 
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'DM Sans', sans-serif; /* default font for most text */
   background: var(--bg);
   color: var(--text);
-  line-height: 1.7;
-  -webkit-font-smoothing: antialiased;
+  line-height: 1.7; /* space between lines of text */
+  -webkit-font-smoothing: antialiased; /* makes text look smoother on some browsers */
 }
 
 ::selection {
@@ -32,7 +34,7 @@ body {
   color: white;
 }
 
-/* ========== NAV ========== */
+/* Nav */
 nav {
   position: fixed;
   top: 0;
@@ -82,6 +84,7 @@ nav .nav-links a {
   position: relative;
 }
 
+/* ::after creates a tiny underline element that we can animate separately from the text. */
 nav .nav-links a::after {
   content: '';
   position: absolute;
@@ -96,7 +99,8 @@ nav .nav-links a::after {
 nav .nav-links a:hover { color: var(--accent); }
 nav .nav-links a:hover::after { width: 100%; }
 
-/* ========== HERO ========== */
+/* Hero */
+/* Hero section layout: full screen height and centered content. */
 .hero {
   min-height: 100vh;
   display: flex;
@@ -164,7 +168,7 @@ nav .nav-links a:hover::after { width: 100%; }
 
 .hero-cta {
   display: flex;
-  gap: 1rem;
+  gap: 1rem; /* space between items in a flex container */
   justify-content: center;
   flex-wrap: wrap;
   opacity: 0;
@@ -175,8 +179,8 @@ nav .nav-links a:hover::after { width: 100%; }
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.85rem 2rem;
-  border-radius: 100px;
+  padding: 0.85rem 2rem; /* space inside the button, vertical and horizontal */
+  border-radius: 100px; /* makes the button pill-shaped (rounded corners) */
   font-size: 0.88rem;
   font-weight: 500;
   text-decoration: none;
@@ -254,9 +258,10 @@ nav .nav-links a:hover::after { width: 100%; }
   animation: scrollDown 2s ease infinite;
 }
 
-/* ========== SECTIONS ========== */
+/* Sections  */
+/* General layout for each section (spacing around content). */
 section {
-  padding: 7rem 2rem;
+  padding: 7rem 2rem; /* vertical and horizontal space around each section */
 }
 
 .section-inner {
@@ -290,7 +295,7 @@ section {
   line-height: 1.7;
 }
 
-/* ========== ABOUT ========== */
+/*About */
 #about { background: var(--section-alt); }
 
 .about-grid {
@@ -492,7 +497,7 @@ section {
   opacity: 0.8;
 }
 
-/* ========== EXPERIENCE ========== */
+/* Experience */
 #experience { background: var(--section-alt); }
 
 .timeline {
@@ -618,7 +623,8 @@ footer {
   color: var(--text-secondary);
 }
 
-/* ========== ANIMATIONS ========== */
+/* Animations */
+/* @keyframes defines an animation sequence. You can use it by setting animation: <name> <duration> ... */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
@@ -640,7 +646,8 @@ footer {
   transform: translateY(0);
 }
 
-/* ========== RESPONSIVE ========== */
+/* Responsive */
+/* @media queries apply rules only when the screen is a certain size. This is how we make the layout work on phones and tablets. */
 @media (max-width: 768px) {
   nav .nav-links { display: none; }
 
