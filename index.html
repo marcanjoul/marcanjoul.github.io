@@ -1,47 +1,61 @@
 <!DOCTYPE html>
 <!--
-  This is a simple single-page portfolio site.
+  Mark Anjoul — Portfolio
   Structure:
-    - <nav> contains the top menu (links match section ids)
-    - <section id="..."> blocks hold the main content (hero, about, projects, etc.)
-    - A small script at the bottom adds fade-in animation when you scroll.
-  To update content, edit the matching <section id="..."> block below.
+    - <nav> top menu with contact CTA always visible
+    - <section> blocks: hero, about, skills, projects, experience, contact
+    - Project modals: clicking a card opens a full detail overlay
+    - Script at the bottom handles fade-in animations + modal logic
 -->
 <html lang="en">
-  <!-- The title that shows in the tab -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mark — CS @ USF | AI, Mobile & Robotics</title>
+<title>Mark Anjoul — CS @ USF | AI, Mobile & Robotics</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<!-- NAV -->
-<!-- Top navigation bar with in-page links. Edit/add <li> items to change which sections show in the menu. -->
+<!-- NAV — now includes a contact CTA button so recruiters always have a way to reach you -->
 <nav>
   <div class="nav-inner">
-    <a href="#" class="logo">Mark Anjoul.</a> <!-- href="#" goes to the top of the page -->
+    <a href="#" class="logo">Mark Anjoul.</a>
     <ul class="nav-links">
-      <li><a href="#about">About</a> <!-- jumps to <section id="about"> --> </li>
-      <li><a href="#projects">Projects</a> <!-- jumps to <section id="projects"> --> </li>
-      <li><a href="#experience">Experience</a> <!-- jumps to <section id="experience"> --> </li>
-      <li><a href="#contact">Contact</a> <!-- jumps to <section id="contact"> --> </li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#contact" class="nav-cta">Let's Talk</a></li>
     </ul>
+    <!-- Mobile menu button — only visible on small screens -->
+    <button class="mobile-menu-btn" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
 
+<!-- MOBILE NAV OVERLAY -->
+<div class="mobile-nav">
+  <button class="mobile-nav-close" aria-label="Close menu">✕</button>
+  <ul>
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</div>
+
 <!-- HERO -->
-<!-- Hero section: the first thing visitors see. -->
 <section class="hero">
   <div class="hero-content">
-    <div class="hero-label">CS @ University of South Florida</div> <!-- small label text above the main headline -->
+    <div class="hero-label">CS @ University of South Florida</div>
     <h1>Building at the intersection of <em>AI</em>, <em>Mobile</em> &amp; <em>Robotics</em></h1>
     <p>Undergraduate student and developer focused on making intelligent programs that understand and communicate with people.</p>
     <div class="hero-cta">
-      <a href="#projects" class="btn btn-primary">View my work ↓</a> <!-- button that scrolls to the Projects section -->
-      <a href="#contact" class="btn btn-secondary">Get in touch</a> <!-- button that scrolls to the Contact section -->
+      <a href="#projects" class="btn btn-primary">View my work ↓</a>
+      <a href="Mark_Anjoul_Resume.pdf" target="_blank" class="btn btn-secondary">Resume</a>
     </div>
   </div>
   <div class="scroll-hint">
@@ -51,9 +65,8 @@
 </section>
 
 <!-- ABOUT -->
-<!-- About section: update the bio, research, and skills shown here. -->
 <section id="about">
-  <div class="section-inner fade-in"> <!-- class="fade-in" makes this content animate into view as you scroll -->
+  <div class="section-inner fade-in">
     <div class="about-grid">
       <div class="about-text">
         <div class="section-label">About</div>
@@ -69,7 +82,6 @@
         </p>
       </div>
       <div class="about-details">
-        <!-- Detail cards are the little info boxes (Education, Research, etc.). Copy this block to add a new card and update the icon/title/text below. -->
         <div class="detail-card">
           <div class="icon">🎓</div>
           <h4>Education</h4>
@@ -95,78 +107,260 @@
   </div>
 </section>
 
-<!-- PROJECTS -->
-<!-- Projects section: show off work, links, and tech used. Copy a .project-card block to add more projects. -->
+<!-- SKILLS & TOOLS — new section -->
+<section id="skills">
+  <div class="section-inner">
+    <div class="section-label fade-in">Skills & Tools</div>
+    <h2 class="section-title fade-in">What I work with.</h2>
+    <p class="section-subtitle fade-in">Languages, frameworks, and tools I use to build things.</p>
+
+    <div class="skills-grid fade-in">
+      <!-- Each skill category is a group. Copy a .skill-group to add a new category. -->
+      <div class="skill-group">
+        <h3 class="skill-group-title">Languages</h3>
+        <div class="skill-items">
+          <div class="skill-item">Python</div>
+          <div class="skill-item">Swift</div>
+          <div class="skill-item">C / C++</div>
+          <div class="skill-item">Java</div>
+          <div class="skill-item">RISC-V Assembly</div>
+          <div class="skill-item">Verilog</div>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <h3 class="skill-group-title">Frameworks & Libraries</h3>
+        <div class="skill-items">
+          <div class="skill-item">SwiftUI</div>
+          <div class="skill-item">UIKit</div>
+          <div class="skill-item">Scikit-learn</div>
+          <div class="skill-item">vLLM</div>
+          <div class="skill-item">OpenCV</div>
+          <div class="skill-item">SwiftData</div>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <h3 class="skill-group-title">AI & Data</h3>
+        <div class="skill-items">
+          <div class="skill-item">Machine Learning</div>
+          <div class="skill-item">NLP</div>
+          <div class="skill-item">RAG</div>
+          <div class="skill-item">Computer Vision</div>
+          <div class="skill-item">LLM Inference</div>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <h3 class="skill-group-title">Tools & Platforms</h3>
+        <div class="skill-items">
+          <div class="skill-item">Git / GitHub</div>
+          <div class="skill-item">Xcode</div>
+          <div class="skill-item">VS Code</div>
+          <div class="skill-item">Postman</div>
+          <div class="skill-item">Raspberry Pi</div>
+          <div class="skill-item">Vivado</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS — cards now open modals on click -->
 <section id="projects">
   <div class="section-inner">
     <div class="section-label fade-in">Projects</div>
     <h2 class="section-title fade-in">Selected work.</h2>
-    <p class="section-subtitle fade-in">A mix of research, apps, and experiments — each one taught me something different.</p>
+    <p class="section-subtitle fade-in">Click any project to see details, features, and a link to the code.</p>
 
     <div class="project-grid">
 
       <!-- AppNest -->
-      <!-- Project cards are repeated blocks. Copy this entire <div class="project-card"> block and update the title/description/tags/link to add a new project. -->
-      <div class="project-card fade-in">
+      <div class="project-card fade-in" onclick="openModal('appnest')">
         <div class="project-type">Mobile App</div>
         <h3>AppNest</h3>
-        <p>A job application tracker that parses pasted confirmation emails using Apple’s on-device NaturalLanguage framework (no APIs), with SwiftData persistence, a centralized design system, search/sort/filter options, CSV export, and a profile stats dashboard.</p>
+        <p>A job application tracker with on-device AI email parsing, built entirely in SwiftUI.</p>
         <div class="project-tags">
           <span>SwiftUI</span>
           <span>SwiftData</span>
           <span>iOS</span>
-          <span>NaturalLanguage</span>
           <span>AI</span>
         </div>
-        <a href="https://github.com/marcanjoul/AppNest" target="_blank" class="project-link">View project →</a> <!-- target="_blank" opens the link in a new browser tab -->
+        <span class="project-link">View details →</span>
       </div>
 
       <!-- Spotify Predictor -->
-      <div class="project-card fade-in">
-        <div class="project-type">Data Science/ML/AI</div>
+      <div class="project-card fade-in" onclick="openModal('spotify')">
+        <div class="project-type">Data Science / ML</div>
         <h3>Spotify Hit Song Predictor</h3>
-        <p>Logistic regression model exploring whether audio features can predict hit songs. Key insight: individual features have weak predictive power — feature engineering is essential.</p>
+        <p>Logistic regression model exploring whether audio features can predict hit songs.</p>
         <div class="project-tags">
           <span>Python</span>
           <span>Scikit-learn</span>
           <span>Data Analysis</span>
         </div>
-        <a href="https://github.com/marcanjoul/hit-song-predictor" target="_blank" class="project-link">View project →</a> <!-- opens in a new tab -->
+        <span class="project-link">View details →</span>
       </div>
 
       <!-- Groov -->
-      <div class="project-card fade-in">
+      <div class="project-card fade-in" onclick="openModal('groov')">
         <div class="project-type">Mobile App</div>
         <h3>Groov</h3>
-        <p>iOS app that lets music lovers search for, track, and rate the albums they've listened to or save albums they want to check out later. What sets Groov apart is its attention to detail, making it a powerful tool for musical reflection and taste-building.</p>
+        <p>iOS app for music lovers to search, track, and rate albums they've listened to.</p>
         <div class="project-tags">
           <span>Swift</span>
           <span>UIKit</span>
           <span>Storyboard</span>
           <span>API</span>
         </div>
-        <a href="https://github.com/marcanjoul/Groov" target="_blank" class="project-link">View project →</a> <!-- opens in a new tab -->
+        <span class="project-link">View details →</span>
       </div>
 
-      <!-- Noteweb -->
-      <div class="project-card fade-in">
-        <div class="project-type">RAG/AI</div>
-        <h3>Noteweb</h3>
-        <p>A local-first RAG tool that semantically indexes and searches your documents using LLaMA 3 and vector embeddings.</p>
+      <!-- NoteWeb -->
+      <div class="project-card fade-in" onclick="openModal('noteweb')">
+        <div class="project-type">RAG / AI</div>
+        <h3>NoteWeb</h3>
+        <p>A local-first RAG tool that semantically indexes and searches your documents.</p>
         <div class="project-tags">
-          <span>AI</span>
-          <span>Local LLM</span>
+          <span>Python</span>
+          <span>LLaMA 3</span>
           <span>RAG</span>
         </div>
-        <a href="https://github.com/marcanjoul/NoteWeb" target="_blank" class="project-link">View project →</a> <!-- opens in a new tab -->
+        <span class="project-link">View details →</span>
       </div>
 
     </div>
   </div>
 </section>
 
+<!-- PROJECT MODALS — one per project. Each contains full details, features, and GitHub link. -->
+<!-- To add a new modal: copy a .modal block, change the id to match your openModal('id') call, and update content. -->
+
+<div class="modal-overlay" id="appnest">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('appnest')">✕</button>
+    <div class="modal-header">
+      <div class="project-type">Mobile App</div>
+      <h2>AppNest</h2>
+    </div>
+    <div class="modal-body">
+      <p>A job application tracker that parses pasted confirmation emails using Apple's on-device NaturalLanguage framework (no APIs), with SwiftData persistence, a centralized design system, search/sort/filter options, CSV export, and a profile stats dashboard.</p>
+      <h4>Features</h4>
+      <ul>
+        <li>On-device AI email parsing with NaturalLanguage framework</li>
+        <li>SwiftData persistence — no server, no accounts</li>
+        <li>Centralized design system for consistent UI</li>
+        <li>Search, sort, and filter applications</li>
+        <li>CSV export for spreadsheet tracking</li>
+        <li>Profile stats dashboard with application analytics</li>
+      </ul>
+      <h4>Built With</h4>
+      <div class="modal-tags">
+        <span>SwiftUI</span>
+        <span>SwiftData</span>
+        <span>NaturalLanguage</span>
+        <span>iOS 17+</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <a href="https://github.com/marcanjoul/AppNest" target="_blank" class="btn btn-primary">View on GitHub →</a>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="spotify">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('spotify')">✕</button>
+    <div class="modal-header">
+      <div class="project-type">Data Science / ML</div>
+      <h2>Spotify Hit Song Predictor</h2>
+    </div>
+    <div class="modal-body">
+      <p>Logistic regression model exploring whether audio features can predict hit songs. Key insight: individual features have weak predictive power — feature engineering is essential.</p>
+      <h4>Key Findings</h4>
+      <ul>
+        <li>Audio features alone are weak predictors of commercial success</li>
+        <li>Feature engineering and combination significantly improve accuracy</li>
+        <li>Explored danceability, energy, valence, tempo, and more</li>
+        <li>Built full data pipeline from Spotify API to model evaluation</li>
+      </ul>
+      <h4>Built With</h4>
+      <div class="modal-tags">
+        <span>Python</span>
+        <span>Scikit-learn</span>
+        <span>Pandas</span>
+        <span>Matplotlib</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <a href="https://github.com/marcanjoul/hit-song-predictor" target="_blank" class="btn btn-primary">View on GitHub →</a>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="groov">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('groov')">✕</button>
+    <div class="modal-header">
+      <div class="project-type">Mobile App</div>
+      <h2>Groov</h2>
+    </div>
+    <div class="modal-body">
+      <p>iOS app that lets music lovers search for, track, and rate the albums they've listened to or save albums they want to check out later. What sets Groov apart is its attention to detail, making it a powerful tool for musical reflection and taste-building.</p>
+      <h4>Features</h4>
+      <ul>
+        <li>Album search powered by external music API</li>
+        <li>Personal library with listened & want-to-listen lists</li>
+        <li>Star rating system for albums</li>
+        <li>Clean, detail-oriented UI built with UIKit</li>
+        <li>Storyboard-based navigation flow</li>
+      </ul>
+      <h4>Built With</h4>
+      <div class="modal-tags">
+        <span>Swift</span>
+        <span>UIKit</span>
+        <span>Storyboard</span>
+        <span>REST API</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <a href="https://github.com/marcanjoul/Groov" target="_blank" class="btn btn-primary">View on GitHub →</a>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="noteweb">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('noteweb')">✕</button>
+    <div class="modal-header">
+      <div class="project-type">RAG / AI</div>
+      <h2>NoteWeb</h2>
+    </div>
+    <div class="modal-body">
+      <p>A local-first RAG tool that semantically indexes and searches your documents using LLaMA 3 and vector embeddings. Everything runs locally — no cloud, no data leaves your machine.</p>
+      <h4>Features</h4>
+      <ul>
+        <li>Semantic search across local documents</li>
+        <li>LLaMA 3 for local LLM inference</li>
+        <li>Vector embeddings for document indexing</li>
+        <li>Fully offline — no cloud dependencies</li>
+        <li>RAG pipeline from ingestion to query</li>
+      </ul>
+      <h4>Built With</h4>
+      <div class="modal-tags">
+        <span>Python</span>
+        <span>LLaMA 3</span>
+        <span>RAG</span>
+        <span>Vector DB</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <a href="https://github.com/marcanjoul/NoteWeb" target="_blank" class="btn btn-primary">View on GitHub →</a>
+    </div>
+  </div>
+</div>
+
 <!-- EXPERIENCE -->
-<!-- Experience timeline: each item shows a role or milestone. Copy a .timeline-item block to add more entries. -->
 <section id="experience">
   <div class="section-inner">
     <div class="section-label fade-in">Experience</div>
@@ -199,7 +393,6 @@
 </section>
 
 <!-- CONTACT -->
-<!-- Contact section: update email, social links, and resume link here. -->
 <section id="contact">
   <div class="section-inner">
     <div class="contact-box fade-in">
@@ -207,24 +400,30 @@
       <h2 class="section-title">Let's connect.</h2>
       <p>I'm currently looking for Summer 2026 internships in AI, mobile development, and intelligent systems. If you're building something cool, I'd love to hear about it.</p>
       <div class="contact-links">
-        <a href="mailto:marc.anjoul@gmail.com" class="contact-link">✉ Email</a> <!-- mailto: opens your email app to send a message -->
-        <a href="https://github.com/marcanjoul" target="_blank" class="contact-link">⌘ GitHub</a> <!-- opens in a new tab -->
-        <a href="https://www.linkedin.com/in/markanjoul/" target="_blank" class="contact-link">in LinkedIn</a> <!-- opens in a new tab -->
-        <a href="Mark_Anjoul_Resume.pdf" target="_blank" class="contact-link">📄 Resume</a> <!-- opens the resume PDF in a new tab -->
+        <a href="mailto:marc.anjoul@gmail.com" class="contact-link">✉ Email</a>
+        <a href="https://github.com/marcanjoul" target="_blank" class="contact-link">⌘ GitHub</a>
+        <a href="https://www.linkedin.com/in/markanjoul/" target="_blank" class="contact-link">in LinkedIn</a>
+        <a href="Mark_Anjoul_Resume.pdf" target="_blank" class="contact-link">📄 Resume</a>
       </div>
     </div>
   </div>
 </section>
 
 <!-- FOOTER -->
-<!-- Footer is the bottom of the page. Update the copyright text here. -->
 <footer>
   <p>Built by Mark · © 2026</p>
 </footer>
 
-<!-- SCROLL ANIMATIONS -->
-<!-- This script watches elements with class="fade-in" and adds "visible" when they scroll into view, triggering the CSS fade-in animation. -->
+<!-- STICKY CONTACT BAR — always visible at the bottom on mobile -->
+<div class="sticky-contact">
+  <a href="mailto:marc.anjoul@gmail.com">✉ Email</a>
+  <a href="https://www.linkedin.com/in/markanjoul/" target="_blank">in LinkedIn</a>
+  <a href="Mark_Anjoul_Resume.pdf" target="_blank">📄 Resume</a>
+</div>
+
+<!-- SCRIPTS -->
 <script>
+  // Fade-in on scroll
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -232,8 +431,63 @@
       }
     });
   }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
-
   document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Modal open/close
+  function openModal(id) {
+    const modal = document.getElementById(id);
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // prevent background scroll
+  }
+
+  function closeModal(id) {
+    const modal = document.getElementById(id);
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Close modal when clicking outside the modal content
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+  });
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.active').forEach(m => {
+        m.classList.remove('active');
+      });
+      document.body.style.overflow = '';
+    }
+  });
+
+  // Mobile menu toggle
+  const menuBtn = document.querySelector('.mobile-menu-btn');
+  const mobileNav = document.querySelector('.mobile-nav');
+  const mobileNavClose = document.querySelector('.mobile-nav-close');
+
+  menuBtn.addEventListener('click', () => {
+    mobileNav.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  });
+
+  mobileNavClose.addEventListener('click', () => {
+    mobileNav.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  // Close mobile nav when clicking a link
+  mobileNav.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileNav.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+  });
 </script>
 
 </body>
