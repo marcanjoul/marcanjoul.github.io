@@ -1,6 +1,2 @@
-# Assets
-*assets
-
-# Static files
-favicon.svg
-og.png
+# macOS
+.DS_Store
