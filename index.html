@@ -11,12 +11,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mark Anjoul's Portfolio</title>
+<title>Mark Anjoul — CS @ USF, building AI, mobile & robotics</title>
+<meta name="description" content="Mark Anjoul is a Computer Science student and developer at USF, working on AI, mobile, and robotics. Undergraduate researcher at the RARE Lab building on-device AI and LLM inference.">
+<meta name="theme-color" content="#0c0b0a">
+<link rel="canonical" href="https://markanjoul.com/">
+
+<!-- Open Graph / social preview -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://markanjoul.com/">
+<meta property="og:title" content="Mark Anjoul — CS @ USF, building AI, mobile & robotics">
+<meta property="og:description" content="Undergraduate researcher at USF's RARE Lab. Building intelligent, user-facing software across AI, mobile, and robotics.">
+<meta property="og:image" content="https://markanjoul.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mark Anjoul — CS @ USF, building AI, mobile & robotics">
+<meta name="twitter:description" content="Undergraduate researcher at USF's RARE Lab. Building intelligent software across AI, mobile, and robotics.">
+<meta name="twitter:image" content="https://markanjoul.com/og.png">
+
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <main></main>
+<!-- Scroll progress indicator -->
+<div class="scroll-progress" aria-hidden="true"></div>
 <!-- NAV — includes a contact CTA button for easy reach -->
 <nav>
   <div class="nav-inner">
@@ -26,6 +46,7 @@
       <li><a href="#skills">Skills</a></li>
       <li><a href="#projects">Projects</a></li>
       <li><a href="#experience">Experience</a></li>
+      <li><button class="cmdk-trigger" aria-label="Open command menu" aria-keyshortcuts="Meta+K Control+K"><span>⌘</span>K</button></li>
       <li><a href="#contact" class="nav-cta">Let's Talk</a></li>
     </ul>
     <!-- Mobile menu button — only visible on small screens -->
@@ -49,6 +70,7 @@
 
 <!-- HERO -->
 <section class="hero">
+  <canvas class="hero-canvas" aria-hidden="true"></canvas>
   <div class="hero-content">
     <div class="hero-label">CS @ University of South Florida</div>
     <h1>Building at the intersection of <em>AI</em>, <em>Mobile</em> &amp; <em>Robotics</em></h1>
@@ -203,8 +225,8 @@
 
     <div class="project-grid">
 
-      <!-- AppNest — featured (spans full width) -->
-      <article class="project-card project-feature fade-in" onclick="openModal('appnest')">
+      <!-- AppNest -->
+      <article class="project-card fade-in" onclick="openModal('appnest')">
         <div class="project-type">Mobile App</div>
         <h3>AppNest</h3>
         <p>A job application tracker with on-device AI email parsing, built entirely in SwiftUI.</p>
@@ -272,6 +294,22 @@
       <h2>AppNest</h2>
     </div>
     <div class="modal-body">
+      <div class="demo">
+        <div class="phone">
+          <span class="phone-notch"></span>
+          <video class="phone-screen" id="appnest-video" poster="assets/appnest/poster.jpg" muted loop playsinline preload="none"></video>
+        </div>
+        <div class="demo-side">
+          <h4>See it work</h4>
+          <p class="demo-caption">Recorded on device. The parser reads a pasted confirmation email and fills in the company, role, and date, with no network calls.</p>
+          <div class="demo-thumbs" role="tablist" aria-label="AppNest demos">
+            <button class="demo-thumb is-active" data-src="assets/appnest/parse-email.mp4" aria-selected="true">Parse email</button>
+            <button class="demo-thumb" data-src="assets/appnest/parse-link.mp4" aria-selected="false">Parse link</button>
+            <button class="demo-thumb" data-src="assets/appnest/import-csv.mp4" aria-selected="false">Import CSV</button>
+            <button class="demo-thumb" data-src="assets/appnest/manual-entry.mp4" aria-selected="false">Manual entry</button>
+          </div>
+        </div>
+      </div>
       <p>A job application tracker that parses pasted confirmation emails using Apple's on-device NaturalLanguage framework (no APIs), with SwiftData persistence, a centralized design system, search/sort/filter options, CSV export, and a profile stats dashboard.</p>
       <h4>Features</h4>
       <ul>
@@ -428,10 +466,26 @@
       <h2 class="section-title">Let's connect.</h2>
       <p>I'm currently looking for Summer 2026 internships in AI, mobile development, and intelligent systems. If you're building something cool, I'd love to hear about it.</p>
       <div class="contact-links">
-        <a href="mailto:marc.anjoul@gmail.com" class="contact-link">Email</a>
-        <a href="https://github.com/marcanjoul" target="_blank" class="contact-link">GitHub</a>
-        <a href="https://www.linkedin.com/in/markanjoul/" target="_blank" class="contact-link">LinkedIn</a>
-        <a href="Mark_Anjoul_Resume.pdf" target="_blank" class="contact-link">Résumé</a>
+        <a href="mailto:marc.anjoul@gmail.com" class="contact-link">
+          <span class="cl-label">Email</span>
+          <span class="cl-meta">marc.anjoul@gmail.com</span>
+          <span class="cl-arrow" aria-hidden="true">→</span>
+        </a>
+        <a href="https://github.com/marcanjoul" target="_blank" class="contact-link">
+          <span class="cl-label">GitHub</span>
+          <span class="cl-meta">github.com/marcanjoul</span>
+          <span class="cl-arrow" aria-hidden="true">↗</span>
+        </a>
+        <a href="https://www.linkedin.com/in/markanjoul/" target="_blank" class="contact-link">
+          <span class="cl-label">LinkedIn</span>
+          <span class="cl-meta">in/markanjoul</span>
+          <span class="cl-arrow" aria-hidden="true">↗</span>
+        </a>
+        <a href="Mark_Anjoul_Resume.pdf" target="_blank" class="contact-link">
+          <span class="cl-label">Résumé</span>
+          <span class="cl-meta">PDF, one page</span>
+          <span class="cl-arrow" aria-hidden="true">↗</span>
+        </a>
       </div>
     </div>
   </div>
@@ -448,6 +502,19 @@
   <a href="mailto:marc.anjoul@gmail.com">Email</a>
   <a href="https://www.linkedin.com/in/markanjoul/" target="_blank">LinkedIn</a>
   <a href="Mark_Anjoul_Resume.pdf" target="_blank">Résumé</a>
+</div>
+
+<!-- COMMAND PALETTE (⌘K) -->
+<div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="Command menu">
+  <div class="cmdk-panel">
+    <div class="cmdk-search">
+      <svg class="cmdk-search-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M21 21l-4.3-4.3M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/></svg>
+      <input type="text" id="cmdk-input" placeholder="Jump to a section, project, or link…" aria-label="Search commands" autocomplete="off" spellcheck="false">
+      <kbd class="cmdk-esc">ESC</kbd>
+    </div>
+    <ul class="cmdk-list" id="cmdk-list" role="listbox" aria-label="Commands"></ul>
+    <div class="cmdk-empty" id="cmdk-empty" hidden>No matches.</div>
+  </div>
 </div>
 
 <!-- SCRIPTS -->
@@ -476,17 +543,44 @@
     });
   }
 
+  // AppNest demo player: lazy-load video only when the modal is opened.
+  const anVideo = document.getElementById('appnest-video');
+  function playAppnestDemo(src) {
+    if (!anVideo) return;
+    if (anVideo.getAttribute('src') !== src) {
+      anVideo.setAttribute('src', src);
+      anVideo.load();
+    }
+    anVideo.play().catch(() => {});
+  }
+  document.querySelectorAll('.demo-thumb').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.demo-thumb').forEach(b => {
+        b.classList.remove('is-active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-selected', 'true');
+      playAppnestDemo(btn.dataset.src);
+    });
+  });
+
   // Modal open/close
   function openModal(id) {
     const modal = document.getElementById(id);
     modal.classList.add('active');
     document.body.style.overflow = 'hidden'; // prevent background scroll
+    if (id === 'appnest') {
+      const active = document.querySelector('.demo-thumb.is-active');
+      if (active) playAppnestDemo(active.dataset.src);
+    }
   }
 
   function closeModal(id) {
     const modal = document.getElementById(id);
     modal.classList.remove('active');
     document.body.style.overflow = '';
+    if (id === 'appnest' && anVideo) anVideo.pause();
   }
 
   // Close modal when clicking outside the modal content
@@ -495,6 +589,7 @@
       if (e.target === overlay) {
         overlay.classList.remove('active');
         document.body.style.overflow = '';
+        if (anVideo) anVideo.pause();
       }
     });
   });
@@ -502,10 +597,12 @@
   // Close modal with Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      document.querySelectorAll('.modal-overlay.active').forEach(m => {
-        m.classList.remove('active');
-      });
-      document.body.style.overflow = '';
+      const open = document.querySelectorAll('.modal-overlay.active');
+      if (open.length) {
+        open.forEach(m => m.classList.remove('active'));
+        document.body.style.overflow = '';
+        if (anVideo) anVideo.pause();
+      }
     }
   });
 
@@ -531,6 +628,168 @@
       document.body.style.overflow = '';
     });
   });
+
+  // ---------- Scroll progress (transform-based, off main paint) ----------
+  (function scrollProgress() {
+    const bar = document.querySelector('.scroll-progress');
+    if (!bar) return;
+    const update = () => {
+      const el = document.documentElement;
+      const max = el.scrollHeight - el.clientHeight;
+      bar.style.transform = 'scaleX(' + (max > 0 ? el.scrollTop / max : 0) + ')';
+    };
+    document.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  })();
+
+  // ---------- Hero neural-node field (ties the visual to the AI theme) ----------
+  (function heroField() {
+    const canvas = document.querySelector('.hero-canvas');
+    if (!canvas) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const ctx = canvas.getContext('2d');
+    let w = 0, h = 0, dpr = 1, nodes = [], raf = null, running = false;
+    const mouse = { x: -9999, y: -9999 };
+
+    function resize() {
+      const r = canvas.getBoundingClientRect();
+      w = r.width; h = r.height;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const target = Math.max(14, Math.round(Math.min(64, (w * h) / 17000)));
+      nodes = [];
+      for (let i = 0; i < target; i++) {
+        nodes.push({ x: Math.random() * w, y: Math.random() * h,
+                     vx: (Math.random() - 0.5) * 0.16, vy: (Math.random() - 0.5) * 0.16 });
+      }
+    }
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      for (const n of nodes) {
+        if (!reduce) { n.x += n.vx; n.y += n.vy;
+          if (n.x < 0 || n.x > w) n.vx *= -1;
+          if (n.y < 0 || n.y > h) n.vy *= -1; }
+      }
+      const LINK = 132, MLINK = 168;
+      for (let i = 0; i < nodes.length; i++) {
+        const a = nodes[i];
+        for (let j = i + 1; j < nodes.length; j++) {
+          const b = nodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy;
+          if (d2 < LINK * LINK) {
+            const o = (1 - Math.sqrt(d2) / LINK) * 0.28;
+            ctx.strokeStyle = 'rgba(0,212,255,' + o + ')';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          }
+        }
+        const mdx = a.x - mouse.x, mdy = a.y - mouse.y, md2 = mdx * mdx + mdy * mdy;
+        const near = md2 < MLINK * MLINK;
+        if (near) {
+          const o = 1 - Math.sqrt(md2) / MLINK;
+          ctx.strokeStyle = 'rgba(0,212,255,' + (o * 0.55) + ')';
+          ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
+        }
+        ctx.fillStyle = near ? 'rgba(0,212,255,0.85)' : 'rgba(0,212,255,0.38)';
+        ctx.beginPath(); ctx.arc(a.x, a.y, near ? 2.1 : 1.4, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    function loop() { draw(); raf = requestAnimationFrame(loop); }
+    function start() { if (running) return; running = true; reduce ? draw() : (raf = requestAnimationFrame(loop)); }
+    function stop() { running = false; if (raf) cancelAnimationFrame(raf); }
+
+    resize();
+    window.addEventListener('resize', resize);
+    if (fine && !reduce) {
+      const heroEl = canvas.parentElement;   // track across the whole hero, even over the text
+      heroEl.addEventListener('pointermove', (e) => {
+        const r = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
+      });
+      heroEl.addEventListener('pointerleave', () => { mouse.x = -9999; mouse.y = -9999; });
+    }
+    new IntersectionObserver((ents) => {
+      ents.forEach(en => en.isIntersecting ? start() : stop());
+    }, { threshold: 0 }).observe(canvas);
+  })();
+
+  // ---------- Command palette (⌘K) ----------
+  (function commandPalette() {
+    const overlay = document.getElementById('cmdk');
+    const input = document.getElementById('cmdk-input');
+    const list = document.getElementById('cmdk-list');
+    const empty = document.getElementById('cmdk-empty');
+    if (!overlay) return;
+
+    const go = (hash) => { closeCmdk(); document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth' }); };
+    const ext = (url) => { closeCmdk(); window.open(url, '_blank', 'noopener'); };
+    const cmds = [
+      { g: 'Navigate', label: 'About', do: () => go('#about') },
+      { g: 'Navigate', label: 'Skills & Tools', do: () => go('#skills') },
+      { g: 'Navigate', label: 'Projects', do: () => go('#projects') },
+      { g: 'Navigate', label: 'Experience', do: () => go('#experience') },
+      { g: 'Navigate', label: 'Contact', do: () => go('#contact') },
+      { g: 'Open project', label: 'AppNest', hint: 'Mobile App', do: () => { closeCmdk(); openModal('appnest'); } },
+      { g: 'Open project', label: 'Spotify Hit Song Predictor', hint: 'Data Science / ML', do: () => { closeCmdk(); openModal('spotify'); } },
+      { g: 'Open project', label: 'Groov', hint: 'Mobile App', do: () => { closeCmdk(); openModal('groov'); } },
+      { g: 'Open project', label: 'NoteWeb', hint: 'RAG / AI', do: () => { closeCmdk(); openModal('noteweb'); } },
+      { g: 'Links', label: 'Email', hint: 'marc.anjoul@gmail.com', do: () => { closeCmdk(); location.href = 'mailto:marc.anjoul@gmail.com'; } },
+      { g: 'Links', label: 'GitHub', hint: 'github.com/marcanjoul', do: () => ext('https://github.com/marcanjoul') },
+      { g: 'Links', label: 'LinkedIn', hint: 'in/markanjoul', do: () => ext('https://www.linkedin.com/in/markanjoul/') },
+      { g: 'Links', label: 'Résumé', hint: 'PDF', do: () => ext('Mark_Anjoul_Resume.pdf') },
+    ];
+    let filtered = [], sel = 0, isOpen = false;
+
+    function render(q = '') {
+      q = q.trim().toLowerCase();
+      filtered = cmds.filter(c => !q || c.label.toLowerCase().includes(q) ||
+        (c.hint && c.hint.toLowerCase().includes(q)) || c.g.toLowerCase().includes(q));
+      if (sel >= filtered.length) sel = Math.max(0, filtered.length - 1);
+      list.innerHTML = '';
+      empty.hidden = filtered.length > 0;
+      let lastG = null;
+      filtered.forEach((c, i) => {
+        if (c.g !== lastG) {
+          const hdr = document.createElement('li');
+          hdr.className = 'cmdk-group'; hdr.textContent = c.g; hdr.setAttribute('aria-hidden', 'true');
+          list.appendChild(hdr); lastG = c.g;
+        }
+        const li = document.createElement('li');
+        li.className = 'cmdk-item' + (i === sel ? ' is-sel' : '');
+        li.setAttribute('role', 'option'); li.dataset.i = i;
+        li.innerHTML = '<span>' + c.label + '</span>' + (c.hint ? '<span class="cmdk-hint">' + c.hint + '</span>' : '');
+        li.addEventListener('click', () => c.do());
+        li.addEventListener('pointermove', () => { if (sel !== i) { sel = i; highlight(); } });
+        list.appendChild(li);
+      });
+    }
+    function highlight() {
+      list.querySelectorAll('.cmdk-item').forEach(el => el.classList.toggle('is-sel', +el.dataset.i === sel));
+      list.querySelector('.is-sel')?.scrollIntoView({ block: 'nearest' });
+    }
+    function openCmdk() {
+      isOpen = true; overlay.classList.add('active'); document.body.style.overflow = 'hidden';
+      input.value = ''; sel = 0; render(); setTimeout(() => input.focus(), 20);
+    }
+    function closeCmdk() { isOpen = false; overlay.classList.remove('active'); document.body.style.overflow = ''; }
+    window.closeCmdk = closeCmdk;
+
+    input.addEventListener('input', () => { sel = 0; render(input.value); });
+    document.querySelector('.cmdk-trigger')?.addEventListener('click', openCmdk);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeCmdk(); });
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); isOpen ? closeCmdk() : openCmdk(); return; }
+      if (!isOpen) return;
+      if (e.key === 'Escape') { e.preventDefault(); closeCmdk(); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); sel = Math.min(sel + 1, filtered.length - 1); highlight(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); sel = Math.max(sel - 1, 0); highlight(); }
+      else if (e.key === 'Enter') { e.preventDefault(); filtered[sel]?.do(); }
+    });
+  })();
 </script>
 
 </body>
