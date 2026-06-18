@@ -339,8 +339,13 @@
   <div class="modal">
     <button class="modal-close" onclick="closeModal('appnest')">✕</button>
     <div class="modal-header">
-      <div class="project-type">Mobile App</div>
-      <h2>AppNest</h2>
+      <div class="modal-header-row">
+        <img class="modal-logo" src="assets/appnest/logo.png" alt="AppNest logo">
+        <div>
+          <div class="project-type">Mobile App</div>
+          <h2>AppNest</h2>
+        </div>
+      </div>
     </div>
     <div class="modal-body">
       <div class="demo">
@@ -479,10 +484,30 @@
   <div class="modal">
     <button class="modal-close" onclick="closeModal('hco-ois')">✕</button>
     <div class="modal-header">
-      <div class="project-type">Web App</div>
-      <h2>OIS Competition Tracker</h2>
+      <div class="modal-header-row">
+        <img class="modal-logo" src="assets/hco-ois/logo.png" alt="OIS Competition Tracker logo">
+        <div>
+          <div class="project-type">Web App</div>
+          <h2>OIS Competition Tracker</h2>
+        </div>
+      </div>
     </div>
     <div class="modal-body">
+      <div class="demo">
+        <div class="browser-frame">
+          <div class="browser-bar"><span></span><span></span><span></span></div>
+          <img class="browser-screen" id="hco-ois-screen" src="assets/hco-ois/screen-home.png" alt="OIS Competition Tracker screenshot">
+        </div>
+        <div class="demo-side">
+          <h4>See it work</h4>
+          <p class="demo-caption">Live screenshots from the deployed app. Click to enlarge. Names and the one profile photo on the leaderboard are blurred for teammate privacy.</p>
+          <div class="demo-thumbs" role="tablist" aria-label="OIS Competition Tracker demos">
+            <button class="demo-thumb is-active" data-src="assets/hco-ois/screen-home.png" aria-selected="true">Home</button>
+            <button class="demo-thumb" data-src="assets/hco-ois/screen-leaderboard.png" aria-selected="false">Leaderboard</button>
+            <button class="demo-thumb" data-src="assets/hco-ois/screen-login.png" aria-selected="false">Manager</button>
+          </div>
+        </div>
+      </div>
       <p>A fast, game-like retail competition web app built for my retail job. Associates log daily OIS (orders in store) performance, the app computes sales-per-hour automatically, and everyone can see where they stand on a live leaderboard. Managers get a PIN-protected admin view to oversee the competition.</p>
       <h4>Features</h4>
       <ul>
@@ -501,7 +526,8 @@
       </div>
     </div>
     <div class="modal-footer">
-      <a href="https://github.com/marcanjoul/hco-ois-competition" target="_blank" class="btn btn-primary">View on GitHub →</a>
+      <a href="https://hco-ois.vercel.app/" target="_blank" class="btn btn-primary">View Live Site →</a>
+      <a href="https://github.com/marcanjoul/hco-ois-competition" target="_blank" class="btn btn-secondary">View on GitHub →</a>
     </div>
   </div>
 </article>
@@ -637,6 +663,12 @@
 </footer>
 </main>
 
+<!-- LIGHTBOX — enlarged view for project screenshots -->
+<div class="lightbox-overlay" id="lightbox">
+  <button class="lightbox-close" aria-label="Close">✕</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
 <!-- STICKY CONTACT BAR — always visible at the bottom on mobile -->
 <div class="sticky-contact">
   <a href="mailto:marc.anjoul@gmail.com">Email</a>
@@ -725,15 +757,20 @@
     }
     anVideo.play().catch(() => {});
   }
+  const hcoScreen = document.getElementById('hco-ois-screen');
   document.querySelectorAll('.demo-thumb').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.demo-thumb').forEach(b => {
+      btn.closest('.demo-thumbs').querySelectorAll('.demo-thumb').forEach(b => {
         b.classList.remove('is-active');
         b.setAttribute('aria-selected', 'false');
       });
       btn.classList.add('is-active');
       btn.setAttribute('aria-selected', 'true');
-      playAppnestDemo(btn.dataset.src);
+      if (btn.dataset.src.endsWith('.mp4')) {
+        playAppnestDemo(btn.dataset.src);
+      } else if (hcoScreen) {
+        hcoScreen.src = btn.dataset.src;
+      }
     });
   });
 
@@ -769,6 +806,10 @@
   // Close modal with Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      if (lightbox.classList.contains('active')) {
+        closeLightbox();
+        return;
+      }
       const open = document.querySelectorAll('.modal-overlay.active');
       if (open.length) {
         open.forEach(m => m.classList.remove('active'));
@@ -777,6 +818,25 @@
       }
     }
   });
+
+  // Lightbox: enlarged view for project screenshots
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  function openLightbox(src, alt) {
+    lightboxImg.src = src;
+    lightboxImg.alt = alt;
+    lightbox.classList.add('active');
+  }
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+  }
+  document.querySelectorAll('.browser-screen').forEach(img => {
+    img.addEventListener('click', () => openLightbox(img.src, img.alt));
+  });
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+  document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
 
   // Mobile menu toggle
   const menuBtn = document.querySelector('.mobile-menu-btn');

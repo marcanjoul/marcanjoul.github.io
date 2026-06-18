@@ -1,2 +1,5 @@
 # macOS
 .DS_Store
+
+# Playwright CLI debug artifacts
+.playwright-cli/
