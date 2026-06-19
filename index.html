@@ -29,7 +29,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.css">
 
-<!-- Google Fonts: Shantell Sans + Cabin + Cabin Sketch + Outfit -->
+<!-- Google Font Cabin Sketch and Shantell Sans-->
 <link href="https://fonts.googleapis.com/css2?family=Cabin:wght@400;700&family=Cabin+Sketch:wght@400;700&family=Outfit:wght@300;400;600&family=Shantell+Sans:wght@300..700&display=swap" rel="stylesheet">
 
 <style>
@@ -546,9 +546,11 @@ body.dark-mode .chapter-inner {
   pointer-events: none;
 }
 
-.compressed-project-row:hover {
-  transform: rotate(-0.5deg) scale(1.01);
-  background: var(--paper-2);
+@media (hover: hover) and (pointer: fine) {
+  .compressed-project-row:hover {
+    transform: rotate(-0.5deg) scale(1.01);
+    background: var(--paper-2);
+  }
 }
 
 .compressed-title-group h4 {
@@ -772,12 +774,6 @@ body.dark-mode .usf-logo {
   margin-bottom: 1.1rem;
   font-weight: 700;
 }
-#projects .chapter-title,
-#experience .chapter-title,
-#contact .chapter-title {
-  font-family: 'Cabin', var(--font-display);
-}
-
 .chapter-hero h2.split {
   font-family: var(--font-display);
   font-size: clamp(1.8rem, 4.2vw, 2.6rem);
@@ -824,6 +820,16 @@ body.dark-mode .detail-card {
   border-color: rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
   background: #111a36;
 }
+.detail-card .skill-icon-wrapper {
+  width: 2.8rem;
+  height: 2.8rem;
+  margin-bottom: 0.6rem;
+}
+.detail-card .skill-icon { width: 1.4rem; height: 1.4rem; }
+.detail-icon-education { --skill-color: var(--accent); }
+.detail-icon-research { --skill-color: #c2562a; }
+.detail-icon-languages { --skill-color: #1f9d55; }
+.detail-icon-tools { --skill-color: #8a4baf; }
 .detail-card h4 {
   font-family: 'Cabin Sketch', var(--font-display);
   font-weight: 700;
@@ -857,8 +863,10 @@ body.dark-mode .pill-list li {
 }
 .pill-list li::before { content: '✦ '; color: var(--accent); }
 body.dark-mode .pill-list li::before { color: var(--yellow); }
-.pill-list li:hover { background: var(--paper-2); animation: wiggle 0.35s ease-in-out; }
-body.dark-mode .pill-list li:hover { background: #222d4f; }
+@media (hover: hover) and (pointer: fine) {
+  .pill-list li:hover { background: var(--paper-2); animation: wiggle 0.35s ease-in-out; }
+  body.dark-mode .pill-list li:hover { background: #222d4f; }
+}
 
 /* ========== SKILLS GRID STYLES ========== */
 .skills-grid {
@@ -924,20 +932,22 @@ body.dark-mode .pill-list li:hover { background: #222d4f; }
 .skill-item.css3 { --skill-color: #1572B6; }
 .skill-item.jupyter { --skill-color: #F37626; }
 .skill-item.raspberry-pi { --skill-color: #C51A4A; }
-.skill-item:hover {
-  transform: scale(1.05) rotate(2deg);
-}
-.skill-item:hover .skill-icon-wrapper {
-  box-shadow: 4px 4px 0 var(--ink);
-  transform: translate(-2px, -2px);
-}
 body.dark-mode .skill-icon-wrapper {
   border-color: var(--yellow);
   box-shadow: 2px 2px 0 var(--yellow);
   color: var(--yellow);
 }
-body.dark-mode .skill-item:hover .skill-icon-wrapper {
-  box-shadow: 4px 4px 0 var(--yellow);
+@media (hover: hover) and (pointer: fine) {
+  .skill-item:hover {
+    transform: scale(1.05) rotate(2deg);
+  }
+  .skill-item:hover .skill-icon-wrapper {
+    box-shadow: 4px 4px 0 var(--ink);
+    transform: translate(-2px, -2px);
+  }
+  body.dark-mode .skill-item:hover .skill-icon-wrapper {
+    box-shadow: 4px 4px 0 var(--yellow);
+  }
 }
 
 /* ========== PROJECTS ========== */
@@ -966,16 +976,18 @@ body.dark-mode .project-card {
 }
 .project-card:nth-child(odd) { transform: rotate(calc(-0.5deg * var(--doodle-opacity))); }
 .project-card:nth-child(even) { transform: rotate(calc(0.5deg * var(--doodle-opacity))); }
-.project-card:hover {
-  transform: translateY(-4px) !important;
-  box-shadow: 
-    calc(6px * var(--doodle-opacity)) calc(6px * var(--doodle-opacity)) 0 var(--accent),
-    0 calc(12px * var(--modern-opacity)) calc(36px * var(--modern-opacity)) rgba(0, 0, 0, calc(0.08 * var(--modern-opacity))) !important;
-}
-body.dark-mode .project-card:hover {
-  box-shadow: 
-    calc(6px * var(--doodle-opacity)) calc(6px * var(--doodle-opacity)) 0 var(--accent),
-    0 calc(12px * var(--modern-opacity)) calc(36px * var(--modern-opacity)) rgba(0, 0, 0, calc(0.42 * var(--modern-opacity))) !important;
+@media (hover: hover) and (pointer: fine) {
+  .project-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow:
+      calc(6px * var(--doodle-opacity)) calc(6px * var(--doodle-opacity)) 0 var(--accent),
+      0 calc(12px * var(--modern-opacity)) calc(36px * var(--modern-opacity)) rgba(0, 0, 0, calc(0.08 * var(--modern-opacity))) !important;
+  }
+  body.dark-mode .project-card:hover {
+    box-shadow:
+      calc(6px * var(--doodle-opacity)) calc(6px * var(--doodle-opacity)) 0 var(--accent),
+      0 calc(12px * var(--modern-opacity)) calc(36px * var(--modern-opacity)) rgba(0, 0, 0, calc(0.42 * var(--modern-opacity))) !important;
+  }
 }
 .project-type { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); font-weight: 600; }
 body.dark-mode .project-type { color: var(--yellow); }
@@ -990,8 +1002,10 @@ body.dark-mode .project-type { color: var(--yellow); }
 .tag-list { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.3rem 0 0.2rem; }
 .tag-list li { font-size: 0.74rem; color: var(--ink-3); border: 1.5px solid rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important; border-radius: 999px; padding: 0.2rem 0.6rem; transition: background-color 0.2s, border-color 0.3s ease; }
 body.dark-mode .tag-list li { color: rgba(248, 250, 252, 0.5); border-color: rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important; }
-.tag-list li:hover { background: var(--paper-2); animation: wiggle 0.35s ease-in-out; }
-body.dark-mode .tag-list li:hover { background: #222d4f; }
+@media (hover: hover) and (pointer: fine) {
+  .tag-list li:hover { background: var(--paper-2); animation: wiggle 0.35s ease-in-out; }
+  body.dark-mode .tag-list li:hover { background: #222d4f; }
+}
 .project-link { font-size: 0.88rem; font-weight: 600; color: var(--ink); border-bottom: 1.5px solid var(--ink); width: fit-content; }
 body.dark-mode .project-link { color: #f8fafc; border-bottom-color: #f8fafc; }
 .project-link:hover { border-color: var(--accent); color: var(--accent); }
@@ -1116,7 +1130,7 @@ body.dark-mode .timeline-item::before { color: var(--yellow); }
 .timeline-item .date { font-size: 0.8rem; color: var(--ink-3); display: block; margin-bottom: 0.35rem; }
 body.dark-mode .timeline-item .date { color: var(--ink-3); }
 .timeline-item h3 {
-  font-family: 'Cabin', var(--font-display);
+  font-family: 'Cabin Sketch', var(--font-display);
   font-weight: 700;
   font-size: 1.45rem;
   color: var(--ink);
@@ -1127,12 +1141,18 @@ body.dark-mode .timeline-item .org { color: var(--yellow); }
 .timeline-item p { font-size: 0.92rem; margin: 0; }
 
 /* ========== CONTACT ========== */
-.contact-links { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 1.8rem; }
+.contact-links {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1.8rem;
+}
 .contact-link {
-  display: flex; align-items: center; justify-content: space-between;
+  position: relative;
+  display: flex; flex-direction: column; align-items: flex-start;
   border: 1.5px solid rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
   border-radius: var(--contact-radius, 16px 4px 16px 4px) !important;
-  padding: 1rem 1.2rem;
+  padding: 1.2rem;
   background: var(--paper);
   transition: border-color 0.3s ease, background-color 0.2s, transform 0.2s var(--ease-expo), border-radius 0.5s ease;
 }
@@ -1140,17 +1160,47 @@ body.dark-mode .contact-link {
   background: #17203a;
   border-color: rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
 }
-.contact-link:hover { border-color: var(--accent) !important; background: var(--paper-2); transform: translateX(4px); }
-body.dark-mode .contact-link:hover { border-color: var(--yellow) !important; background: #222d4f; }
+@media (hover: hover) and (pointer: fine) {
+  .contact-link:hover { border-color: var(--accent) !important; background: var(--paper-2); transform: translate(-2px, -2px); }
+  body.dark-mode .contact-link:hover { border-color: var(--yellow) !important; background: #222d4f; }
+  .contact-link:hover .cl-icon-wrapper { box-shadow: 4px 4px 0 var(--ink); transform: translate(-2px, -2px); }
+  body.dark-mode .contact-link:hover .cl-icon-wrapper { box-shadow: 4px 4px 0 var(--yellow); }
+}
+.cl-icon-wrapper {
+  width: 2.8rem;
+  height: 2.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper-2);
+  border: 2px solid var(--ink);
+  border-radius: var(--wonky);
+  box-shadow: 2px 2px 0 var(--ink);
+  filter: url(#sketchy);
+  margin-bottom: 0.6rem;
+  color: var(--cl-color, var(--accent));
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.cl-icon { width: 1.4rem; height: 1.4rem; fill: currentColor; }
+.contact-link.cl-mail { --cl-color: var(--accent); }
+.contact-link.cl-github { --cl-color: #24292E; }
+.contact-link.cl-linkedin { --cl-color: #0A66C2; }
+.contact-link.cl-resume { --cl-color: #c2562a; }
+body.dark-mode .cl-icon-wrapper {
+  border-color: var(--yellow);
+  box-shadow: 2px 2px 0 var(--yellow);
+  color: var(--yellow);
+}
 .cl-label {
   font-family: 'Cabin', var(--font-display);
   font-weight: 700;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   color: var(--ink);
+  display: block;
 }
-.cl-meta { font-size: 0.84rem; color: var(--ink-3); margin-left: auto; margin-right: 1rem; }
+.cl-meta { font-size: 0.8rem; color: var(--ink-3); display: block; margin-top: 0.15rem; }
 body.dark-mode .cl-meta { color: var(--ink-3); }
-.cl-arrow { color: var(--accent); }
+.cl-arrow { position: absolute; top: 1rem; right: 1.1rem; color: var(--accent); }
 body.dark-mode .cl-arrow { color: var(--yellow); }
 
 /* ========== FOOTER ========== */
@@ -1169,6 +1219,7 @@ body.dark-mode footer { color: var(--ink-3); }
   .mobile-menu-btn { display: flex; }
   .chapter { padding: 1.2rem 1rem; } /* Reduced padding for tighter mobile layout */
   .detail-grid { grid-template-columns: 1fr; }
+  .contact-links { grid-template-columns: 1fr; }
   .chapter-inner { border-radius: 28px 10px 28px 10px; }
   .project-card { transform: none !important; }
   .project-card:nth-child(odd):hover, .project-card:nth-child(even):hover { transform: translateY(-3px) !important; }
@@ -1266,25 +1317,25 @@ body.dark-mode footer { color: var(--ink-3); }
       </p>
       <div class="detail-grid">
         <div class="detail-card">
-          <div class="skill-icon-wrapper detail-icon-color" aria-hidden="true">
+          <div class="skill-icon-wrapper detail-icon-education" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="skill-icon"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z" fill="currentColor"/></svg>
           </div>
           <h4>Education</h4><p>B.S. Computer Science, USF</p>
         </div>
         <div class="detail-card">
-          <div class="skill-icon-wrapper detail-icon-color" aria-hidden="true">
+          <div class="skill-icon-wrapper detail-icon-research" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="skill-icon"><path d="M9 2v2h1v5.92l-.3.5L5.38 18H6v.6c0 .77.63 1.4 1.4 1.4h9.2c.77 0 1.4-.63 1.4-1.4V18h.62l-4.32-7.58-.3-.5V4h1V2H9zm2 2h2v5.92l.3.5 3.8 6.58H6.9l3.8-6.58.3-.5V4z" fill="currentColor"/></svg>
           </div>
           <h4>Research</h4><p>RARE Lab · HRI &amp; AI</p>
         </div>
         <div class="detail-card">
-          <div class="skill-icon-wrapper detail-icon-color" aria-hidden="true">
+          <div class="skill-icon-wrapper detail-icon-languages" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="skill-icon"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0L19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" fill="currentColor"/></svg>
           </div>
           <h4>Languages</h4><p>Python, Swift, C/C++, Java</p>
         </div>
         <div class="detail-card">
-          <div class="skill-icon-wrapper detail-icon-color" aria-hidden="true">
+          <div class="skill-icon-wrapper detail-icon-tools" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="skill-icon"><path d="M22.7 19L13.6 9.9c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z" fill="currentColor"/></svg>
           </div>
           <h4>Tools</h4><p>Xcode, VS Code, Postman, scikit-learn</p>
@@ -1706,7 +1757,7 @@ body.dark-mode footer { color: var(--ink-3); }
       <h2 class="chapter-title split">Let's connect!</h2>
       <p>I'm currently looking for internships and opportunities in AI, mobile/web development, and UI/UX.</p>
       <div class="contact-links">
-        <a href="mailto:marc.anjoul@gmail.com" class="contact-link">
+        <a href="mailto:marc.anjoul@gmail.com" class="contact-link cl-mail">
           <span class="cl-arrow" aria-hidden="true">↗</span>
           <div class="cl-icon-wrapper" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="cl-icon"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="currentColor"/></svg>
@@ -1714,7 +1765,7 @@ body.dark-mode footer { color: var(--ink-3); }
           <span class="cl-label">Email</span>
           <span class="cl-meta">marc.anjoul@gmail.com</span>
         </a>
-        <a href="https://github.com/marcanjoul" target="_blank" class="contact-link">
+        <a href="https://github.com/marcanjoul" target="_blank" class="contact-link cl-github">
           <span class="cl-arrow" aria-hidden="true">↗</span>
           <div class="cl-icon-wrapper" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="cl-icon"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" fill="currentColor"/></svg>
@@ -1722,7 +1773,7 @@ body.dark-mode footer { color: var(--ink-3); }
           <span class="cl-label">GitHub</span>
           <span class="cl-meta">github.com/marcanjoul</span>
         </a>
-        <a href="https://www.linkedin.com/in/markanjoul/" target="_blank" class="contact-link">
+        <a href="https://www.linkedin.com/in/markanjoul/" target="_blank" class="contact-link cl-linkedin">
           <span class="cl-arrow" aria-hidden="true">↗</span>
           <div class="cl-icon-wrapper" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="cl-icon"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" fill="currentColor"/></svg>
@@ -1730,7 +1781,7 @@ body.dark-mode footer { color: var(--ink-3); }
           <span class="cl-label">LinkedIn</span>
           <span class="cl-meta">in/markanjoul</span>
         </a>
-        <a href="Mark_Anjoul_Resume.pdf" target="_blank" class="contact-link">
+        <a href="Mark_Anjoul_Resume.pdf" target="_blank" class="contact-link cl-resume">
           <span class="cl-arrow" aria-hidden="true">↗</span>
           <div class="cl-icon-wrapper" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="cl-icon"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/></svg>
