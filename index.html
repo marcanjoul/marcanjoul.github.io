@@ -239,9 +239,13 @@ body.modern-cursor a, body.modern-cursor button, body.modern-cursor .project-car
   inset: 0;
   z-index: 10;
   pointer-events: none;
-  opacity: 0.35;
+  opacity: 0.12;
   mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  background-blend-mode: multiply;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.12' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.25'/%3E%3C/svg%3E");
+  background-size: 180px 180px, 420px 420px;
 }
 
 /* ========== SCROLL PROGRESS ========== */
@@ -2510,65 +2514,12 @@ function drawCelestialStar(cx, cy, r, color, opacity, starRotation) {
 
 // Dynamic Sketch Path Cache definition
 const pathCache = {
-  posterGrid: {
-    margin1Lines: [],
-    margin2Lines: [],
-    orbitRing: [],
-    crosshair1: [],
-    crosshair2: [],
-    ring180: [],
-    ring380: []
-  },
   constellations: [],
   clouds: []
 };
 
 // Generates wobbly lines/circles once and stores them, updating only on resize or at 12fps
 function updateCachedPaths() {
-  const margin1 = 20;
-  pathCache.posterGrid.margin1Lines = [
-    generateSketchedPath([{ x: margin1, y: margin1 }, { x: width - margin1, y: margin1 }], 1.2, 1),
-    generateSketchedPath([{ x: width - margin1, y: margin1 }, { x: width - margin1, y: height - margin1 }], 1.2, 1),
-    generateSketchedPath([{ x: width - margin1, y: height - margin1 }, { x: margin1, y: height - margin1 }], 1.2, 1),
-    generateSketchedPath([{ x: margin1, y: height - margin1 }, { x: margin1, y: margin1 }], 1.2, 1)
-  ];
-  
-  const margin2 = 28;
-  pathCache.posterGrid.margin2Lines = [
-    generateSketchedPath([{ x: margin2, y: margin2 }, { x: width - margin2, y: margin2 }], 1.0, 1),
-    generateSketchedPath([{ x: width - margin2, y: margin2 }, { x: width - margin2, y: height - margin2 }], 1.0, 1),
-    generateSketchedPath([{ x: width - margin2, y: height - margin2 }, { x: margin2, y: height - margin2 }], 1.0, 1),
-    generateSketchedPath([{ x: margin2, y: height - margin2 }, { x: margin2, y: margin2 }], 1.0, 1)
-  ];
-
-  const orbitR = Math.hypot(width / 2 - moonTargetX, height / 2 - moonTargetY);
-  const orbitPoints = [];
-  const orbitSteps = Math.max(8, Math.floor(2 * Math.PI * orbitR / 36));
-  for (let i = 0; i <= orbitSteps; i++) {
-    const angle = (i / orbitSteps) * Math.PI * 2;
-    orbitPoints.push({ x: width / 2 + Math.cos(angle) * orbitR, y: height / 2 + Math.sin(angle) * orbitR });
-  }
-  pathCache.posterGrid.orbitRing = generateSketchedPath(orbitPoints, 1.2, 1, true);
-
-  pathCache.posterGrid.crosshair1 = generateSketchedPath([{ x: margin2, y: height / 2 }, { x: width - margin2, y: height / 2 }], 1.2, 1);
-  pathCache.posterGrid.crosshair2 = generateSketchedPath([{ x: width / 2, y: margin2 }, { x: width / 2, y: height - margin2 }], 1.2, 1);
-
-  const points180 = [];
-  const steps180 = Math.max(8, Math.floor(2 * Math.PI * 180 / 36));
-  for (let i = 0; i <= steps180; i++) {
-    const angle = (i / steps180) * Math.PI * 2;
-    points180.push({ x: width / 2 + Math.cos(angle) * 180, y: height / 2 + Math.sin(angle) * 180 });
-  }
-  pathCache.posterGrid.ring180 = generateSketchedPath(points180, 1.2, 1, true);
-
-  const points380 = [];
-  const steps380 = Math.max(8, Math.floor(2 * Math.PI * 380 / 36));
-  for (let i = 0; i <= steps380; i++) {
-    const angle = (i / steps380) * Math.PI * 2;
-    points380.push({ x: width / 2 + Math.cos(angle) * 380, y: height / 2 + Math.sin(angle) * 380 });
-  }
-  pathCache.posterGrid.ring380 = generateSketchedPath(points380, 1.2, 1, true);
-
   // Constellation connecting lines
   pathCache.constellations = constellations.map(c => {
     const screenPoints = c.points.map(p => ({
@@ -2621,39 +2572,6 @@ function updateCachedPaths() {
       })
     };
   });
-}
-
-function drawCelestialPosterGrid(transition) {
-  const modernFactor = state.transition;
-  const opacity = (0.08 + 0.04 * transition) * (1 - modernFactor);
-  if (opacity < 0.005) return;
-  const color = transition < 0.5
-    ? `rgba(28, 24, 18, ${opacity})`
-    : `rgba(248, 250, 252, ${opacity})`;
-
-  // Borders
-  pathCache.posterGrid.margin1Lines.forEach(strokes => {
-    drawCachedStrokes(strokes, color, 0.8, ctx);
-  });
-  pathCache.posterGrid.margin2Lines.forEach(strokes => {
-    drawCachedStrokes(strokes, color, 0.5, ctx);
-  });
-
-  // Orbital ring path showing relative sun-moon transit route
-  ctx.save();
-  ctx.setLineDash([4, 10]);
-  drawCachedStrokes(pathCache.posterGrid.orbitRing, color, 0.6, ctx, true);
-  ctx.restore();
-
-  // Faint cardinal crosshairs and concentric rings
-  const crossOpacity = opacity * Math.max(0, 1 - transition * 2.0);
-  const crossColor = `rgba(28, 24, 18, ${crossOpacity})`;
-  if (crossOpacity > 0.01) {
-    drawCachedStrokes(pathCache.posterGrid.crosshair1, crossColor, 0.5, ctx);
-    drawCachedStrokes(pathCache.posterGrid.crosshair2, crossColor, 0.5, ctx);
-    drawCachedStrokes(pathCache.posterGrid.ring180, crossColor, 0.4, ctx, true);
-    drawCachedStrokes(pathCache.posterGrid.ring380, crossColor, 0.4, ctx, true);
-  }
 }
 
 function drawConstellationLines(transition) {
@@ -2867,9 +2785,6 @@ function draw(time) {
     lastJitterUpdate = time;
     updateCachedPaths();
   }
-
-  // 2. Draw poster grid blueprints
-  drawCelestialPosterGrid(state.transition);
 
   // 3. Draw starry sky
   if (state.transition > 0.01) {
