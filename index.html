@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <!--
-  Mark Anjoul — Portfolio
-  A scroll-driven story: hero + 5 chapters, each its own color mood
-  painted by a Three.js shader background that reacts to the cursor.
+  Mark Anjoul — Portfolio (doodled-stars experiment)
+  A scroll-driven story on cream paper: hand-sketched stars trail the
+  cursor on a Canvas2D background, hand-drawn wonky borders throughout.
 -->
 <html lang="en">
 <head>
@@ -10,7 +10,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mark Anjoul — CS @ USF, building AI, mobile & robotics</title>
 <meta name="description" content="Mark Anjoul is a Computer Science student and developer at USF, working on AI, mobile, and robotics. Undergraduate researcher at the RARE Lab building on-device AI and LLM inference.">
-<meta name="theme-color" content="#0b0d12">
+<meta name="theme-color" content="#f3ede0">
 <link rel="canonical" href="https://markanjoul.com/">
 
 <!-- Open Graph / social preview -->
@@ -29,14 +29,15 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.css">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<!-- Painted, cursor-reactive Three.js background. Fixed behind everything. -->
+<!-- Hand-sketched stars trail the cursor on a Canvas2D paper background. -->
 <canvas id="bg-canvas" aria-hidden="true"></canvas>
+<div class="paper-grain" aria-hidden="true"></div>
 
 <!-- Scroll progress indicator -->
 <div class="scroll-progress" aria-hidden="true"></div>

@@ -1,5 +1,3 @@
-import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
-
 const { gsap, ScrollTrigger, Lenis, Splitting } = window;
 gsap.registerPlugin(ScrollTrigger);
 
@@ -293,140 +291,89 @@ mobileNav.querySelectorAll('a').forEach((link) => {
   update();
 })();
 
-/* ---------- painted, cursor-reactive background ---------- */
+/* ---------- hand-sketched stars, doodled by the cursor ---------- */
 const canvas = document.getElementById('bg-canvas');
-let renderer;
-try {
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-} catch (e) {
-  renderer = null;
-}
+const ctx = canvas.getContext('2d');
 
-if (!renderer) {
-  document.body.classList.add('no-webgl');
+if (!ctx) {
+  // no canvas support: the cream paper background alone still reads fine
 } else {
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 50);
-  camera.position.set(0, 2.4, 3.2);
-  camera.lookAt(0, 0, 0);
-
-  // cool-family palette only — hue drifts slowly (cyan -> teal -> blue -> indigo),
-  // never crossing into warm hues, so the shift reads as ambient, not a scene change
-  const palette = [
-    ['#05060a', '#00d4ff'], // hero
-    ['#06080f', '#22b8f0'],
-    ['#070a12', '#2dd4bf'],
-    ['#080a14', '#3b82f6'],
-    ['#07060f', '#6366f1'],
-    ['#06070d', '#818cf8'],
-  ];
-  const toVec3 = (hex) => {
-    const c = new THREE.Color(hex);
-    return new THREE.Vector3(c.r, c.g, c.b);
-  };
-  const colorsA = palette.map((p) => toVec3(p[0]));
-  const colorsB = palette.map((p) => toVec3(p[1]));
-
-  const uniforms = {
-    uTime: { value: 0 },
-    uResolution: { value: new THREE.Vector2(innerWidth, innerHeight) },
-    uMouse: { value: new THREE.Vector2(0.5, 0.5) },
-    uMouseStrength: { value: 0 },
-    uColorA: { value: colorsA[0].clone() },
-    uColorB: { value: colorsB[0].clone() },
-    uScrollPhase: { value: 0 },
-  };
-
-  // VARIANT 4: wireframe terrain / waves
-  const terrainGeo = new THREE.PlaneGeometry(8, 8, 90, 90);
-  terrainGeo.rotateX(-Math.PI / 2);
-
-  const material = new THREE.ShaderMaterial({
-    uniforms,
-    wireframe: true,
-    vertexShader: `
-      uniform float uTime;
-      uniform vec2 uMouse;
-      uniform float uMouseStrength;
-      uniform float uScrollPhase;
-      varying float vHeight;
-
-      vec3 mod289(vec3 x){return x - floor(x*(1.0/289.0))*289.0;}
-      vec2 mod289(vec2 x){return x - floor(x*(1.0/289.0))*289.0;}
-      vec3 permute(vec3 x){return mod289(((x*34.0)+1.0)*x);}
-      float snoise(vec2 v){
-        const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-                 -0.577350269189626, 0.024390243902439);
-        vec2 i  = floor(v + dot(v, C.yy));
-        vec2 x0 = v - i + dot(i, C.xx);
-        vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-        vec4 x12 = x0.xyxy + C.xxzz;
-        x12.xy -= i1;
-        i = mod289(i);
-        vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0))
-              + i.x + vec3(0.0, i1.x, 1.0));
-        vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-        m = m*m; m = m*m;
-        vec3 x = 2.0 * fract(p * C.www) - 1.0;
-        vec3 h = abs(x) - 0.5;
-        vec3 ox = floor(x + 0.5);
-        vec3 a0 = x - ox;
-        m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
-        vec3 g;
-        g.x  = a0.x  * x0.x  + h.x  * x0.y;
-        g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-        return 130.0 * dot(m, g);
-      }
-
-      void main() {
-        vec3 pos = position;
-        float n = snoise(pos.xz * 0.35 + vec2(0.0, uScrollPhase) + uTime * 0.08);
-        float ripple = 0.0;
-        vec2 mouseWorld = (uMouse - 0.5) * 8.0;
-        float d = distance(pos.xz, mouseWorld);
-        ripple = sin(d * 2.2 - uTime * 1.8) * exp(-d * 0.5) * uMouseStrength;
-        pos.y += n * 0.45 + ripple * 0.6;
-        vHeight = pos.y;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-      }
-    `,
-    fragmentShader: `
-      precision mediump float;
-      uniform vec3 uColorA;
-      uniform vec3 uColorB;
-      varying float vHeight;
-      void main() {
-        float t = smoothstep(-0.5, 0.7, vHeight);
-        vec3 col = mix(uColorA, uColorB, t);
-        gl_FragColor = vec4(col, 1.0);
-      }
-    `,
-  });
-
-  scene.add(new THREE.Mesh(terrainGeo, material));
-  renderer.setClearColor(0x05060a, 1);
+  const INK = '28, 24, 18';
+  const ACCENT = '43, 77, 255';
+  const dpr = Math.min(devicePixelRatio || 1, 2);
 
   function resize() {
-    renderer.setSize(innerWidth, innerHeight);
-    uniforms.uResolution.value.set(innerWidth, innerHeight);
-    camera.aspect = innerWidth / innerHeight;
-    camera.updateProjectionMatrix();
+    canvas.width = innerWidth * dpr;
+    canvas.height = innerHeight * dpr;
+    canvas.style.width = innerWidth + 'px';
+    canvas.style.height = innerHeight + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
   resize();
   window.addEventListener('resize', resize);
 
-  /* cursor / touch reactivity */
-  let targetMouse = { x: 0.5, y: 0.5 };
-  let targetStrength = 0;
+  // a single wobbly five-point star path, redrawn every frame so the line
+  // never sits still — that hand-pressure jitter is what reads as "sketched"
+  function drawStar(cx, cy, r, rotation, jitter, alpha, color, width) {
+    const points = 5;
+    const step = Math.PI / points;
+    ctx.beginPath();
+    for (let i = 0; i < points * 2; i++) {
+      const radius = i % 2 === 0 ? r : r * 0.42;
+      const angle = i * step + rotation;
+      const jx = (Math.random() - 0.5) * jitter;
+      const jy = (Math.random() - 0.5) * jitter;
+      const x = cx + Math.cos(angle) * radius + jx;
+      const y = cy + Math.sin(angle) * radius + jy;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = `rgba(${color}, ${alpha})`;
+    ctx.lineWidth = width;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+  }
+
+  // faint ambient constellation — always present, gently twinkling
+  const AMBIENT_COUNT = Math.round((innerWidth * innerHeight) / 22000);
+  const ambient = Array.from({ length: AMBIENT_COUNT }, () => ({
+    x: Math.random() * innerWidth,
+    y: Math.random() * innerHeight,
+    r: 4 + Math.random() * 7,
+    rotation: Math.random() * Math.PI,
+    seed: Math.random() * 100,
+  }));
+  window.addEventListener('resize', () => {
+    ambient.forEach((s) => {
+      s.x = Math.min(s.x, innerWidth);
+      s.y = Math.min(s.y, innerHeight);
+    });
+  });
+
+  // the cursor leaves a trail of doodled stars that fade out and vanish
+  let trail = [];
+  function spawnTrailStar(x, y) {
+    trail.push({
+      x,
+      y,
+      r: 9 + Math.random() * 10,
+      rotation: Math.random() * Math.PI,
+      born: performance.now(),
+      life: 1100 + Math.random() * 500,
+    });
+    if (trail.length > 60) trail.shift();
+  }
+
+  let lastSpawn = 0;
   function setPointer(x, y) {
-    targetMouse.x = x / innerWidth;
-    targetMouse.y = 1 - y / innerHeight;
-    targetStrength = 1;
+    const now = performance.now();
+    if (now - lastSpawn > 60) {
+      spawnTrailStar(x, y);
+      lastSpawn = now;
+    }
   }
   window.addEventListener('pointermove', (e) => setPointer(e.clientX, e.clientY));
-  window.addEventListener('pointerleave', () => (targetStrength = 0));
   window.addEventListener(
     'touchmove',
     (e) => {
@@ -436,51 +383,35 @@ if (!renderer) {
     { passive: true }
   );
 
-  /* scroll drives two subtle, simultaneous effects: a slow cool-hue drift
-     and a gentle camera/terrain flythrough — both eased so neither is abrupt */
-  function lerpVec3(a, b, t, out) {
-    out.x = a.x + (b.x - a.x) * t;
-    out.y = a.y + (b.y - a.y) * t;
-    out.z = a.z + (b.z - a.z) * t;
-  }
-  let scrollProgress = 0;
-  let targetColorA = colorsA[0];
-  let targetColorB = colorsB[0];
-  if (!reduceMotion) {
-    ScrollTrigger.create({
-      trigger: document.body,
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: true,
-      onUpdate(self) {
-        scrollProgress = self.progress;
-        const f = self.progress * (palette.length - 1);
-        const i = Math.min(Math.floor(f), palette.length - 2);
-        const t = f - i;
-        targetColorA = { x: colorsA[i].x + (colorsA[i + 1].x - colorsA[i].x) * t, y: colorsA[i].y + (colorsA[i + 1].y - colorsA[i].y) * t, z: colorsA[i].z + (colorsA[i + 1].z - colorsA[i].z) * t };
-        targetColorB = { x: colorsB[i].x + (colorsB[i + 1].x - colorsB[i].x) * t, y: colorsB[i].y + (colorsB[i + 1].y - colorsB[i].y) * t, z: colorsB[i].z + (colorsB[i + 1].z - colorsB[i].z) * t };
-      },
-    });
-  }
+  // idle ambient trail star so the page still feels alive with no pointer input
+  setInterval(() => {
+    if (reduceMotion) return;
+    spawnTrailStar(Math.random() * innerWidth, Math.random() * innerHeight * 0.6);
+  }, 1400);
+
+  // gentle parallax: ambient stars drift opposite scroll for a hint of depth
+  let scrollY = 0;
+  window.addEventListener('scroll', () => (scrollY = window.scrollY), { passive: true });
 
   let raf;
   function tick(time) {
-    uniforms.uTime.value = time * 0.001;
-    uniforms.uMouse.value.x += (targetMouse.x - uniforms.uMouse.value.x) * 0.08;
-    uniforms.uMouse.value.y += (targetMouse.y - uniforms.uMouse.value.y) * 0.08;
-    uniforms.uMouseStrength.value += (targetStrength - uniforms.uMouseStrength.value) * 0.05;
-    uniforms.uScrollPhase.value += (scrollProgress * 6.0 - uniforms.uScrollPhase.value) * 0.05;
-    // slow ease (0.015) keeps the hue drift imperceptible frame-to-frame
-    lerpVec3(uniforms.uColorA.value, targetColorA, 0.015, uniforms.uColorA.value);
-    lerpVec3(uniforms.uColorB.value, targetColorB, 0.015, uniforms.uColorB.value);
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    const parallax = scrollY * 0.04;
 
-    const targetX = Math.sin(scrollProgress * Math.PI * 2) * 0.7;
-    const targetY = 2.0 + scrollProgress * 0.8;
-    camera.position.x += (targetX - camera.position.x) * 0.04;
-    camera.position.y += (targetY - camera.position.y) * 0.04;
-    camera.lookAt(0, 0, 0);
+    ambient.forEach((s) => {
+      const twinkle = 0.18 + 0.14 * Math.sin(time * 0.0006 + s.seed);
+      drawStar(s.x, (s.y - parallax) % (innerHeight + 40), s.r, s.rotation + time * 0.00005, 1.2, twinkle, INK, 1.2);
+    });
 
-    renderer.render(scene, camera);
+    const now = performance.now();
+    trail = trail.filter((s) => now - s.born < s.life);
+    trail.forEach((s) => {
+      const age = (now - s.born) / s.life;
+      const alpha = age < 0.15 ? age / 0.15 : 1 - (age - 0.15) / 0.85;
+      const scale = 0.7 + age * 0.5;
+      drawStar(s.x, s.y, s.r * scale, s.rotation, 1.6, Math.max(alpha, 0) * 0.85, ACCENT, 1.8);
+    });
+
     raf = requestAnimationFrame(tick);
   }
   raf = requestAnimationFrame(tick);
