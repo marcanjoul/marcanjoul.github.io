@@ -30,7 +30,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.css">
 
 <!-- Google Font Cabin Sketch and Shantell Sans-->
-<link href="https://fonts.googleapis.com/css2?family=Cabin:wght@400;700&family=Cabin+Sketch:wght@400;700&family=Outfit:wght@300;400;600&family=Shantell+Sans:wght@300..700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Shantell+Sans:wght@300..700&display=swap" rel="stylesheet">
 
 <style>
 /* ============================================================
@@ -49,7 +49,7 @@
 :root {
   --paper:      #f3ede0;
   --paper-2:    #ece3cf;
-  --ink:        #1c1812;
+  --ink:        #000;
   --ink-2:      rgba(28, 24, 18, 0.72);
   --ink-3:      rgba(28, 24, 18, 0.65);
   --rule:       rgba(134, 109, 71, 0.22);
@@ -500,7 +500,7 @@ nav {
 }
 
 .compressed-title-group h4 {
-  font-family: 'Cabin', var(--font-display);
+  font-family: 'Cabin Sketch', var(--font-display);
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--ink);
@@ -886,7 +886,7 @@ nav {
 }
 .project-type { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); font-weight: 600; }
 .project-card h3 {
-  font-family: 'Cabin', var(--font-display);
+  font-family: 'Cabin Sketch', var(--font-display);
   font-weight: 700;
   font-size: 1.55rem;
   color: var(--ink);
@@ -939,7 +939,7 @@ nav {
 }
 .project-modal-close:hover { color: var(--accent); border-color: var(--accent); }
 .project-modal-type { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); font-weight: 600; margin-bottom: 0.5rem; }
-.project-modal-title { font-family: var(--font-display); font-size: 2.4rem; margin-bottom: 0.9rem; }
+.project-modal-title { font-family: 'Cabin Sketch', var(--font-display); font-size: 2.4rem; font-weight: 700; color: var(--ink); margin-bottom: 0.9rem; }
 .project-modal-desc { font-size: 0.98rem; color: var(--ink-2); margin-bottom: 1.2rem; }
 .project-modal-features { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.4rem; }
 .project-modal-features li { font-size: 0.92rem; color: var(--ink-2); padding-left: 1.2rem; position: relative; }
@@ -1049,7 +1049,7 @@ nav {
 .contact-link.cl-linkedin { --cl-color: #0A66C2; }
 .contact-link.cl-resume { --cl-color: #c2562a; }
 .cl-label {
-  font-family: 'Cabin', var(--font-display);
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.3rem;
   color: var(--ink);
@@ -1202,7 +1202,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   <section class="chapter" id="skills" data-chapter="02">
     <div class="chapter-inner">
       <h2 class="chapter-title split">What I work with</h2>
-      <p>Languages, frameworks, and tools I reach for to build things.</p>
+      <p>Languages, frameworks, and tools I reach for to build.</p>
       <div class="skills-grid">
         <!-- Python -->
         <div class="skill-item">
@@ -1640,8 +1640,8 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
           <div class="cl-icon-wrapper" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="cl-icon"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/></svg>
           </div>
-          <span class="cl-label">Résumé</span>
-          <span class="cl-meta">PDF, one page</span>
+          <span class="cl-label">Resumé</span>
+          <span class="cl-meta">PDF</span>
         </a>
       </div>
     </div>
@@ -1649,7 +1649,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 
   <!-- FOOTER -->
   <footer>
-    <p>Built by Mark · © 2026</p>
+    <p>Built by Mark Anjoul · © 2026</p>
   </footer>
 
 </div>
@@ -2174,8 +2174,6 @@ function applyStepStyles(isModern) {
   if (isModern === lastIsModern) return;
   lastIsModern = isModern;
   const root = document.documentElement;
-  root.style.setProperty('--font-body', isModern ? "'Outfit', sans-serif" : "'Shantell Sans', sans-serif");
-  root.style.setProperty('--font-display', isModern ? "'Outfit', sans-serif" : "'Shantell Sans', cursive");
   root.style.setProperty('--chapter-radius', isModern ? '16px' : '255px 18px 225px 18px / 18px 225px 18px 255px');
   root.style.setProperty('--project-radius', isModern ? '12px' : '20px 6px 20px 6px');
   root.style.setProperty('--detail-radius', isModern ? '8px' : '14px 4px 14px 4px');
