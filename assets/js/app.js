@@ -56,14 +56,32 @@ if (!reduceMotion) {
 /* ---------- letter-by-letter reveal on scroll ---------- */
 Splitting({ target: '.split', by: 'chars' });
 document.querySelectorAll('.split').forEach((el) => {
-  gsap.from(el.querySelectorAll('.char'), {
-    yPercent: 110,
-    opacity: 0,
-    stagger: 0.015,
-    duration: 0.7,
-    ease: 'power3.out',
-    scrollTrigger: { trigger: el, start: 'top 85%' },
-  });
+  gsap.fromTo(el.querySelectorAll('.char'), 
+    {
+      opacity: 0,
+      y: () => gsap.utils.random(-15, 15),
+      x: () => gsap.utils.random(-8, 8),
+      rotation: () => gsap.utils.random(-18, 18),
+      scale: () => gsap.utils.random(0.4, 0.7),
+      '--char-infm': 100,
+      '--char-bnce': () => gsap.utils.random(-100, 100),
+      '--char-ital': () => gsap.utils.random(0, 1)
+    },
+    {
+      opacity: 1,
+      y: 0,
+      x: 0,
+      rotation: 0,
+      scale: 1,
+      '--char-infm': 0,
+      '--char-bnce': 6,
+      '--char-ital': 0,
+      duration: 0.9,
+      stagger: 0.025,
+      ease: 'back.out(2)',
+      scrollTrigger: { trigger: el, start: 'top 85%' },
+    }
+  );
 });
 
 /* ---------- chapter entrances ---------- */
