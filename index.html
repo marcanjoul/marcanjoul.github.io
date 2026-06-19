@@ -51,7 +51,7 @@
   --paper-2:    #ece3cf;
   --ink:        #1c1812;
   --ink-2:      rgba(28, 24, 18, 0.72);
-  --ink-3:      rgba(28, 24, 18, 0.5);
+  --ink-3:      rgba(28, 24, 18, 0.65);
   --rule:       rgba(28, 24, 18, 0.22);
   --accent:     #2b4dff;
   --yellow:     #ffd400;
@@ -67,6 +67,21 @@
 
   /* hand-drawn wonky rectangle: mismatched corner radii */
   --wonky: 255px 18px 225px 18px / 18px 225px 18px 255px;
+
+  --ink-rgb:    28, 24, 18;
+  --style-progress: 0;
+  --doodle-opacity: calc(1 - var(--style-progress));
+  --modern-opacity: var(--style-progress);
+
+  --border-color: rgba(28, 24, 18, var(--modern-opacity, 0));
+  --doodle-border-color: rgba(28, 24, 18, var(--doodle-opacity, 1));
+
+  --chapter-shadow: 
+    calc(5px * var(--doodle-opacity)) calc(5px * var(--doodle-opacity)) 0 var(--ink),
+    0 calc(10px * var(--modern-opacity)) calc(30px * var(--modern-opacity)) rgba(0, 0, 0, calc(0.06 * var(--modern-opacity)));
+  --project-shadow: 
+    calc(4px * var(--doodle-opacity)) calc(4px * var(--doodle-opacity)) 0 var(--ink),
+    0 calc(8px * var(--modern-opacity)) calc(24px * var(--modern-opacity)) rgba(0, 0, 0, calc(0.05 * var(--modern-opacity)));
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -82,13 +97,44 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
-  transition: background-color 0.8s ease;
+  transition: background-color 0.8s ease, color 0.8s ease;
+}
+
+/* Screen-reader-only helper for semantic content (logo, hidden headings) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Day/Night dynamic class for scrolling background colors */
 body.dark-mode {
   background: #0b1021;
   color: #f8fafc;
+  --paper:      #0b1021;
+  --paper-2:    #111a36;
+  --ink:        #f8fafc;
+  --ink-2:      rgba(248, 250, 252, 0.85);
+  --ink-3:      rgba(248, 250, 252, 0.6);
+  --rule:       rgba(248, 250, 252, 0.2);
+  --ink-rgb:    248, 250, 252;
+  --border-color: rgba(248, 250, 252, var(--modern-opacity, 0));
+  --doodle-border-color: rgba(248, 250, 252, var(--doodle-opacity, 1));
+  --chapter-shadow: 
+    calc(5px * var(--doodle-opacity)) calc(5px * var(--doodle-opacity)) 0 #f8fafc,
+    0 calc(10px * var(--modern-opacity)) calc(30px * var(--modern-opacity)) rgba(0, 0, 0, calc(0.35 * var(--modern-opacity)));
+  --project-shadow: 
+    calc(4px * var(--doodle-opacity)) calc(4px * var(--doodle-opacity)) 0 #f8fafc,
+    0 calc(8px * var(--modern-opacity)) calc(24px * var(--modern-opacity)) rgba(0, 0, 0, calc(0.32 * var(--modern-opacity)));
+}
+body.dark-mode :focus-visible {
+  outline-color: var(--yellow);
 }
 
 .logo-placeholder, .chapter-title, .project-modal-title, .cl-label, .project-card h3, .timeline-item h3, .mobile-nav a {
@@ -114,6 +160,13 @@ body.dark-mode {
 
 a { color: inherit; text-decoration: none; }
 
+body.modern-cursor {
+  cursor: default !important;
+}
+body.modern-cursor a, body.modern-cursor button, body.modern-cursor .project-card, body.modern-cursor [role="button"] {
+  cursor: pointer !important;
+}
+
 @keyframes wiggle {
   0%, 100% { transform: rotate(0deg); }
   25% { transform: rotate(-3deg); }
@@ -125,7 +178,7 @@ a { color: inherit; text-decoration: none; }
 .project-modal-panel, .project-modal-close, .project-modal-links a,
 .media-tab, .demo-phone, .demo-browser, .contact-link {
   position: relative;
-  border-color: transparent !important;
+  border: 1.5px solid var(--border-color) !important;
 }
 .nav-inner::before, .chapter-inner::before, .detail-card::before,
 .project-card::before, .tag-list li::before, .project-modal-panel::before,
@@ -135,53 +188,60 @@ a { color: inherit; text-decoration: none; }
   content: '';
   position: absolute;
   inset: 0;
-  border: inherit;
-  border-color: var(--ink);
+  border: 1.5px solid var(--doodle-border-color) !important;
   border-radius: inherit;
   filter: url(#sketchy);
   pointer-events: none;
 }
-body.dark-mode .nav-inner::before,
-body.dark-mode .chapter-inner::before,
-body.dark-mode .detail-card::before,
-body.dark-mode .project-card::before,
-body.dark-mode .tag-list li::before,
-body.dark-mode .project-modal-panel::before,
-body.dark-mode .project-modal-close::before,
-body.dark-mode .project-modal-links a::before,
-body.dark-mode .media-tab::before,
-body.dark-mode .demo-phone::before,
-body.dark-mode .demo-browser::before,
-body.dark-mode .contact-link::before {
-  border-color: #f8fafc;
-}
 
 .pill-list li {
   position: relative;
-  border-color: transparent !important;
+  border: 1.5px solid var(--border-color) !important;
+  border-radius: var(--detail-radius, 999px) !important;
+  transition: border-radius 0.5s ease, border-color 0.3s ease;
 }
 .pill-list li::after {
   content: '';
   position: absolute;
   inset: 0;
-  border: inherit;
-  border-color: var(--ink);
+  border: 1.5px solid var(--doodle-border-color) !important;
   border-radius: inherit;
   filter: url(#sketchy);
   pointer-events: none;
 }
-body.dark-mode .pill-list li::after {
-  border-color: #f8fafc;
-}
 
 /* ========== BACKGROUND CANVAS & NOISE OVERLAY ========== */
-#celestial-canvas {
+#celestial-canvas, #logo-canvas {
   position: fixed;
   inset: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -2;
   display: block;
+}
+#celestial-canvas {
+  z-index: -2;
+}
+#logo-canvas {
+  z-index: 105;
+  pointer-events: none;
+}
+#logo-blur-aura {
+  position: fixed;
+  z-index: 101;
+  width: 250px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 35px rgba(255, 255, 255, 0.12);
+  display: block;
+}
+body.dark-mode #logo-blur-aura {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 0 45px rgba(255, 255, 255, 0.15), 0 0 90px rgba(255, 212, 0, 0.08);
 }
 .paper-grain {
   position: fixed;
@@ -221,29 +281,55 @@ nav {
   justify-content: space-between;
   width: 100%;
   pointer-events: none;
+  position: relative;
 }
 .logo-placeholder {
   width: 200px;
   height: 50px;
   pointer-events: auto;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.logo-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  outline-offset: 4px;
+}
+.logo-link:focus-visible {
+  outline: 2px solid var(--accent);
+}
+.logo-link[tabindex="-1"]:focus-visible {
+  outline: none !important;
+}
+body.dark-mode .logo-link:focus-visible {
+  outline-color: var(--yellow);
 }
 .nav-inner {
   display: flex;
   align-items: center;
   background: var(--paper);
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
   border-radius: 999px;
   padding: 0.5rem 1.4rem;
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: 
+    calc(3px * var(--doodle-opacity)) calc(3px * var(--doodle-opacity)) 0 var(--ink),
+    0 calc(4px * var(--modern-opacity)) calc(12px * var(--modern-opacity)) rgba(0, 0, 0, calc(0.04 * var(--modern-opacity))) !important;
   pointer-events: auto;
   opacity: 0;
   transform: translateY(-15px);
-  transition: background-color 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
+  transition: background-color 0.8s ease, border-color 0.3s ease, box-shadow 0.3s ease, border-radius 0.5s ease;
+  margin-left: auto;
 }
 body.dark-mode .nav-inner {
   background: #17203a;
-  border-color: #f8fafc;
-  box-shadow: 3px 3px 0 #f8fafc;
+  border-color: rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
+  box-shadow: 
+    calc(3px * var(--doodle-opacity)) calc(3px * var(--doodle-opacity)) 0 #f8fafc,
+    0 calc(4px * var(--modern-opacity)) calc(12px * var(--modern-opacity)) rgba(0, 0, 0, calc(0.28 * var(--modern-opacity))) !important;
 }
 .nav-links { list-style: none; display: flex; align-items: center; gap: 1.6rem; }
 .nav-links a { font-size: 0.92rem; color: var(--ink-2); transition: color 0.2s; }
@@ -256,7 +342,7 @@ body.dark-mode .nav-links a:hover { color: var(--yellow); }
   padding: 0.55rem 1.1rem;
   border-radius: 999px;
   font-weight: 600;
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
 }
 body.dark-mode .nav-cta {
   background: var(--yellow);
@@ -327,16 +413,16 @@ body.dark-mode .mobile-nav-close { color: #f8fafc; }
   max-width: 700px;
   width: 100%;
   background: var(--paper);
-  border: 1.5px solid var(--ink);
-  border-radius: var(--wonky);
+  border: 1.5px solid rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
+  border-radius: var(--chapter-radius, var(--wonky)) !important;
   padding: clamp(2rem, 5vw, 3.5rem);
-  box-shadow: 5px 5px 0 var(--ink);
-  transition: background-color 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
+  box-shadow: var(--chapter-shadow) !important;
+  transition: background-color 0.8s ease, border-color 0.3s ease, box-shadow 0.3s ease, border-radius 0.5s ease;
 }
 body.dark-mode .chapter-inner {
   background: #17203a;
-  border-color: #f8fafc;
-  box-shadow: 5px 5px 0 #f8fafc;
+  border-color: rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
+  box-shadow: var(--chapter-shadow) !important;
 }
 
 .chapter-inner-wide { max-width: 980px; }
@@ -358,7 +444,7 @@ body.dark-mode .chapter-inner {
   max-width: 760px;
   padding: 0 1.5rem;
   text-align: center;
-  margin-top: 70vh; /* Safely position content below the massive centered sun */
+  margin-top: calc(50vh + 75px); /* Safely position content below the massive centered sun */
 }
 .chapter-inner-hero::before { content: none !important; }
 
@@ -392,7 +478,7 @@ body.dark-mode .scroll-hint {
   color: var(--ink-3);
   margin-bottom: 0.4rem;
 }
-body.dark-mode .chapter-num { color: rgba(248, 250, 252, 0.4); }
+body.dark-mode .chapter-num { color: var(--ink-3); }
 .chapter-num::before { content: '✦  '; color: var(--accent); }
 body.dark-mode .chapter-num::before { color: var(--yellow); }
 
@@ -414,14 +500,20 @@ body.dark-mode .chapter-label { color: var(--yellow); }
   font-weight: 600;
 }
 
-.chapter-hero h1.split {
+.chapter-hero h2.split {
   font-family: var(--font-display);
-  font-size: clamp(2.2rem, 5.6vw, 3.6rem);
-  line-height: 1.15;
-  margin-bottom: 1.4rem;
+  font-size: clamp(1.8rem, 4.2vw, 2.6rem);
+  line-height: 1.25;
+  margin-bottom: 0.8rem;
   color: var(--ink-2);
 }
-body.dark-mode .chapter-hero h1.split { color: rgba(248, 250, 252, 0.9); }
+body.dark-mode .chapter-hero h2.split { color: rgba(248, 250, 252, 0.9); }
+
+.chapter-hero p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
 
 .chapter p { color: var(--ink-2); font-size: 1.05rem; margin-bottom: 1rem; max-width: 56ch; }
 body.dark-mode .chapter p { color: rgba(248, 250, 252, 0.8); }
@@ -440,17 +532,18 @@ body.dark-mode .chapter p strong { color: #f8fafc; }
   margin-top: 1.6rem;
 }
 .detail-card {
-  border: 1.5px solid var(--ink);
-  border-radius: 14px 4px 14px 4px;
+  border: 1.5px solid rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
+  border-radius: var(--detail-radius, 14px 4px 14px 4px) !important;
   padding: 1rem 1.1rem;
   background: var(--paper-2);
+  transition: border-radius 0.5s ease, border-color 0.3s ease, background-color 0.8s ease;
 }
 body.dark-mode .detail-card {
-  border-color: #f8fafc;
+  border-color: rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
   background: #111a36;
 }
 .detail-card h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin-bottom: 0.35rem; }
-body.dark-mode .detail-card h4 { color: rgba(248, 250, 252, 0.4); }
+body.dark-mode .detail-card h4 { color: var(--ink-3); }
 .detail-card p { font-size: 0.92rem; margin: 0; }
 
 /* ========== SKILLS ========== */
@@ -488,45 +581,42 @@ body.dark-mode .pill-list li:hover { background: #222d4f; }
   margin-top: 1.8rem;
 }
 .project-card {
-  border: 1.5px solid var(--ink);
-  border-radius: 20px 6px 20px 6px;
+  border: 1.5px solid rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
+  border-radius: var(--project-radius, 20px 6px 20px 6px) !important;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   cursor: pointer;
   background: var(--paper);
-  box-shadow: 4px 4px 0 var(--ink);
-  transition: transform 0.2s var(--ease-expo), box-shadow 0.2s var(--ease-expo), background-color 0.8s ease, border-color 0.8s ease;
+  box-shadow: var(--project-shadow) !important;
+  transition: transform 0.2s var(--ease-expo), box-shadow 0.2s var(--ease-expo), background-color 0.8s ease, border-color 0.3s ease, border-radius 0.5s ease;
 }
 body.dark-mode .project-card {
   background: #17203a;
-  border-color: #f8fafc;
-  box-shadow: 4px 4px 0 #f8fafc;
+  border-color: rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
+  box-shadow: var(--project-shadow) !important;
 }
-.project-card:nth-child(odd) { transform: rotate(-0.5deg); }
-.project-card:nth-child(even) { transform: rotate(0.5deg); }
-.project-card:nth-child(odd):hover {
-  transform: rotate(0deg) translateY(-3px);
-  box-shadow: 6px 6px 0 var(--accent);
+.project-card:nth-child(odd) { transform: rotate(calc(-0.5deg * var(--doodle-opacity))); }
+.project-card:nth-child(even) { transform: rotate(calc(0.5deg * var(--doodle-opacity))); }
+.project-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 
+    calc(6px * var(--doodle-opacity)) calc(6px * var(--doodle-opacity)) 0 var(--accent),
+    0 calc(12px * var(--modern-opacity)) calc(36px * var(--modern-opacity)) rgba(0, 0, 0, calc(0.08 * var(--modern-opacity))) !important;
 }
-body.dark-mode .project-card:nth-child(odd):hover {
-  box-shadow: 6px 6px 0 var(--accent);
-}
-.project-card:nth-child(even):hover {
-  transform: rotate(0deg) translateY(-3px);
-  box-shadow: 6px 6px 0 var(--yellow);
-}
-body.dark-mode .project-card:nth-child(even):hover {
-  box-shadow: 6px 6px 0 var(--yellow);
+body.dark-mode .project-card:hover {
+  box-shadow: 
+    calc(6px * var(--doodle-opacity)) calc(6px * var(--doodle-opacity)) 0 var(--accent),
+    0 calc(12px * var(--modern-opacity)) calc(36px * var(--modern-opacity)) rgba(0, 0, 0, calc(0.42 * var(--modern-opacity))) !important;
 }
 .project-type { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); font-weight: 600; }
 body.dark-mode .project-type { color: var(--yellow); }
 .project-card h3 { font-family: var(--font-display); font-size: 1.7rem; font-weight: 600; }
 .project-card p { font-size: 0.92rem; color: var(--ink-2); margin: 0; }
 .tag-list { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.3rem 0 0.2rem; }
-.tag-list li { font-size: 0.74rem; color: var(--ink-3); border: 1px solid var(--rule); border-radius: 999px; padding: 0.2rem 0.6rem; transition: background-color 0.2s, border-color 0.8s ease; }
-body.dark-mode .tag-list li { color: rgba(248, 250, 252, 0.5); border-color: rgba(248, 250, 252, 0.2); }
+.tag-list li { font-size: 0.74rem; color: var(--ink-3); border: 1.5px solid rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important; border-radius: 999px; padding: 0.2rem 0.6rem; transition: background-color 0.2s, border-color 0.3s ease; }
+body.dark-mode .tag-list li { color: rgba(248, 250, 252, 0.5); border-color: rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important; }
 .tag-list li:hover { background: var(--paper-2); animation: wiggle 0.35s ease-in-out; }
 body.dark-mode .tag-list li:hover { background: #222d4f; }
 .project-link { font-size: 0.88rem; font-weight: 600; color: var(--ink); border-bottom: 1.5px solid var(--ink); width: fit-content; }
@@ -645,13 +735,13 @@ body.dark-mode .demo-browser-bar span { border-color: #f8fafc; }
 
 /* ========== EXPERIENCE ========== */
 .timeline { margin-top: 1.8rem; display: flex; flex-direction: column; gap: 1.8rem; position: relative; padding-left: 1.6rem; }
-.timeline::before { content: ''; position: absolute; left: 0; top: 0.4rem; bottom: 0.4rem; width: 2px; border-left: 2px dashed var(--rule); }
+.timeline::before { content: ''; position: absolute; left: 0; top: 0.4rem; bottom: 0.4rem; width: 2px; border-left: 1.5px var(--timeline-style, dashed) var(--rule); }
 body.dark-mode .timeline::before { border-left-color: rgba(248, 250, 252, 0.2); }
 .timeline-item { position: relative; }
 .timeline-item::before { content: '✦'; position: absolute; left: -1.65rem; top: -0.1rem; color: var(--accent); font-size: 0.9rem; }
 body.dark-mode .timeline-item::before { color: var(--yellow); }
 .timeline-item .date { font-size: 0.8rem; color: var(--ink-3); display: block; margin-bottom: 0.35rem; }
-body.dark-mode .timeline-item .date { color: rgba(248, 250, 252, 0.4); }
+body.dark-mode .timeline-item .date { color: var(--ink-3); }
 .timeline-item h3 { font-family: var(--font-display); font-size: 1.7rem; font-weight: 600; }
 .timeline-item .org { font-size: 0.85rem; color: var(--accent); margin-bottom: 0.35rem; }
 body.dark-mode .timeline-item .org { color: var(--yellow); }
@@ -661,25 +751,27 @@ body.dark-mode .timeline-item .org { color: var(--yellow); }
 .contact-links { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 1.8rem; }
 .contact-link {
   display: flex; align-items: center; justify-content: space-between;
-  border: 1.5px solid var(--ink); border-radius: 16px 4px 16px 4px; padding: 1rem 1.2rem;
+  border: 1.5px solid rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
+  border-radius: var(--contact-radius, 16px 4px 16px 4px) !important;
+  padding: 1rem 1.2rem;
   background: var(--paper);
-  transition: border-color 0.2s, background-color 0.2s, transform 0.2s var(--ease-expo);
+  transition: border-color 0.3s ease, background-color 0.2s, transform 0.2s var(--ease-expo), border-radius 0.5s ease;
 }
 body.dark-mode .contact-link {
   background: #17203a;
-  border-color: #f8fafc;
+  border-color: rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
 }
-.contact-link:hover { border-color: var(--accent); background: var(--paper-2); transform: translateX(4px); }
-body.dark-mode .contact-link:hover { border-color: var(--yellow); background: #222d4f; }
+.contact-link:hover { border-color: var(--accent) !important; background: var(--paper-2); transform: translateX(4px); }
+body.dark-mode .contact-link:hover { border-color: var(--yellow) !important; background: #222d4f; }
 .cl-label { font-family: var(--font-display); font-size: 1.5rem; }
 .cl-meta { font-size: 0.84rem; color: var(--ink-3); margin-left: auto; margin-right: 1rem; }
-body.dark-mode .cl-meta { color: rgba(248, 250, 252, 0.4); }
+body.dark-mode .cl-meta { color: var(--ink-3); }
 .cl-arrow { color: var(--accent); }
 body.dark-mode .cl-arrow { color: var(--yellow); }
 
 /* ========== FOOTER ========== */
 footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-size: 0.85rem; }
-body.dark-mode footer { color: rgba(248, 250, 252, 0.4); }
+body.dark-mode footer { color: var(--ink-3); }
 
 /* ========== REDUCED MOTION ========== */
 @media (prefers-reduced-motion: reduce) {
@@ -711,6 +803,8 @@ body.dark-mode footer { color: rgba(248, 250, 252, 0.4); }
 
 <!-- The interactive astronomical canvas background -->
 <canvas id="celestial-canvas"></canvas>
+<canvas id="logo-canvas"></canvas>
+<div id="logo-blur-aura" aria-hidden="true"></div>
 <div class="paper-grain" aria-hidden="true"></div>
 
 <!-- Scroll progress indicator -->
@@ -719,7 +813,9 @@ body.dark-mode footer { color: rgba(248, 250, 252, 0.4); }
 <!-- NAVIGATION BAR -->
 <nav>
   <div class="nav-container">
-    <div class="logo-placeholder"></div>
+    <div class="logo-placeholder">
+      <a href="#" class="logo-link"><span class="sr-only">Mark Anjoul - Home</span></a>
+    </div>
     <div class="nav-inner">
       <ul class="nav-links">
         <li><a href="#about">About</a></li>
@@ -753,12 +849,12 @@ body.dark-mode footer { color: rgba(248, 250, 252, 0.4); }
   <!-- Sticky spacer hero where day transitions to night on scroll -->
   <section class="chapter chapter-hero">
     <div class="chapter-inner chapter-inner-hero" id="hero-content">
+      <h1 class="sr-only">Mark Anjoul</h1>
       <div class="chapter-label">CS @ University of South Florida</div>
-      <h1 class="split">Building at the intersection of AI, Mobile &amp; Robotics</h1>
+      <h2 class="split">Building at the intersection of AI, Mobile &amp; Robotics</h2>
       <p>Undergraduate student and developer focused on making intelligent programs that understand and communicate with people.</p>
     </div>
     <div class="scroll-hint" id="scroll-hint">
-      <span class="scroll-hint-text">Scroll to transition</span>
       <span class="scroll-hint-arrow">↓</span>
     </div>
   </section>
@@ -962,6 +1058,13 @@ body.dark-mode footer { color: rgba(248, 250, 252, 0.4); }
 const { gsap, ScrollTrigger, Lenis, Splitting } = window;
 gsap.registerPlugin(ScrollTrigger);
 
+const state = {
+  transition: 0, // 0 = Full Day, 0.5 = Sunset, 1.0 = Full Night (driven by scroll)
+  logoTransition: 0, // 0 = Centered Sun, 1 = Upper Moon navbar (docked by scrollTop = 600)
+  beamIntensity: 0, // 0 = no beam, 1 = maximum beam (UFO mode active)
+  time: 0
+};
+
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- smooth scroll (Lenis <-> GSAP ScrollTrigger) ---------- */
@@ -1013,16 +1116,91 @@ document.querySelectorAll('.split').forEach((el) => {
   });
 });
 
-/* ---------- chapter entrances ---------- */
-gsap.utils.toArray('.chapter-inner').forEach((el) => {
-  gsap.from(el, {
-    opacity: 0,
-    y: 60,
-    duration: 1,
-    ease: 'power3.out',
-    scrollTrigger: { trigger: el, start: 'top 80%' },
+/* ---------- chapter scroll animations (entrance + hold + exit suction) ---------- */
+if (reduceMotion) {
+  // Simple entrance animations for reduced motion preference
+  gsap.utils.toArray('.chapter-inner').forEach((el) => {
+    const parentChapter = el.closest('.chapter');
+    if (!parentChapter) return;
+    gsap.from(el, {
+      opacity: 0,
+      y: 40,
+      duration: 0.8,
+      ease: 'power2.out',
+      scrollTrigger: { trigger: parentChapter, start: 'top 85%', toggleActions: 'play none none none' },
+    });
   });
-});
+} else {
+  // Unified conflict-free timeline mapping card entrance, hold, and exit
+  gsap.utils.toArray('.chapter-inner').forEach((el) => {
+    const parentChapter = el.closest('.chapter');
+    if (!parentChapter) return;
+
+    // Initialize local beam intensity
+    el.beamIntensity = 0;
+
+    const isHero = parentChapter.classList.contains('chapter-hero');
+    const startVal = isHero ? 'top top' : 'top bottom';
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: parentChapter,
+        start: startVal,
+        end: 'bottom top',
+        scrub: true,
+      }
+    });
+
+    if (isHero) {
+      // For the hero card, start fully visible and hold until suction
+      tl.fromTo(el,
+        { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' },
+        { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: 0.45 }
+      );
+    } else {
+      // For standard cards, fade and slide in, then hold
+      tl.fromTo(el,
+        { opacity: 0, y: 60, scale: 1, filter: 'blur(0px)' },
+        { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: 0.25 }
+      );
+      tl.to(el, { duration: 0.20 }); // Hold card visible in the center (0.25 to 0.45)
+    }
+    
+    // Suction phase: animate card exit AND animate local beamIntensity!
+    tl.to(el, { beamIntensity: 1, duration: 0.08 }, 'exit-start'); // grow beam quickly
+    tl.to(el, {
+      opacity: 0,
+      y: -350,                  // Pull upwards faster and deeper towards the logo
+      scale: 0.0,               // Sucked down to absolute zero!
+      filter: 'blur(16px)',     // Blur as it is sucked into the vortex
+      ease: 'power2.in',
+      transformOrigin: '50% 0%', // Pull towards the top center of the card
+      duration: 0.25
+    }, 'exit-start');
+    tl.to(el, { beamIntensity: 0, duration: 0.08 }, 'exit-start+=0.17'); // fade beam back out
+    
+    // Keep it empty and invisible for the remaining scroll range (0.70 to 1.0)
+    tl.to({}, { duration: 0.30 });
+  });
+
+  // For the scroll hint, use the hero chapter as trigger
+  const scrollHint = document.getElementById('scroll-hint');
+  if (scrollHint) {
+    gsap.to(scrollHint, {
+      scrollTrigger: {
+        trigger: '.chapter-hero',
+        start: 'top top',
+        end: '30% top',
+        scrub: true,
+      },
+      scale: 0.1,
+      y: -100,
+      opacity: 0,
+      filter: 'blur(5px)',
+      ease: 'power1.in'
+    });
+  }
+}
 
 gsap.utils.toArray('.project-card').forEach((el, i) => {
   gsap.from(el, {
@@ -1280,21 +1458,21 @@ mobileNav.querySelectorAll('a').forEach((link) => {
 
 
 // ============================================================
-// INTERACTIVE CELESTIAL CANVAS LOGIC (SUN-TO-MOON TRANSITION)
+// CELESTIAL CANVAS DRAWING LOGIC (SUN-TO-MOON TEXT TRANSITION)
 // ============================================================
 
 const canvas = document.getElementById('celestial-canvas');
 const ctx = canvas.getContext('2d');
+const logoCanvas = document.getElementById('logo-canvas');
+const logoCtx = logoCanvas.getContext('2d');
 
 let dpr = Math.min(window.devicePixelRatio || 1, 2);
 let width = window.innerWidth;
 let height = window.innerHeight;
 
-// Moon layout target positions (recalculated on resize)
+// Name logo docking layout positions (recalculated on resize)
 let moonTargetX = 80;
 let moonTargetY = 52;
-let textTargetX = 160;
-let textTargetY = 52;
 
 // Pseudo-random seeded generator for organic, 12fps sketch jitter
 let seed = 1;
@@ -1306,17 +1484,10 @@ function seededRandom() {
   return x - Math.floor(x);
 }
 
-const state = {
-  transition: 0, // 0 = Full Day, 1 = Full Night (GSAP controlled on scroll)
-  mouse: { x: width / 2, y: height / 2 },
-  targetMouse: { x: width / 2, y: height / 2 },
-  isHoveringCenter: false,
-  time: 0
-};
-
-// Background stops configuration
-const dayStops = ['#7da7d9', '#cbe2f8', '#f3ede0'];
-const nightStops = ['#080a14', '#0f1424', '#1b243b'];
+// Gradient color stops configurations
+const dayStops = ['#8cb5e1', '#b9d5f3', '#f3ede0'];
+const sunsetStops = ['#342c5c', '#f36b6b', '#fcd890'];
+const nightStops = ['#060810', '#0b1021', '#131b33'];
 
 function parseColor(color) {
   if (color.startsWith('#')) {
@@ -1340,21 +1511,21 @@ function interpolateColor(color1, color2, factor) {
 }
 
 // Sketched line drawing tool
-function drawSketchedPath(points, color, width, jitter = 1.2, strokeCount = 2, close = false) {
-  ctx.strokeStyle = color;
-  ctx.lineWidth = width;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
+function drawSketchedPath(points, color, width, jitter = 1.2, strokeCount = 2, close = false, targetCtx = ctx) {
+  targetCtx.strokeStyle = color;
+  targetCtx.lineWidth = width;
+  targetCtx.lineCap = 'round';
+  targetCtx.lineJoin = 'round';
 
   for (let s = 0; s < strokeCount; s++) {
-    ctx.beginPath();
+    targetCtx.beginPath();
     if (points.length < 2) return;
 
     seed = jitterSeed + s * 300;
 
     const startJitterX = (seededRandom() - 0.5) * jitter;
     const startJitterY = (seededRandom() - 0.5) * jitter;
-    ctx.moveTo(points[0].x + startJitterX, points[0].y + startJitterY);
+    targetCtx.moveTo(points[0].x + startJitterX, points[0].y + startJitterY);
 
     for (let i = 1; i < points.length; i++) {
       const p1 = points[i - 1];
@@ -1371,7 +1542,7 @@ function drawSketchedPath(points, color, width, jitter = 1.2, strokeCount = 2, c
         const py = p1.y + dy * t;
         const jx = (seededRandom() - 0.5) * jitter;
         const jy = (seededRandom() - 0.5) * jitter;
-        ctx.lineTo(px + jx, py + jy);
+        targetCtx.lineTo(px + jx, py + jy);
       }
     }
 
@@ -1388,84 +1559,75 @@ function drawSketchedPath(points, color, width, jitter = 1.2, strokeCount = 2, c
         const py = p1.y + dy * t;
         const jx = (seededRandom() - 0.5) * jitter;
         const jy = (seededRandom() - 0.5) * jitter;
-        ctx.lineTo(px + jx, py + jy);
+        targetCtx.lineTo(px + jx, py + jy);
       }
-      ctx.closePath();
+      targetCtx.closePath();
     }
-    ctx.stroke();
+    targetCtx.stroke();
   }
 }
 
-function drawSketchedLine(x1, y1, x2, y2, color, width, jitter = 1.2, strokeCount = 2) {
-  drawSketchedPath([{ x: x1, y: y1 }, { x: x2, y: y2 }], color, width, jitter, strokeCount);
+function drawSketchedLine(x1, y1, x2, y2, color, width, jitter = 1.2, strokeCount = 2, targetCtx = ctx) {
+  drawSketchedPath([{ x: x1, y: y1 }, { x: x2, y: y2 }], color, width, jitter, strokeCount, false, targetCtx);
 }
 
-function drawSketchedCircle(cx, cy, r, color, width, jitter = 1.2, strokeCount = 2) {
-  const points = [];
-  const steps = Math.max(16, Math.floor(2 * Math.PI * r / 12));
-  for (let i = 0; i <= steps; i++) {
-    const angle = (i / steps) * Math.PI * 2;
-    points.push({ x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r });
-  }
-  drawSketchedPath(points, color, width, jitter, strokeCount, true);
-}
-
-// Sketched Crescent Moon drawing using Bezier curve matching
-function drawSketchedCrescent(cx, cy, r, color, width, opacity, jitter = 1.2) {
-  ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
-  ctx.lineWidth = width;
+// Sketched flapping bird drawing function
+function drawSketchedBird(bx, by, size, flap, color, opacity) {
+  const strokeColor = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
+  ctx.strokeStyle = strokeColor;
+  ctx.lineWidth = 1.4;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
   const strokeCount = 2;
   for (let s = 0; s < strokeCount; s++) {
-    ctx.beginPath();
-    seed = jitterSeed + s * 150;
+    seed = jitterSeed + s * 180;
 
-    const steps = 24;
-    // 1. Draw outer circle arc (left semi-circle)
-    for (let i = 0; i <= steps; i++) {
-      const angle = Math.PI / 2 + (i / steps) * Math.PI; // PI/2 to 3PI/2 (left crescent face)
-      const x = cx + Math.cos(angle) * r + (seededRandom() - 0.5) * jitter;
-      const y = cy + Math.sin(angle) * r + (seededRandom() - 0.5) * jitter;
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
+    const leftX = bx - size;
+    const leftY = by - size * 0.25 + flap * size * 0.45;
+    const rightX = bx + size;
+    const rightY = by - size * 0.25 + flap * size * 0.45;
 
-    // 2. Draw inner curving crescent line back to start using Bezier points
-    const startX = cx;
-    const startY = cy - r;
-    const endX = cx;
-    const endY = cy + r;
-    const ctrlX = cx - r * 0.28; // bezier curves inward
-    const ctrlY = cy;
+    const ctrlLeftX = bx - size * 0.5;
+    const ctrlLeftY = by - size * 0.65 - flap * size * 0.15;
+    const ctrlRightX = bx + size * 0.5;
+    const ctrlRightY = by - size * 0.65 - flap * size * 0.15;
 
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps;
-      const px = (1 - t) * (1 - t) * startX + 2 * (1 - t) * t * ctrlX + t * t * endX;
-      const py = (1 - t) * (1 - t) * startY + 2 * (1 - t) * t * ctrlY + t * t * endY;
-      const jx = (seededRandom() - 0.5) * jitter;
-      const jy = (seededRandom() - 0.5) * jitter;
-      ctx.lineTo(px + jx, py + jy);
-    }
+    // Draw left wing curve
+    drawSketchedPath([
+      { x: leftX, y: leftY },
+      { x: ctrlLeftX, y: ctrlLeftY },
+      { x: bx, y: by }
+    ], strokeColor, 1.4, 1.0, 1);
 
-    ctx.stroke();
+    // Draw right wing curve
+    drawSketchedPath([
+      { x: bx, y: by },
+      { x: ctrlRightX, y: ctrlRightY },
+      { x: rightX, y: rightY }
+    ], strokeColor, 1.4, 1.0, 1);
   }
 }
 
-// Day Clouds Setup
+// Day/Sunset Clouds Setup
 const clouds = [
-  { x: width * 0.15, y: height * 0.2, scale: 0.9, speed: 0.12, parallax: 0.03 },
-  { x: width * 0.45, y: height * 0.12, scale: 1.1, speed: 0.08, parallax: 0.02 },
-  { x: width * 0.8, y: height * 0.25, scale: 0.75, speed: 0.15, parallax: 0.04 }
+  { x: width * 0.12, y: height * 0.18, scale: 0.95, speed: 0.14 },
+  { x: width * 0.48, y: height * 0.14, scale: 1.15, speed: 0.09 },
+  { x: width * 0.78, y: height * 0.24, scale: 0.8, speed: 0.16 }
 ];
 
-function drawSketchedCloud(cx, cy, scale, opacity) {
-  const fillStyle = `rgba(255, 255, 255, ${opacity * 0.88})`;
-  const strokeColor = `rgba(28, 24, 18, ${opacity})`;
+function drawSketchedCloud(cx, cy, scale, opacity, transition) {
+  // Tint clouds with warm peach/sunset tones during transition
+  const fillCol = transition < 0.5
+    ? interpolateColor('#ffffff', '#ffeedd', transition * 2)
+    : interpolateColor('#ffeedd', '#17203a', (transition - 0.5) * 2);
 
-  ctx.fillStyle = fillStyle;
-  ctx.strokeStyle = strokeColor;
+  const strokeCol = transition < 0.5
+    ? interpolateColor('#1c1812', '#a63a2e', transition * 2)
+    : interpolateColor('#a63a2e', '#e2e8f0', (transition - 0.5) * 2);
+
+  ctx.fillStyle = `rgba(${parseColor(fillCol).r}, ${parseColor(fillCol).g}, ${parseColor(fillCol).b}, ${opacity * 0.88})`;
+  const strokeColor = `rgba(${parseColor(strokeCol).r}, ${parseColor(strokeCol).g}, ${parseColor(strokeCol).b}, ${opacity})`;
   ctx.lineWidth = 1.2;
 
   const circles = [
@@ -1476,58 +1638,107 @@ function drawSketchedCloud(cx, cy, scale, opacity) {
     { dx: 0, dy: 12, r: 25 }
   ];
 
-  // Draw fills first
+  // Draw fills
   ctx.beginPath();
   circles.forEach(c => {
     ctx.arc(cx + c.dx * scale, cy + c.dy * scale, c.r * scale, 0, Math.PI * 2);
   });
   ctx.fill();
 
-  // Draw wobbly sketchy outlines
+  // Draw sketchy outlines
   circles.forEach(c => {
-    drawSketchedCircle(cx + c.dx * scale, cy + c.dy * scale, c.r * scale, strokeColor, 1.2, 1.2, 1);
+    // Re-create temporary function parameter bindings
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 1.2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    const points = [];
+    const r = c.r * scale;
+    const tcx = cx + c.dx * scale;
+    const tcy = cy + c.dy * scale;
+    const steps = Math.max(16, Math.floor(2 * Math.PI * r / 12));
+    for (let i = 0; i <= steps; i++) {
+      const angle = (i / steps) * Math.PI * 2;
+      points.push({ x: tcx + Math.cos(angle) * r, y: tcy + Math.sin(angle) * r });
+    }
+    drawSketchedPath(points, strokeColor, 1.2, 1.2, 1, true);
   });
 }
 
-// Night Stars Setup
+// Hand-drawn Flapping Birds Setup
+const birds = [
+  { x: width * 0.2, y: height * 0.28, size: 13, speedX: 0.7, flapSpeed: 0.05, phase: 0 },
+  { x: width * 0.55, y: height * 0.22, size: 16, speedX: 0.55, flapSpeed: 0.04, phase: Math.PI * 0.5 },
+  { x: width * 0.85, y: height * 0.32, size: 11, speedX: 0.9, flapSpeed: 0.07, phase: Math.PI }
+];
+
+// Night Stars Setup (Big, spinning subtly, floating slowly, no blinking)
 const stars = [];
-const numStars = 65;
+const numStars = 45;
 for (let i = 0; i < numStars; i++) {
   stars.push({
     baseX: Math.random() * width,
     baseY: Math.random() * height,
-    size: 2.2 + Math.random() * 3.5,
-    speed: 0.02 + Math.random() * 0.04,
-    phase: Math.random() * Math.PI * 2,
-    parallax: 0.02 + Math.random() * 0.05
+    size: 7.0 + Math.random() * 9.0, // Big stars
+    driftX: (Math.random() - 0.5) * 0.12, // Slow floating movement
+    driftY: (Math.random() - 0.5) * 0.08,
+    spinSpeed: 0.00015 + Math.random() * 0.00025, // Very subtle spin rotation
+    initialRotation: Math.random() * Math.PI
   });
 }
 
-function drawCelestialStar(cx, cy, r, color, opacity) {
-  ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
-  ctx.lineWidth = 1.2;
-  ctx.lineCap = 'round';
-
-  const lines = 4;
-  for (let i = 0; i < lines; i++) {
-    const angle = (i / lines) * Math.PI + state.time * 0.005;
-    const jx = (Math.random() - 0.5) * 0.8;
-    const jy = (Math.random() - 0.5) * 0.8;
-    const x1 = cx - Math.cos(angle) * r + jx;
-    const y1 = cy - Math.sin(angle) * r + jy;
-    const x2 = cx + Math.cos(angle) * r + jx;
-    const y2 = cy + Math.sin(angle) * r + jy;
-
+function drawCelestialStar(cx, cy, r, color, opacity, starRotation) {
+  const modernFactor = state.transition;
+  
+  ctx.save();
+  
+  // Draw modern glowing dot
+  const modernOpacity = opacity * modernFactor;
+  if (modernOpacity > 0.01) {
+    const radGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 1.5);
+    radGrad.addColorStop(0, `rgba(255, 255, 255, ${modernOpacity})`);
+    radGrad.addColorStop(0.3, `rgba(${color.r}, ${color.g}, ${color.b}, ${modernOpacity * 0.8})`);
+    radGrad.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, 0)`);
+    ctx.fillStyle = radGrad;
     ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
+    ctx.arc(cx, cy, r * 1.5, 0, Math.PI * 2);
+    ctx.fill();
   }
+
+  // Draw doodle star
+  const doodleOpacity = opacity * (1 - modernFactor);
+  if (doodleOpacity > 0.01) {
+    const points = 5;
+    const step = Math.PI / points;
+    const vertices = [];
+    for (let i = 0; i < points * 2; i++) {
+      const radius = i % 2 === 0 ? r : r * 0.42;
+      const angle = i * step + starRotation;
+      vertices.push({
+        x: cx + Math.cos(angle) * radius,
+        y: cy + Math.sin(angle) * radius
+      });
+    }
+    ctx.beginPath();
+    ctx.moveTo(vertices[0].x, vertices[0].y);
+    for (let i = 1; i < vertices.length; i++) {
+      ctx.lineTo(vertices[i].x, vertices[i].y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${doodleOpacity * 0.45})`;
+    ctx.fill();
+
+    const strokeColor = `rgba(${color.r}, ${color.g}, ${color.b}, ${doodleOpacity})`;
+    // Draw wobbly outline
+    drawSketchedPath(vertices, strokeColor, 1.2, 0.8, 1, true);
+  }
+  
+  ctx.restore();
 }
 
-// Connected Constellation Drawing (Night Only)
+// Connected Constellation Drawing
 const constellations = [
-  // Cassiopeia relative mappings
   {
     name: 'CASSIOPEIA',
     points: [
@@ -1538,7 +1749,6 @@ const constellations = [
       { rx: 0.88, ry: 0.23 }
     ]
   },
-  // Big Dipper outline relative mappings
   {
     name: 'URSA MAJOR',
     points: [
@@ -1556,21 +1766,19 @@ const constellations = [
 
 function drawConstellationLines(transition) {
   if (transition < 0.1) return;
-  const opacity = transition * 0.12;
+  const opacity = transition * 0.12 * (1 - state.transition);
+  if (opacity < 0.005) return;
   const color = `rgba(248, 250, 252, ${opacity})`;
 
   ctx.save();
   ctx.setLineDash([3, 6]);
-  const parallaxX = (state.mouse.x - width / 2) * 0.02;
-  const parallaxY = (state.mouse.y - height / 2) * 0.02;
 
   const outlineC = parseColor('#e2e8f0');
 
   constellations.forEach(c => {
-    // Generate screenspace vertices
     const screenPoints = c.points.map(p => ({
-      x: p.rx * width + parallaxX,
-      y: p.ry * height + parallaxY
+      x: p.rx * width,
+      y: p.ry * height
     }));
 
     // Draw connecting segments
@@ -1578,13 +1786,13 @@ function drawConstellationLines(transition) {
       drawSketchedLine(screenPoints[i].x, screenPoints[i].y, screenPoints[i+1].x, screenPoints[i+1].y, color, 0.8, 1.0, 1);
     }
 
-    // Draw little astronomical star shapes at each node
+    // Draw stars at nodes
     screenPoints.forEach(p => {
-      drawCelestialStar(p.x, p.y, 4, outlineC, transition * 0.4);
+      drawCelestialStar(p.x, p.y, 5, outlineC, transition * 0.4, state.time * 0.003);
     });
 
-    // Write wobbly label beside the constellation
-    ctx.fillStyle = `rgba(248, 250, 252, ${transition * 0.35})`;
+    // Write wobbly label
+    ctx.fillStyle = `rgba(248, 250, 252, ${transition * 0.35 * (1 - state.transition)})`;
     ctx.font = '8px "Shantell Sans", sans-serif';
     ctx.fillText(c.name, screenPoints[0].x + 10, screenPoints[0].y + 4);
   });
@@ -1592,9 +1800,11 @@ function drawConstellationLines(transition) {
   ctx.restore();
 }
 
-// Celestial Blueprint grid markings (double ruled frame, compass ticks)
+// Celestial Poster grid blueprints
 function drawCelestialPosterGrid(transition) {
-  const opacity = 0.08 + 0.04 * transition;
+  const modernFactor = state.transition;
+  const opacity = (0.08 + 0.04 * transition) * (1 - modernFactor);
+  if (opacity < 0.005) return;
   const color = transition < 0.5
     ? `rgba(28, 24, 18, ${opacity})`
     : `rgba(248, 250, 252, ${opacity})`;
@@ -1602,7 +1812,7 @@ function drawCelestialPosterGrid(transition) {
   const margin1 = 20;
   const margin2 = 28;
 
-  // Double ruled sketched border
+  // Double ruled borders
   drawSketchedLine(margin1, margin1, width - margin1, margin1, color, 0.8, 1.2, 1);
   drawSketchedLine(width - margin1, margin1, width - margin1, height - margin1, color, 0.8, 1.2, 1);
   drawSketchedLine(width - margin1, height - margin1, margin1, height - margin1, color, 0.8, 1.2, 1);
@@ -1617,23 +1827,43 @@ function drawCelestialPosterGrid(transition) {
   const orbitR = Math.hypot(width / 2 - moonTargetX, height / 2 - moonTargetY);
   ctx.save();
   ctx.setLineDash([4, 10]);
-  drawSketchedCircle(width / 2, height / 2, orbitR, color, 0.6, 1.2, 1);
+  // Re-create custom circle logic
+  const points = [];
+  const steps = Math.max(16, Math.floor(2 * Math.PI * orbitR / 12));
+  for (let i = 0; i <= steps; i++) {
+    const angle = (i / steps) * Math.PI * 2;
+    points.push({ x: width / 2 + Math.cos(angle) * orbitR, y: height / 2 + Math.sin(angle) * orbitR });
+  }
+  drawSketchedPath(points, color, 0.6, 1.2, 1, true);
   ctx.restore();
 
-  // Faint cardinal crosshairs (fade out at night)
+  // Faint cardinal crosshairs
   const crossOpacity = opacity * Math.max(0, 1 - transition * 2.0);
   const crossColor = `rgba(28, 24, 18, ${crossOpacity})`;
   if (crossOpacity > 0.01) {
     drawSketchedLine(margin2, height / 2, width - margin2, height / 2, crossColor, 0.5, 1.2, 1);
     drawSketchedLine(width / 2, margin2, width / 2, height - margin2, crossColor, 0.5, 1.2, 1);
 
-    // Concentric coordinate rings
-    drawSketchedCircle(width / 2, height / 2, 180, crossColor, 0.4, 1.2, 1);
-    drawSketchedCircle(width / 2, height / 2, 380, crossColor, 0.4, 1.2, 1);
+    // Concentric rings
+    const points180 = [];
+    const steps180 = Math.max(16, Math.floor(2 * Math.PI * 180 / 12));
+    for (let i = 0; i <= steps180; i++) {
+      const angle = (i / steps180) * Math.PI * 2;
+      points180.push({ x: width / 2 + Math.cos(angle) * 180, y: height / 2 + Math.sin(angle) * 180 });
+    }
+    drawSketchedPath(points180, crossColor, 0.4, 1.2, 1, true);
+
+    const points380 = [];
+    const steps380 = Math.max(16, Math.floor(2 * Math.PI * 380 / 12));
+    for (let i = 0; i <= steps380; i++) {
+      const angle = (i / steps380) * Math.PI * 2;
+      points380.push({ x: width / 2 + Math.cos(angle) * 380, y: height / 2 + Math.sin(angle) * 380 });
+    }
+    drawSketchedPath(points380, crossColor, 0.4, 1.2, 1, true);
   }
 }
 
-// Target elements and positions calculator
+// Resize recalculates targets dynamically
 function resize() {
   dpr = Math.min(window.devicePixelRatio || 1, 2);
   width = window.innerWidth;
@@ -1643,70 +1873,138 @@ function resize() {
   canvas.height = height * dpr;
   ctx.scale(dpr, dpr);
 
-  // Visual boundaries alignment handler
+  logoCanvas.width = width * dpr;
+  logoCanvas.height = height * dpr;
+  logoCtx.scale(dpr, dpr);
+
   const placeholder = document.querySelector('.logo-placeholder');
   if (placeholder) {
     const rect = placeholder.getBoundingClientRect();
-    moonTargetX = rect.left + 65; // base center
+    // Center the name logo exactly inside the logo placeholder
+    moonTargetX = width / 2;
     moonTargetY = rect.top + rect.height / 2;
-    textTargetX = rect.left + 115; // text center
-    textTargetY = rect.top + rect.height / 2;
   } else {
-    moonTargetX = Math.max(80, (width - 1180) / 2 + 80);
+    moonTargetX = width / 2;
     moonTargetY = 52;
-    textTargetX = moonTargetX + 50;
-    textTargetY = 52;
   }
 }
 window.addEventListener('resize', resize);
-// Call once on launch to index logo position bounds
+// Index coordinates on launch
 document.fonts.ready.then(() => {
   resize();
 });
 
-// Cursor drag and move bindings
-function updatePointer(clientX, clientY) {
-  state.targetMouse.x = clientX;
-  state.targetMouse.y = clientY;
-}
-window.addEventListener('pointermove', (e) => updatePointer(e.clientX, e.clientY));
-window.addEventListener('touchmove', (e) => {
-  const t = e.touches[0];
-  if (t) updatePointer(t.clientX, t.clientY);
-}, { passive: true });
-
-// Scroll triggered state timeline handler
+// Scroll triggered state updates
 window.addEventListener('scroll', () => {
   const scrollTop = window.scrollY;
-  const triggerHeight = window.innerHeight; // 100vh spacer height
-  const targetT = Math.min(Math.max(scrollTop / triggerHeight, 0), 1);
+  const contactEl = document.getElementById('contact');
+  const contactOffset = contactEl ? contactEl.offsetTop : window.innerHeight * 5.0;
+
+  // Extend the transition smoothly to contactOffset (turn to night when we reach Let's Connect)
+  const targetT = Math.min(Math.max(scrollTop / (contactOffset * 0.62), 0), 1);
+  const targetLogoT = Math.min(Math.max(scrollTop / 450, 0), 1);
 
   gsap.to(state, {
     transition: targetT,
-    duration: 0.65,
+    logoTransition: targetLogoT,
+    duration: 0.85, // Extended/smoother ease
     ease: "power2.out",
     overwrite: "auto"
   });
 
-  // Toggle dark mode class on body for theme swaps
-  if (targetT > 0.5) {
+  // Toggle dark mode class on body when we reach the Experience ("Where I've Been") section
+  const experienceEl = document.getElementById('experience');
+  const experienceOffset = experienceEl ? experienceEl.offsetTop : window.innerHeight * 4.0;
+
+  if (scrollTop >= experienceOffset - window.innerHeight * 0.4) {
     document.body.classList.add('dark-mode');
   } else {
     document.body.classList.remove('dark-mode');
   }
+
+  // Toggle modern-cursor class on body as we reach the Contact ("Let's Connect") section
+  if (scrollTop >= contactOffset - window.innerHeight * 0.4) {
+    document.body.classList.add('modern-cursor');
+  } else {
+    document.body.classList.remove('modern-cursor');
+  }
 });
 
-// Master rendering loop
+// Main Draw Loop
 function draw(time) {
   state.time = time;
-  // Clear layout canvas
   ctx.clearRect(0, 0, width, height);
+  logoCtx.clearRect(0, 0, width, height);
 
-  // 1. Draw watercolor background gradient
+  // Compute global beamIntensity as the maximum of all chapter card beamIntensities
+  let maxBeam = 0;
+  document.querySelectorAll('.chapter-inner').forEach(inner => {
+    if (inner.beamIntensity !== undefined) {
+      maxBeam = Math.max(maxBeam, inner.beamIntensity);
+    }
+  });
+  state.beamIntensity = maxBeam;
+
+  // Update style transition custom properties on documentElement
+  const root = document.documentElement;
+  root.style.setProperty('--style-progress', state.transition.toFixed(3));
+
+  // Swapping styles on scroll for doodle-to-modern transition
+  const fontBody = state.transition < 0.6 ? "'Shantell Sans', sans-serif" : "'Outfit', sans-serif";
+  const fontDisplay = state.transition < 0.6 ? "'Shantell Sans', cursive" : "'Outfit', sans-serif";
+  root.style.setProperty('--font-body', fontBody);
+  root.style.setProperty('--font-display', fontDisplay);
+
+  const chapterRadius = state.transition < 0.6 
+    ? "255px 18px 225px 18px / 18px 225px 18px 255px" 
+    : "16px";
+  const projectRadius = state.transition < 0.6
+    ? "20px 6px 20px 6px"
+    : "12px";
+  const detailRadius = state.transition < 0.6
+    ? "14px 4px 14px 4px"
+    : "8px";
+  const contactRadius = state.transition < 0.6
+    ? "16px 4px 16px 4px"
+    : "12px";
+  const timelineStyle = state.transition < 0.6 ? "dashed" : "solid";
+
+  root.style.setProperty('--chapter-radius', chapterRadius);
+  root.style.setProperty('--project-radius', projectRadius);
+  root.style.setProperty('--detail-radius', detailRadius);
+  root.style.setProperty('--contact-radius', contactRadius);
+  root.style.setProperty('--timeline-style', timelineStyle);
+
+  // Compute star fade-in factor dynamically based on scroll position
+  const scrollTop = window.scrollY;
+  const experienceEl = document.getElementById('experience');
+  const contactEl = document.getElementById('contact');
+  const experienceOffset = experienceEl ? experienceEl.offsetTop : height * 4.0;
+  const contactOffset = contactEl ? contactEl.offsetTop : height * 5.0;
+
+  let starFadeIn = 0;
+  if (scrollTop > experienceOffset) {
+    const range = contactOffset - experienceOffset;
+    starFadeIn = range > 0 ? Math.min((scrollTop - experienceOffset) / range, 1.0) : 1.0;
+  }
+
+  // 1. Draw watercolor background gradient (Interpolating Day -> Sunset -> Night)
   const grad = ctx.createLinearGradient(0, 0, 0, height);
-  const stop0 = interpolateColor(dayStops[0], nightStops[0], state.transition);
-  const stop1 = interpolateColor(dayStops[1], nightStops[1], state.transition);
-  const stop2 = interpolateColor(dayStops[2], nightStops[2], state.transition);
+  let stop0, stop1, stop2;
+
+  if (state.transition < 0.5) {
+    // Phase 1: Day -> Sunset
+    const factor = state.transition * 2;
+    stop0 = interpolateColor(dayStops[0], sunsetStops[0], factor);
+    stop1 = interpolateColor(dayStops[1], sunsetStops[1], factor);
+    stop2 = interpolateColor(dayStops[2], sunsetStops[2], factor);
+  } else {
+    // Phase 2: Sunset -> Night
+    const factor = (state.transition - 0.5) * 2;
+    stop0 = interpolateColor(sunsetStops[0], nightStops[0], factor);
+    stop1 = interpolateColor(sunsetStops[1], nightStops[1], factor);
+    stop2 = interpolateColor(sunsetStops[2], nightStops[2], factor);
+  }
 
   grad.addColorStop(0, stop0);
   grad.addColorStop(0.6, stop1);
@@ -1721,170 +2019,248 @@ function draw(time) {
     lastJitterUpdate = time;
   }
 
-  // Linear pointer coordination smoothing (lerp)
-  state.mouse.x += (state.targetMouse.x - state.mouse.x) * 0.1;
-  state.mouse.y += (state.targetMouse.y - state.mouse.y) * 0.1;
-
   // 2. Draw poster grid blueprints
   drawCelestialPosterGrid(state.transition);
 
-  // 3. Draw twinkling starry sky (Night State)
+  // 3. Draw starry sky (floating slowly, no blinking, fading in at Experience)
   if (state.transition > 0.01) {
     const starColor = parseColor('#ffd400');
-    const outlineColor = parseColor('#e2e8f0');
 
     stars.forEach(star => {
-      const sparkle = 0.35 + 0.65 * Math.sin(time * star.speed + star.phase);
-      const alpha = state.transition * sparkle;
+      // Float/drift updates
+      star.baseX += star.driftX;
+      star.baseY += star.driftY;
 
-      // Parallax drift offset
-      const px = star.baseX + (state.mouse.x - width / 2) * star.parallax;
-      const py = star.baseY + (state.mouse.y - height / 2) * star.parallax;
+      // Wrap boundaries
+      const sx = (star.baseX + width) % width;
+      const sy = (star.baseY + height) % height;
 
-      // Wrap coordinate bounds
-      const sx = (px + width) % width;
-      const sy = (py + height) % height;
+      // Subtle slow star rotation
+      const starRotation = star.initialRotation + time * star.spinSpeed;
 
-      drawCelestialStar(sx, sy, star.size, starColor, alpha);
+      // No blinking: constant visibility once faded in
+      const alpha = starFadeIn * 0.85;
+
+      if (alpha > 0.01) {
+        drawCelestialStar(sx, sy, star.size, starColor, alpha, starRotation);
+      }
     });
 
-    drawConstellationLines(state.transition);
+    drawConstellationLines(starFadeIn);
   }
 
-  // 4. Draw drifting clouds (Day State)
+  // 4. Draw drifting clouds (Day & Sunset States)
   if (state.transition < 0.99) {
     clouds.forEach(cloud => {
       // Drifts slowly right
       cloud.x += cloud.speed;
       if (cloud.x > width + 100) cloud.x = -100;
 
-      // Parallax coordinate updates
-      const cx = cloud.x + (state.mouse.x - width / 2) * cloud.parallax;
-      const cy = cloud.y + (state.mouse.y - height / 2) * cloud.parallax;
-
-      const alpha = (1 - state.transition) * 0.72;
-      drawSketchedCloud(cx, cy, cloud.scale, alpha);
+      const alpha = (1 - state.transition) * 0.75;
+      drawSketchedCloud(cloud.x, cloud.y, cloud.scale, alpha, state.transition);
     });
   }
 
-  // 5. Draw Sun / Moon Celestial morph transitions
-  const centerX = gsap.utils.interpolate(width / 2, moonTargetX, state.transition);
-  const centerY = gsap.utils.interpolate(height / 2, moonTargetY, state.transition);
-
-  const baseSunR = Math.max(45, Math.min(width * 0.1, height * 0.12, 75));
-  const sunR = baseSunR * (1 - state.transition);
-  const moonR = 14 * state.transition;
-
-  // A. Draw Sun base circle
-  if (state.transition < 0.99) {
-    const sunColor = `rgba(255, 212, 0, ${1 - state.transition})`;
-    // Draw outer wobbly ring
-    drawSketchedCircle(centerX, centerY, sunR, sunColor, 1.8, 1.5, 2);
-  }
-
-  // B. Draw Sun Rays (stretch, pulse & hover interactive)
+  // 5. Draw flying birds (Day & Sunset States)
   if (state.transition < 0.9) {
-    const numRays = 14;
-    const rayColor = `243, 176, 7`;
-    const dx = state.mouse.x - centerX;
-    const dy = state.mouse.y - centerY;
-    const dist = Math.hypot(dx, dy);
-    const pointerAngle = Math.atan2(dy, dx);
+    birds.forEach(bird => {
+      // Drifts right
+      bird.x += bird.speedX;
+      if (bird.x > width + 50) {
+        bird.x = -50;
+        bird.y = height * (0.12 + Math.random() * 0.35); // Randomize y-level
+      }
 
-    const r1 = sunR + 10;
-    const r2 = sunR + 55 * (1 - state.transition);
+      // Flapping speed
+      const flap = Math.sin(time * bird.flapSpeed + bird.phase);
+      const alpha = (1 - state.transition) * 0.75;
 
-    for (let i = 0; i < numRays; i++) {
-      const baseAngle = (i / numRays) * 2 * Math.PI + time * 0.0012;
-      
-      // Calculate angular distance to pointer
-      let diff = baseAngle - pointerAngle;
-      diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+      // Color tints: terracotta red during sunset, dark ink in daytime
+      const birdColor = state.transition < 0.5
+        ? interpolateColor('#1c1812', '#8a2d21', state.transition * 2)
+        : '#8a2d21';
 
-      // Stretch rays facing pointer using Gaussian distribution curve
-      const stretchIntensity = Math.exp(-Math.pow(diff / 0.55, 2));
-      const stretch = stretchIntensity * Math.min(dist * 0.32, 100) * (1 - state.transition);
-      
-      // Continuous ray pulsing
-      const wave = Math.sin(time * 0.038 + i) * 6 * (1 - state.transition);
-
-      const rx1 = centerX + Math.cos(baseAngle) * r1;
-      const ry1 = centerY + Math.sin(baseAngle) * r1;
-      const rx2 = centerX + Math.cos(baseAngle) * (r2 + stretch + wave);
-      const ry2 = centerY + Math.sin(baseAngle) * (r2 + stretch + wave);
-
-      const rayOpacity = (1 - state.transition) * 0.8;
-      drawSketchedLine(rx1, ry1, rx2, ry2, `rgba(${rayColor}, ${rayOpacity})`, 1.6, 1.4, 1);
-    }
+      drawSketchedBird(bird.x, bird.y, bird.size, flap, parseColor(birdColor), alpha);
+    });
   }
 
-  // C. Draw Moon Crescent & Crater details
-  if (state.transition > 0.05) {
-    const moonColor = parseColor('#e2e8f0');
-    // Crescent shifts left relative to centering target
-    const moonCX = centerX - 40 * state.transition;
-    drawSketchedCrescent(moonCX, centerY, moonR, moonColor, 1.5, state.transition);
+  // 6. Compute name typography layout values
+  const textX = gsap.utils.interpolate(width / 2, moonTargetX, state.logoTransition);
+  const textY = gsap.utils.interpolate(height / 2 + 10, moonTargetY + 6, state.logoTransition);
 
-    // Draw moon crater doodles
-    if (state.transition > 0.6) {
-      const craterColor = `rgba(248, 250, 252, ${state.transition * 0.28})`;
-      // Crater A
-      drawSketchedCircle(moonCX - 5, centerY - 4, 2.5, craterColor, 0.8, 1.0, 1);
-      // Crater B
-      drawSketchedCircle(moonCX - 2, centerY + 5, 2.0, craterColor, 0.8, 1.0, 1);
-    }
-  }
-
-  // 6. Draw name typography "Mark Anjoul" (Cabin Sketch variables)
-  const textX = gsap.utils.interpolate(width / 2, textTargetX, state.transition);
-  const textY = gsap.utils.interpolate(height / 2 + 10, textTargetY + 6, state.transition);
-
-  const baseFontSize = Math.max(32, Math.min(width * 0.07, height * 0.09, 56));
+  const baseFontSize = Math.max(48, Math.min(width * 0.09, height * 0.12, 105));
   const nightFontSize = Math.max(16, Math.min(width * 0.04, 22));
-  const fontSize = gsap.utils.interpolate(baseFontSize, nightFontSize, state.transition);
+  const fontSize = gsap.utils.interpolate(baseFontSize, nightFontSize, state.logoTransition);
 
-  ctx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
+  const glowOpacity = state.transition < 0.05 ? 0 : (state.transition < 0.5 ? state.transition * 0.9 : (1 - (state.transition - 0.5) * 0.4)); // glow brightest during sunset/night
+  const glowColor = state.transition < 0.5
+    ? interpolateColor('#ffd400', '#f35e07', state.transition * 2)
+    : interpolateColor('#f35e07', '#ffffff', (state.transition - 0.5) * 2);
+
+  // 6.5 Draw UFO tractor beam if beamIntensity is positive (before drawing logo text so text is on top)
+  if (state.beamIntensity > 0.01) {
+    logoCtx.save();
+    
+    const beamColor = parseColor(glowColor);
+    
+    // Draw the flared beam shape (trapezoid that grows)
+    const topW = fontSize * 3.5; // Width of the beam at the logo
+    const fullBottomW = width * 0.95; // Wide flared out width at bottom of screen
+    
+    // Grow factor: starts by shooting down to the bottom of the screen quickly, then widening/intensifying
+    const lengthFactor = Math.min(1.0, state.beamIntensity * 1.8);
+    const beamBottomY = textY + (height - textY) * lengthFactor;
+    const currentBottomW = topW + (fullBottomW - topW) * lengthFactor;
+    
+    // Create a linear gradient for the beam fading to transparent at its current bottom
+    const beamGrad = logoCtx.createLinearGradient(textX, textY, textX, beamBottomY);
+    beamGrad.addColorStop(0, `rgba(${beamColor.r}, ${beamColor.g}, ${beamColor.b}, ${state.beamIntensity * 0.32})`);
+    beamGrad.addColorStop(0.35, `rgba(${beamColor.r}, ${beamColor.g}, ${beamColor.b}, ${state.beamIntensity * 0.18})`);
+    beamGrad.addColorStop(1, `rgba(${beamColor.r}, ${beamColor.g}, ${beamColor.b}, 0)`);
+    
+    logoCtx.fillStyle = beamGrad;
+    
+    logoCtx.beginPath();
+    logoCtx.moveTo(textX - topW / 2, textY + fontSize * 0.1); // Top left
+    logoCtx.lineTo(textX + topW / 2, textY + fontSize * 0.1); // Top right
+    logoCtx.lineTo(textX + currentBottomW / 2, beamBottomY); // Bottom right
+    logoCtx.lineTo(textX - currentBottomW / 2, beamBottomY); // Bottom left
+    logoCtx.closePath();
+    logoCtx.fill();
+    
+    // Draw flared outline rays (sketchy style!)
+    const rayColor = `rgba(${beamColor.r}, ${beamColor.g}, ${beamColor.b}, ${state.beamIntensity * 0.38})`;
+    
+    // Left edge ray
+    drawSketchedLine(textX - topW / 2, textY + fontSize * 0.1, textX - currentBottomW / 2, beamBottomY, rayColor, 1.4, 2.0, 1, logoCtx);
+    
+    // Right edge ray
+    drawSketchedLine(textX + topW / 2, textY + fontSize * 0.1, textX + currentBottomW / 2, beamBottomY, rayColor, 1.4, 2.0, 1, logoCtx);
+    
+    // Draw internal ray lines
+    for (let i = -2; i <= 2; i++) {
+      if (i === 0) continue;
+      const tX = textX + (topW * 0.2 * i);
+      const bX = textX + (currentBottomW * 0.2 * i);
+      const innerRayColor = `rgba(${beamColor.r}, ${beamColor.g}, ${beamColor.b}, ${state.beamIntensity * 0.16})`;
+      drawSketchedLine(tX, textY + fontSize * 0.1, bX, beamBottomY, innerRayColor, 0.8, 1.5, 1, logoCtx);
+    }
+    
+    // Draw rising bubbles/particles inside the tractor beam to simulate suction
+    const particleCount = 8;
+    for (let i = 0; i < particleCount; i++) {
+      const pSeed = i * 73.5;
+      const progress = ((state.time * 0.0012 + i / particleCount) % 1.0); // 0 to 1 rising loop
+      
+      // Calculate Y coordinate rising from beamBottomY up to textY
+      const pY = beamBottomY - (beamBottomY - textY) * progress;
+      
+      // Interpolate beam width at this specific Y height
+      const hFactor = (pY - textY) / Math.max(1, beamBottomY - textY);
+      const pBeamW = topW + (currentBottomW - topW) * hFactor;
+      
+      // Horizontal drift/wobble within the beam
+      const xOffset = Math.sin(state.time * 0.004 + pSeed) * (pBeamW * 0.36);
+      const pX = textX + xOffset;
+      
+      // Bubble size: starts normal, grows slightly, shrinks as it approaches the name/UFO
+      const pSize = (4 + (pBeamW * 0.045)) * Math.sin(progress * Math.PI) * (0.4 + 0.6 * progress);
+      const pAlpha = state.beamIntensity * 0.35 * Math.sin(progress * Math.PI); // Fade near boundaries
+      
+      if (pAlpha > 0.01 && pSize > 0.5) {
+        logoCtx.fillStyle = `rgba(${beamColor.r}, ${beamColor.g}, ${beamColor.b}, ${pAlpha})`;
+        logoCtx.beginPath();
+        logoCtx.arc(pX, pY, pSize, 0, Math.PI * 2);
+        logoCtx.fill();
+        
+        // Sketchy bubble outline to fit the hand-drawn aesthetic
+        logoCtx.strokeStyle = `rgba(${beamColor.r}, ${beamColor.g}, ${beamColor.b}, ${pAlpha * 1.6})`;
+        logoCtx.lineWidth = 0.9;
+        logoCtx.beginPath();
+        logoCtx.arc(pX + Math.sin(state.time * 0.008 + pSeed) * 0.4, pY + Math.cos(state.time * 0.008 + pSeed) * 0.4, pSize, 0, Math.PI * 2);
+        logoCtx.stroke();
+      }
+    }
+    
+    logoCtx.restore();
+  }
+
+  // 7. Draw name typography "Mark Anjoul" (Cabin Sketch variables)
+  logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
+  logoCtx.textAlign = 'center';
+  logoCtx.textBaseline = 'middle';
 
   const text = "Mark Anjoul";
 
-  // Sketch marker shadow (Day State only)
-  if (state.transition < 0.9) {
-    ctx.fillStyle = `rgba(243, 112, 7, ${(1 - state.transition) * 0.35})`;
-    ctx.fillText(text, textX + 2.5, textY + 2.5);
+  if (glowOpacity > 0.01) {
+    logoCtx.fillStyle = `rgba(${parseColor(glowColor).r}, ${parseColor(glowColor).g}, ${parseColor(glowColor).b}, ${glowOpacity * 0.65})`;
+    logoCtx.fillText(text, textX - 1.5, textY - 1.5);
+    logoCtx.fillText(text, textX + 1.5, textY - 1.5);
+    logoCtx.fillText(text, textX - 1.5, textY + 1.5);
+    logoCtx.fillText(text, textX + 1.5, textY + 1.5);
+
+    // Thick stroke glow
+    logoCtx.strokeStyle = `rgba(${parseColor(glowColor).r}, ${parseColor(glowColor).g}, ${parseColor(glowColor).b}, ${glowOpacity * 0.48})`;
+    logoCtx.lineWidth = fontSize * 0.09;
+    logoCtx.strokeText(text, textX, textY);
   }
 
-  // Solid fill
-  const fillCol = interpolateColor('#ffd400', '#f8fafc', state.transition);
-  ctx.fillStyle = fillCol;
-  ctx.fillText(text, textX, textY);
+  // Draw solid black text on top
+  logoCtx.fillStyle = '#1c1812';
+  logoCtx.fillText(text, textX, textY);
 
-  // Sketch outline text
-  const strokeCol = interpolateColor('#1c1812', '#e2e8f0', state.transition);
-  ctx.strokeStyle = strokeCol;
-  ctx.lineWidth = state.transition < 0.5 ? 1.5 : 0.8;
-  ctx.strokeText(text, textX, textY);
+  // Sketch outline text in black ink
+  logoCtx.strokeStyle = '#1c1812';
+  logoCtx.lineWidth = state.transition < 0.5 ? 1.5 : 0.8;
+  logoCtx.strokeText(text, textX, textY);
+
+  // Update blur aura position and size
+  const blurAura = document.getElementById('logo-blur-aura');
+  if (blurAura) {
+    blurAura.style.left = `${textX}px`;
+    blurAura.style.top = `${textY}px`;
+
+    const baseW = Math.max(260, width * 0.35);
+    const nightW = 160;
+    const auraW = gsap.utils.interpolate(baseW, nightW, state.logoTransition);
+    const auraH = gsap.utils.interpolate(auraW * 0.45, 60, state.logoTransition);
+
+    blurAura.style.width = `${auraW}px`;
+    blurAura.style.height = `${auraH}px`;
+  }
 
   // 7. Dynamic layout effects updates
-  // Fade hero HTML text on scroll
+  // Fade out hero HTML copy and scroll hint quickly as we scroll past the hero section
   const heroContent = document.getElementById('hero-content');
   if (heroContent) {
-    heroContent.style.opacity = Math.max(0, 1 - state.transition * 2.0);
+    const heroFade = Math.max(0, 1 - (scrollTop / (window.innerHeight * 0.5)));
+    heroContent.style.opacity = heroFade;
   }
   const scrollHint = document.getElementById('scroll-hint');
   if (scrollHint) {
-    scrollHint.style.opacity = Math.max(0, 1 - state.transition * 3.0);
+    const hintFade = Math.max(0, 1 - (scrollTop / (window.innerHeight * 0.25)));
+    scrollHint.style.opacity = hintFade;
   }
 
-  // Slide navbar in and out
+  // Fade in and slide the navigation capsule quickly on scroll for usability
   const navInner = document.querySelector('.nav-inner');
   if (navInner) {
+    const navFade = Math.min(scrollTop / (window.innerHeight * 0.4), 1);
     gsap.set(navInner, {
-      opacity: state.transition,
-      y: (1 - state.transition) * -15,
-      pointerEvents: state.transition > 0.15 ? 'auto' : 'none'
+      opacity: navFade,
+      y: (1 - navFade) * -15,
+      pointerEvents: navFade > 0.8 ? 'auto' : 'none'
     });
+  }
+
+  // Only enable logo link keyboard focus once the name-sun has docked as the moon
+  const logoLink = document.querySelector('.logo-link');
+  if (logoLink) {
+    if (state.logoTransition > 0.85) {
+      logoLink.removeAttribute('tabindex');
+    } else {
+      logoLink.setAttribute('tabindex', '-1');
+    }
   }
 
   requestAnimationFrame(draw);
