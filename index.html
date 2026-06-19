@@ -30,6 +30,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.css">
 
 <!-- Google Font Cabin Sketch and Shantell Sans-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Shantell+Sans:wght@300..700&display=swap" rel="stylesheet">
 
 <style>
@@ -328,7 +330,7 @@ nav {
   border: 1.5px solid rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
 }
 
-.mobile-menu-btn { display: none; flex-direction: column; gap: 4px; background: none; border: none; cursor: pointer; padding: 0.5rem; }
+.mobile-menu-btn { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: none; border: none; cursor: pointer; min-width: 44px; min-height: 44px; }
 .mobile-menu-btn span { width: 20px; height: 2px; background: var(--ink); border-radius: 2px; }
 
 .mobile-nav {
@@ -742,8 +744,10 @@ nav {
   border-radius: var(--detail-radius, 14px 4px 14px 4px) !important;
   padding: 1rem 1.1rem;
   background: var(--paper-2);
-  transition: border-radius 0.5s ease, border-color 0.3s ease, background-color 0.8s ease;
+  transition: transform 0.2s var(--ease-expo), border-radius 0.5s ease, border-color 0.3s ease, background-color 0.8s ease;
 }
+.detail-card:nth-child(odd) { transform: rotate(calc(-0.6deg * var(--doodle-opacity))); }
+.detail-card:nth-child(even) { transform: rotate(calc(0.6deg * var(--doodle-opacity))) translateY(4px); }
 .detail-card .skill-icon-wrapper {
   width: 2.8rem;
   height: 2.8rem;
@@ -754,7 +758,7 @@ nav {
 .detail-icon-research { --skill-color: #c2562a; }
 .detail-icon-languages { --skill-color: #1f9d55; }
 .detail-icon-tools { --skill-color: #8a4baf; }
-.detail-card h4 {
+.detail-card h3 {
   font-family: 'Cabin Sketch', var(--font-display);
   font-weight: 700;
   font-size: 1.1rem;
@@ -938,7 +942,8 @@ nav {
   position: absolute;
   top: 1.2rem; right: 1.2rem;
   background: var(--paper); border: 1.5px solid var(--ink); border-radius: 50%;
-  width: 32px; height: 32px;
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
   color: var(--ink); font-size: 1rem; cursor: pointer; line-height: 1;
 }
 .project-modal-close:hover { color: var(--accent); border-color: var(--accent); }
@@ -961,6 +966,7 @@ nav {
 .media-tab {
   font-size: 0.78rem; color: var(--ink-3); background: var(--paper);
   border: 1.5px solid var(--ink); border-radius: 999px; padding: 0.4rem 0.9rem;
+  min-height: 44px; display: inline-flex; align-items: center;
   cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s;
 }
 .media-tab.active, .media-tab:hover { border-color: var(--yellow); color: var(--ink); background: var(--yellow); }
@@ -1028,6 +1034,8 @@ nav {
   background: var(--paper);
   transition: border-color 0.3s ease, background-color 0.2s, transform 0.2s var(--ease-expo), border-radius 0.5s ease;
 }
+.contact-link:nth-child(odd) { transform: rotate(calc(-0.6deg * var(--doodle-opacity))); }
+.contact-link:nth-child(even) { transform: rotate(calc(0.6deg * var(--doodle-opacity))) translateY(4px); }
 @media (hover: hover) and (pointer: fine) {
   .contact-link:hover { border-color: var(--accent) !important; background: var(--paper-2); transform: translate(-2px, -2px); }
   .contact-link:hover .cl-icon-wrapper { box-shadow: 4px 4px 0 var(--ink); transform: translate(-2px, -2px); }
@@ -1078,6 +1086,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   .chapter { padding: 1.2rem 1rem; } /* Reduced padding for tighter mobile layout */
   .detail-grid { grid-template-columns: 1fr; }
   .contact-links { grid-template-columns: 1fr; }
+  .detail-card, .contact-link { transform: none !important; }
   .chapter-inner { border-radius: 28px 10px 28px 10px; }
   .project-card { transform: none !important; }
   .project-card:nth-child(odd):hover, .project-card:nth-child(even):hover { transform: translateY(-3px) !important; }
@@ -1178,25 +1187,25 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
           <div class="skill-icon-wrapper detail-icon-color detail-icon-education" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="skill-icon"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z" fill="currentColor"/></svg>
           </div>
-          <h4>Education</h4><p>B.S. Computer Science, USF</p>
+          <h3>Education</h3><p>B.S. Computer Science, USF</p>
         </div>
         <div class="detail-card">
           <div class="skill-icon-wrapper detail-icon-color detail-icon-research" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="skill-icon"><path d="M9 2v2h1v5.92l-.3.5L5.38 18H6v.6c0 .77.63 1.4 1.4 1.4h9.2c.77 0 1.4-.63 1.4-1.4V18h.62l-4.32-7.58-.3-.5V4h1V2H9zm2 2h2v5.92l.3.5 3.8 6.58H6.9l3.8-6.58.3-.5V4z" fill="currentColor"/></svg>
           </div>
-          <h4>Research</h4><p>RARE Lab · HRI &amp; AI</p>
+          <h3>Research</h3><p>RARE Lab · HRI &amp; AI</p>
         </div>
         <div class="detail-card">
           <div class="skill-icon-wrapper detail-icon-color detail-icon-languages" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="skill-icon"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0L19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" fill="currentColor"/></svg>
           </div>
-          <h4>Languages</h4><p>Python, Swift, C/C++, Java</p>
+          <h3>Languages</h3><p>Python, Swift, C/C++, Java</p>
         </div>
         <div class="detail-card">
           <div class="skill-icon-wrapper detail-icon-color detail-icon-tools" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="skill-icon"><path d="M22.7 19L13.6 9.9c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z" fill="currentColor"/></svg>
           </div>
-          <h4>Tools</h4><p>Xcode, VS Code, Postman, scikit-learn</p>
+          <h3>Tools</h3><p>Xcode, VS Code, Postman, scikit-learn</p>
         </div>
       </div>
     </div>
@@ -2024,7 +2033,27 @@ function renderMedia(media) {
   }
 }
 
-function openProjectModal(id) {
+const modalPanel = modal.querySelector('.project-modal-panel');
+const siteNav = document.querySelector('nav');
+const scrollWrapperEl = document.querySelector('.scroll-wrapper');
+let modalTriggerEl = null;
+
+function trapModalTab(e) {
+  if (e.key !== 'Tab') return;
+  const focusable = modalPanel.querySelectorAll('a[href], button:not([disabled])');
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+}
+
+function openProjectModal(id, triggerEl) {
   const data = projectData[id];
   if (!data) return;
   renderMedia(data.media);
@@ -2038,6 +2067,11 @@ function openProjectModal(id) {
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
   if (lenis) lenis.stop();
+  modalTriggerEl = triggerEl || document.activeElement;
+  if (siteNav) siteNav.inert = true;
+  if (scrollWrapperEl) scrollWrapperEl.inert = true;
+  modal.querySelector('.project-modal-close').focus();
+  modal.addEventListener('keydown', trapModalTab);
 }
 function closeProjectModal() {
   modal.classList.remove('active');
@@ -2045,13 +2079,28 @@ function closeProjectModal() {
   if (lenis) lenis.start();
   const video = modalMedia.querySelector('video');
   if (video) video.pause();
+  if (siteNav) siteNav.inert = false;
+  if (scrollWrapperEl) scrollWrapperEl.inert = false;
+  modal.removeEventListener('keydown', trapModalTab);
+  if (modalTriggerEl) modalTriggerEl.focus();
+  modalTriggerEl = null;
 }
 
 // Register click events for both cards and compressed list rows to open the modal
 document.querySelectorAll('.project-card, .compressed-project-row').forEach((card) => {
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('role', 'button');
+  card.setAttribute('aria-label', `View ${card.dataset.project} project details`);
   card.addEventListener('click', (e) => {
     if (e.target.closest('a')) return;
-    openProjectModal(card.dataset.project);
+    openProjectModal(card.dataset.project, card);
+  });
+  card.addEventListener('keydown', (e) => {
+    if (e.target.closest('a')) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openProjectModal(card.dataset.project, card);
+    }
   });
 });
 
@@ -2117,19 +2166,30 @@ document.addEventListener('keydown', (e) => {
 const menuBtn = document.querySelector('.mobile-menu-btn');
 const mobileNav = document.querySelector('.mobile-nav');
 const mobileNavClose = document.querySelector('.mobile-nav-close');
-menuBtn.addEventListener('click', () => {
+mobileNav.inert = true;
+function openMobileNav() {
   mobileNav.classList.add('active');
+  mobileNav.inert = false;
   document.body.style.overflow = 'hidden';
-});
-mobileNavClose.addEventListener('click', () => {
+  if (siteNav) siteNav.inert = true;
+  if (scrollWrapperEl) scrollWrapperEl.inert = true;
+  mobileNavClose.focus();
+}
+function closeMobileNav() {
   mobileNav.classList.remove('active');
+  mobileNav.inert = true;
   document.body.style.overflow = '';
-});
+  if (siteNav) siteNav.inert = false;
+  if (scrollWrapperEl) scrollWrapperEl.inert = false;
+  menuBtn.focus();
+}
+menuBtn.addEventListener('click', openMobileNav);
+mobileNavClose.addEventListener('click', closeMobileNav);
 mobileNav.querySelectorAll('a').forEach((link) => {
-  link.addEventListener('click', () => {
-    mobileNav.classList.remove('active');
-    document.body.style.overflow = '';
-  });
+  link.addEventListener('click', closeMobileNav);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && mobileNav.classList.contains('active')) closeMobileNav();
 });
 
 /* ---------- scroll progress bar & celestial canvas drawing logic ---------- */
