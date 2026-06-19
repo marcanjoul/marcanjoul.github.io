@@ -291,6 +291,7 @@ nav {
   justify-content: center;
   gap: 0.8rem;
   font-size: 1.85rem;
+  font-family: 'Cabin Sketch', var(--font-display);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -452,6 +453,141 @@ body.dark-mode .skill-item:hover .skill-icon-wrapper {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.4rem;
   margin-top: 1.8rem;
+}
+.project-grid.hidden, .projects-compressed-list.hidden {
+  display: none !important;
+}
+.project-grid .project-card:nth-child(n+7) {
+  display: none !important;
+}
+
+.projects-compressed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 1.8rem;
+  width: 100%;
+}
+
+.compressed-project-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 1fr;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--wonky);
+  background: var(--paper-2);
+  filter: url(#sketchy);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.compressed-project-row:hover {
+  transform: rotate(-0.5deg) scale(1.01);
+  background: var(--paper);
+}
+
+.compressed-title-group h4 {
+  font-family: 'Cabin Sketch', var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.1rem;
+}
+
+.compressed-type {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.compressed-desc {
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.compressed-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.compressed-tags span {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.4rem;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink-3);
+}
+
+.compressed-links {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: flex-end;
+}
+
+.compressed-links a {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--ink);
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.compressed-links a:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.projects-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.view-all-btn {
+  font-family: 'Cabin Sketch', var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: var(--wonky);
+  padding: 0.6rem 1.8rem;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--ink);
+  filter: url(#sketchy);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.view-all-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--ink);
+  background: var(--paper-2);
+}
+
+.view-all-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+/* Responsiveness for compressed list */
+@media (max-width: 768px) {
+  .compressed-project-row {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+    align-items: flex-start;
+  }
+  .compressed-links {
+    justify-content: flex-start;
+    margin-top: 0.3rem;
+  }
 }
 .project-card {
   border: 1.5px solid var(--ink);

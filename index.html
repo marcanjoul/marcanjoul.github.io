@@ -8,7 +8,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mark Anjoul — CS @ USF, building AI, mobile & robotics</title>
+<title>Mark Anjoul — Computer Science @ USF, building AI, mobile & robotics</title>
 <meta name="description" content="Mark Anjoul is a Computer Science student and developer at USF, working on AI, mobile, and robotics. Undergraduate researcher at the RARE Lab building on-device AI and LLM inference.">
 <meta name="theme-color" content="#f3ede0">
 <link rel="canonical" href="https://markanjoul.com/">
@@ -16,13 +16,13 @@
 <!-- Open Graph / social preview -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://markanjoul.com/">
-<meta property="og:title" content="Mark Anjoul — CS @ USF, building AI, mobile & robotics">
+<meta property="og:title" content="Mark Anjoul — Computer Science @ USF, building AI, mobile & robotics">
 <meta property="og:description" content="Undergraduate researcher at USF's RARE Lab. Building intelligent, user-facing software across AI, mobile, and robotics.">
 <meta property="og:image" content="https://markanjoul.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Mark Anjoul — CS @ USF, building AI, mobile & robotics">
+<meta name="twitter:title" content="Mark Anjoul — Computer Science @ USF, building AI, mobile & robotics">
 <meta name="twitter:description" content="Undergraduate researcher at USF's RARE Lab. Building intelligent software across AI, mobile, and robotics.">
 <meta name="twitter:image" content="https://markanjoul.com/og.png">
 
@@ -520,6 +520,7 @@ body.dark-mode .chapter-label { color: var(--yellow); }
   justify-content: center;
   gap: 0.8rem;
   font-size: 1.85rem;
+  font-family: 'Cabin Sketch', var(--font-display);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -969,7 +970,7 @@ body.dark-mode footer { color: var(--ink-3); }
     <div class="chapter-inner chapter-inner-hero" id="hero-content">
       <h1 class="sr-only">Mark Anjoul</h1>
       <div class="chapter-label hero-label-wrapper">
-        <span>CS @</span>
+        <span>Computer Science @</span>
         <img class="usf-logo" src="https://1000logos.net/wp-content/uploads/2020/02/South-Florida-Bulls-Logo.png" alt="USF Logo">
       </div>
       <h2 class="split">Building at the intersection of AI, Mobile &amp; Robotics</h2>
@@ -2343,31 +2344,14 @@ function drawSketchedCloudCached(cloudIndex, cx, cy, opacity, transition) {
 }
 
 // ScrollTrigger state management variable
-let scrollTriggerTransition;
 let scrollTriggerLogoTransition;
-let scrollTriggerDarkMode;
-let scrollTriggerModernCursor;
 let scrollTriggerProgress;
 
 function setupScrollTriggers() {
-  if (scrollTriggerTransition) scrollTriggerTransition.kill();
   if (scrollTriggerLogoTransition) scrollTriggerLogoTransition.kill();
-  if (scrollTriggerDarkMode) scrollTriggerDarkMode.kill();
-  if (scrollTriggerModernCursor) scrollTriggerModernCursor.kill();
   if (scrollTriggerProgress) scrollTriggerProgress.kill();
 
-  // 1. Background sky colour transition (Day -> Sunset -> Night)
-  scrollTriggerTransition = ScrollTrigger.create({
-    trigger: document.documentElement,
-    start: "top top",
-    end: () => contactOffset * 0.62,
-    scrub: 0.85,
-    onUpdate: (self) => {
-      state.transition = self.progress;
-    }
-  });
-
-  // 2. Name logo transition (Centered sun -> docked moon)
+  // 1. Name logo transition (Centered sun -> docked moon)
   scrollTriggerLogoTransition = ScrollTrigger.create({
     trigger: document.documentElement,
     start: "top top",
@@ -2378,35 +2362,7 @@ function setupScrollTriggers() {
     }
   });
 
-  // 3. Dark mode background color toggle at experience section
-  scrollTriggerDarkMode = ScrollTrigger.create({
-    trigger: "#experience",
-    start: () => `top ${window.innerHeight * 0.4}px`,
-    end: () => "bottom+=" + document.documentElement.scrollHeight + " top",
-    onToggle: (self) => {
-      if (self.isActive) {
-        document.body.classList.add('dark-mode');
-      } else {
-        document.body.classList.remove('dark-mode');
-      }
-    }
-  });
-
-  // 4. Modern cursor style toggle at contact section
-  scrollTriggerModernCursor = ScrollTrigger.create({
-    trigger: "#contact",
-    start: () => `top ${window.innerHeight * 0.4}px`,
-    end: () => "bottom+=" + document.documentElement.scrollHeight + " top",
-    onToggle: (self) => {
-      if (self.isActive) {
-        document.body.classList.add('modern-cursor');
-      } else {
-        document.body.classList.remove('modern-cursor');
-      }
-    }
-  });
-
-  // 5. Progress bar indicator
+  // 2. Progress bar indicator
   const progressBar = document.querySelector('.scroll-progress');
   if (progressBar) {
     scrollTriggerProgress = ScrollTrigger.create({
