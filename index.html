@@ -402,12 +402,31 @@ body.dark-mode .mobile-nav-close { color: #f8fafc; }
 }
 
 /* ========== CHAPTERS / SECTIONS ========== */
+.scroll-wrapper {
+  position: relative;
+}
+.scroll-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 72vh; /* Starts below the hero content */
+  bottom: 12vh; /* Ends above the footer */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  border-left: 2px dashed var(--ink);
+  opacity: 0.22;
+  z-index: 1; /* Sits behind the cards */
+  pointer-events: none;
+  filter: url(#sketchy); /* Jitters the dashed thread */
+}
 .chapter {
-  min-height: 100vh;
+  min-height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 7rem 1.5rem;
+  padding: 1.8rem 1.5rem; /* Reduced padding for tighter visual connection */
+  position: relative;
+  z-index: 2; /* Sits in front of the connecting line */
 }
 
 .chapter:nth-of-type(even) .chapter-label,
@@ -424,7 +443,7 @@ body.dark-mode .mobile-nav-close { color: #f8fafc; }
 
 .chapter-wide {
   align-items: flex-start;
-  padding-top: 6rem;
+  padding: 1.8rem 1.5rem; /* Reduced padding for tighter visual connection */
 }
 
 .chapter-inner {
@@ -445,9 +464,206 @@ body.dark-mode .chapter-inner {
 
 .chapter-inner-wide { max-width: 980px; }
 
+/* ========== VISUAL CARD CONNECTORS (GROMMETS) ========== */
+.grommet {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 18px;
+  background: var(--paper);
+  border-radius: 50%;
+  z-index: 10;
+  pointer-events: none;
+  transition: background-color 0.8s ease;
+}
+.grommet::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border: 1.5px solid var(--doodle-border-color) !important;
+  border-radius: 50%;
+  filter: url(#sketchy);
+  pointer-events: none;
+}
+.grommet::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 5px;
+  height: 5px;
+  background: var(--ink);
+  border-radius: 50%;
+  opacity: 0.85;
+  filter: url(#sketchy);
+  transition: background-color 0.8s ease;
+}
+.grommet-top {
+  top: -9px;
+}
+.grommet-bottom {
+  bottom: -9px;
+}
+
+/* ========== COMPRESSED PROJECTS LIST ========== */
+.project-grid.hidden, .projects-compressed-list.hidden {
+  display: none !important;
+}
+.project-grid .project-card:nth-child(n+7) {
+  display: none !important;
+}
+
+.projects-compressed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 1.8rem;
+  width: 100%;
+}
+
+.compressed-project-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 1.2fr;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--wonky);
+  background: var(--paper);
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.compressed-project-row::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid var(--doodle-border-color) !important;
+  border-radius: inherit;
+  filter: url(#sketchy);
+  pointer-events: none;
+}
+
+.compressed-project-row:hover {
+  transform: rotate(-0.5deg) scale(1.01);
+  background: var(--paper-2);
+}
+
+.compressed-title-group h4 {
+  font-family: 'Cabin Sketch', var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.1rem;
+}
+
+.compressed-type {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.compressed-desc {
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.compressed-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.compressed-tags span {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.4rem;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink-3);
+  position: relative;
+}
+.compressed-tags span::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--doodle-border-color) !important;
+  border-radius: inherit;
+  filter: url(#sketchy);
+  pointer-events: none;
+}
+
+.compressed-links {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: flex-end;
+}
+
+.compressed-links a {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--ink);
+  transition: color 0.2s, border-color 0.2s;
+  z-index: 5;
+}
+
+.compressed-links a:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.projects-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.view-all-btn {
+  font-family: 'Cabin Sketch', var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: var(--wonky);
+  padding: 0.6rem 1.8rem;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  position: relative;
+}
+.view-all-btn::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border: 2px solid var(--doodle-border-color) !important;
+  border-radius: inherit;
+  filter: url(#sketchy);
+  pointer-events: none;
+}
+
+.view-all-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--ink);
+  background: var(--paper-2);
+}
+
+.view-all-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
 /* Dedicated Hero Spacer & Hero Content styles */
 .chapter-hero {
-  height: 100vh;
+  height: 85vh; /* Reduced height to pull content up and create seamless transition */
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -661,7 +877,7 @@ body.dark-mode .pill-list li:hover { background: #222d4f; }
   box-shadow: 2px 2px 0 var(--ink);
   filter: url(#sketchy);
   margin-bottom: 0.5rem;
-  color: var(--ink);
+  color: var(--skill-color, var(--ink)); /* Apply dynamic brand colors to icons */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .skill-icon {
@@ -676,6 +892,28 @@ body.dark-mode .pill-list li:hover { background: #222d4f; }
   line-height: 1.2;
   color: var(--ink-2);
 }
+
+/* Skill item brand colors */
+.skill-item.python { --skill-color: #3776AB; }
+.skill-item.swift { --skill-color: #F05138; }
+.skill-item.swiftui { --skill-color: #EE4F2F; }
+.skill-item.uikit { --skill-color: #007AFF; }
+.skill-item.cpp { --skill-color: #00599C; }
+.skill-item.java { --skill-color: #E76F00; }
+.skill-item.javascript { --skill-color: #d48806; }
+.skill-item.scikit-learn { --skill-color: #3499CD; }
+.skill-item.numpy { --skill-color: #007299; }
+.skill-item.pandas { --skill-color: #E70488; }
+.skill-item.matplotlib { --skill-color: #11557C; }
+.skill-item.opencv { --skill-color: #5C3EE6; }
+.skill-item.firebase { --skill-color: #f57c00; }
+.skill-item.git { --skill-color: #F05032; }
+.skill-item.github { --skill-color: #24292E; }
+.skill-item.postman { --skill-color: #FF6C37; }
+.skill-item.html5 { --skill-color: #E34F26; }
+.skill-item.css3 { --skill-color: #1572B6; }
+.skill-item.jupyter { --skill-color: #F37626; }
+.skill-item.raspberry-pi { --skill-color: #C51A4A; }
 .skill-item:hover {
   transform: scale(1.05) rotate(2deg);
 }
@@ -902,11 +1140,21 @@ body.dark-mode footer { color: var(--ink-3); }
   .logo-placeholder { width: 140px; }
   .nav-links > li:not(:last-child) { display: none; }
   .mobile-menu-btn { display: flex; }
-  .chapter { padding: 5.5rem 1rem; }
+  .chapter { padding: 1.2rem 1rem; } /* Reduced padding for tighter mobile layout */
   .detail-grid { grid-template-columns: 1fr; }
   .chapter-inner { border-radius: 28px 10px 28px 10px; }
   .project-card { transform: none !important; }
   .project-card:nth-child(odd):hover, .project-card:nth-child(even):hover { transform: translateY(-3px) !important; }
+
+  .compressed-project-row {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+    align-items: flex-start;
+  }
+  .compressed-links {
+    justify-content: flex-start;
+    margin-top: 0.3rem;
+  }
 }
 </style>
 </head>
@@ -1250,6 +1498,125 @@ body.dark-mode footer { color: var(--ink-3); }
           <ul class="tag-list"><li>Python</li><li>Linear Regression</li><li>R² / MSE</li></ul>
           <a href="https://github.com/marcanjoul/house-price-predictor" target="_blank" class="project-link">View on GitHub →</a>
         </article>
+      </div>
+
+      <!-- Compressed project list (hidden by default) -->
+      <div class="projects-compressed-list hidden">
+        <article class="compressed-project-row" data-project="appnest">
+          <div class="compressed-title-group">
+            <span class="compressed-type">Mobile App</span>
+            <h4>AppNest</h4>
+          </div>
+          <p class="compressed-desc">Job tracker with on-device AI email parsing.</p>
+          <div class="compressed-tags">
+            <span>SwiftUI</span>
+            <span>NaturalLanguage</span>
+            <span>SwiftData</span>
+          </div>
+          <div class="compressed-links">
+            <a href="https://github.com/marcanjoul/AppNest" target="_blank" class="project-link">GitHub</a>
+          </div>
+        </article>
+
+        <article class="compressed-project-row" data-project="spotify">
+          <div class="compressed-title-group">
+            <span class="compressed-type">Data Science / ML</span>
+            <h4>Spotify Hit Predictor</h4>
+          </div>
+          <p class="compressed-desc">Logistic regression model predicting hits using audio features.</p>
+          <div class="compressed-tags">
+            <span>Python</span>
+            <span>scikit-learn</span>
+            <span>pandas</span>
+          </div>
+          <div class="compressed-links">
+            <a href="https://github.com/marcanjoul/hit-song-predictor" target="_blank" class="project-link">GitHub</a>
+          </div>
+        </article>
+
+        <article class="compressed-project-row" data-project="groov">
+          <div class="compressed-title-group">
+            <span class="compressed-type">Web App</span>
+            <h4>Groov</h4>
+          </div>
+          <p class="compressed-desc">Clean music player client utilizing the Spotify Web API.</p>
+          <div class="compressed-tags">
+            <span>React</span>
+            <span>Vite</span>
+            <span>Spotify API</span>
+          </div>
+          <div class="compressed-links">
+            <a href="https://github.com/marcanjoul/Groov" target="_blank" class="project-link">GitHub</a>
+          </div>
+        </article>
+
+        <article class="compressed-project-row" data-project="noteweb">
+          <div class="compressed-title-group">
+            <span class="compressed-type">AI / Systems</span>
+            <h4>NoteWeb</h4>
+          </div>
+          <p class="compressed-desc">Local-first RAG tool indexing and searching documents semantically.</p>
+          <div class="compressed-tags">
+            <span>LLaMA 3</span>
+            <span>Vector embeddings</span>
+            <span>RAG</span>
+          </div>
+          <div class="compressed-links">
+            <a href="https://github.com/marcanjoul/NoteWeb" target="_blank" class="project-link">GitHub</a>
+          </div>
+        </article>
+
+        <article class="compressed-project-row" data-project="ois">
+          <div class="compressed-title-group">
+            <span class="compressed-type">Web App</span>
+            <h4>OIS Tracker</h4>
+          </div>
+          <p class="compressed-desc">Game-like retail competition app with a live leaderboard.</p>
+          <div class="compressed-tags">
+            <span>JavaScript</span>
+            <span>Firebase</span>
+            <span>Leaderboard</span>
+          </div>
+          <div class="compressed-links">
+            <a href="https://hco-ois.vercel.app/" target="_blank" class="project-link">Live</a>
+            <a href="https://github.com/marcanjoul/hco-ois-competition" target="_blank" class="project-link">GitHub</a>
+          </div>
+        </article>
+
+        <article class="compressed-project-row" data-project="kiosk">
+          <div class="compressed-title-group">
+            <span class="compressed-type">Systems / C</span>
+            <h4>Restaurant Kiosk</h4>
+          </div>
+          <p class="compressed-desc">Terminal self-ordering kiosk with a linked-list order system.</p>
+          <div class="compressed-tags">
+            <span>C</span>
+            <span>Linked lists</span>
+          </div>
+          <div class="compressed-links">
+            <a href="https://github.com/marcanjoul/Interactive-Restaurant-Kiosk" target="_blank" class="project-link">GitHub</a>
+          </div>
+        </article>
+
+        <article class="compressed-project-row" data-project="houseprice">
+          <div class="compressed-title-group">
+            <span class="compressed-type">Data Science / ML</span>
+            <h4>House Price Predictor</h4>
+          </div>
+          <p class="compressed-desc">Linear regression models comparing prediction methods.</p>
+          <div class="compressed-tags">
+            <span>Python</span>
+            <span>Linear regression</span>
+          </div>
+          <div class="compressed-links">
+            <a href="https://github.com/marcanjoul/house-price-predictor" target="_blank" class="project-link">GitHub</a>
+          </div>
+        </article>
+      </div>
+
+      <!-- Action button to toggle view -->
+      <div class="projects-actions">
+        <button class="view-all-btn" id="view-all-projects-btn">View All Projects (7)</button>
       </div>
     </div>
   </section>
@@ -1706,12 +2073,64 @@ function closeProjectModal() {
   if (video) video.pause();
 }
 
-document.querySelectorAll('.project-card').forEach((card) => {
+// Register click events for both cards and compressed list rows to open the modal
+document.querySelectorAll('.project-card, .compressed-project-row').forEach((card) => {
   card.addEventListener('click', (e) => {
     if (e.target.closest('a')) return;
     openProjectModal(card.dataset.project);
   });
 });
+
+// View all projects toggle button logic
+const viewAllBtn = document.getElementById('view-all-projects-btn');
+const projectGrid = document.querySelector('.project-grid');
+const compressedList = document.querySelector('.projects-compressed-list');
+
+if (viewAllBtn && projectGrid && compressedList) {
+  viewAllBtn.addEventListener('click', () => {
+    const isShowingGrid = !projectGrid.classList.contains('hidden');
+    if (isShowingGrid) {
+      projectGrid.classList.add('hidden');
+      compressedList.classList.remove('hidden');
+      viewAllBtn.textContent = 'Show Less';
+    } else {
+      projectGrid.classList.remove('hidden');
+      compressedList.classList.add('hidden');
+      viewAllBtn.textContent = 'View All Projects (7)';
+    }
+    // Refresh scrolltrigger metrics since document height changed
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+  });
+}
+
+// Dynamically insert grommet rings to connect cards visually via the dashed thread
+document.querySelectorAll('.chapter:not(.chapter-hero) .chapter-inner').forEach(card => {
+  const topGrommet = document.createElement('div');
+  topGrommet.className = 'grommet grommet-top';
+  topGrommet.setAttribute('aria-hidden', 'true');
+  card.appendChild(topGrommet);
+
+  const bottomGrommet = document.createElement('div');
+  bottomGrommet.className = 'grommet grommet-bottom';
+  bottomGrommet.setAttribute('aria-hidden', 'true');
+  card.appendChild(bottomGrommet);
+});
+
+// Dynamically assign brand class names to skill items based on their label text
+document.querySelectorAll('.skill-item').forEach(item => {
+  const label = item.querySelector('.skill-label');
+  if (label) {
+    let text = label.textContent.trim().toLowerCase()
+      .replace(' / ', '-')
+      .replace('/', '-')
+      .replace(' ', '-');
+    if (text === 'c-c++') text = 'cpp';
+    item.classList.add(text);
+  }
+});
+
 modal.querySelector('.project-modal-close').addEventListener('click', closeProjectModal);
 modal.addEventListener('click', (e) => {
   if (e.target === modal) closeProjectModal();

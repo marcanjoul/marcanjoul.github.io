@@ -215,12 +215,34 @@ nav {
 .mobile-nav-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: var(--ink); font-size: 1.5rem; cursor: pointer; }
 
 /* ========== CHAPTERS ========== */
+.scroll-wrapper {
+  position: relative;
+}
+.scroll-wrapper {
+  position: relative;
+}
+.scroll-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 72vh;
+  bottom: 12vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  border-left: 2px dashed var(--ink);
+  opacity: 0.22;
+  z-index: 1;
+  pointer-events: none;
+  filter: url(#sketchy);
+}
 .chapter {
-  min-height: 100vh;
+  min-height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 7rem 1.5rem;
+  padding: 1.8rem 1.5rem;
+  position: relative;
+  z-index: 2;
 }
 
 /* alternating brand rhythm: odd chapters lean blue, even chapters lean yellow */
@@ -240,7 +262,7 @@ nav {
    the grid is visible as soon as you reach the section, not below the fold */
 .chapter-wide {
   align-items: flex-start;
-  padding-top: 6rem;
+  padding: 1.8rem 1.5rem;
 }
 
 .chapter-inner {
@@ -254,6 +276,49 @@ nav {
 }
 
 .chapter-inner-wide { max-width: 980px; }
+
+/* ========== VISUAL CARD CONNECTORS (GROMMETS) ========== */
+.grommet {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 18px;
+  background: var(--paper);
+  border-radius: 50%;
+  z-index: 10;
+  pointer-events: none;
+  transition: background-color 0.8s ease;
+}
+.grommet::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border: 1.5px solid var(--doodle-border-color) !important;
+  border-radius: 50%;
+  filter: url(#sketchy);
+  pointer-events: none;
+}
+.grommet::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 5px;
+  height: 5px;
+  background: var(--ink);
+  border-radius: 50%;
+  opacity: 0.85;
+  filter: url(#sketchy);
+  transition: background-color 0.8s ease;
+}
+.grommet-top {
+  top: -9px;
+}
+.grommet-bottom {
+  bottom: -9px;
+}
 
 .chapter-hero {
   padding-top: 9rem;
@@ -416,7 +481,7 @@ body.dark-mode .usf-logo {
   box-shadow: 2px 2px 0 var(--ink);
   filter: url(#sketchy);
   margin-bottom: 0.5rem;
-  color: var(--ink);
+  color: var(--skill-color, var(--ink)); /* Apply dynamic brand colors to icons */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .skill-icon {
@@ -431,6 +496,28 @@ body.dark-mode .usf-logo {
   line-height: 1.2;
   color: var(--ink-2);
 }
+
+/* Skill item brand colors */
+.skill-item.python { --skill-color: #3776AB; }
+.skill-item.swift { --skill-color: #F05138; }
+.skill-item.swiftui { --skill-color: #EE4F2F; }
+.skill-item.uikit { --skill-color: #007AFF; }
+.skill-item.cpp { --skill-color: #00599C; }
+.skill-item.java { --skill-color: #E76F00; }
+.skill-item.javascript { --skill-color: #d48806; }
+.skill-item.scikit-learn { --skill-color: #3499CD; }
+.skill-item.numpy { --skill-color: #007299; }
+.skill-item.pandas { --skill-color: #E70488; }
+.skill-item.matplotlib { --skill-color: #11557C; }
+.skill-item.opencv { --skill-color: #5C3EE6; }
+.skill-item.firebase { --skill-color: #f57c00; }
+.skill-item.git { --skill-color: #F05032; }
+.skill-item.github { --skill-color: #24292E; }
+.skill-item.postman { --skill-color: #FF6C37; }
+.skill-item.html5 { --skill-color: #E34F26; }
+.skill-item.css3 { --skill-color: #1572B6; }
+.skill-item.jupyter { --skill-color: #F37626; }
+.skill-item.raspberry-pi { --skill-color: #C51A4A; }
 .skill-item:hover {
   transform: scale(1.05) rotate(2deg);
 }
@@ -746,9 +833,19 @@ footer { text-align: center; padding: 3rem 1.5rem; color: var(--ink-3); font-siz
 @media (max-width: 760px) {
   .nav-links > li:not(:last-child) { display: none; }
   .mobile-menu-btn { display: flex; }
-  .chapter { padding: 5.5rem 1rem; }
+  .chapter { padding: 1.2rem 1rem; } /* Reduced padding for tighter mobile layout */
   .detail-grid { grid-template-columns: 1fr; }
   .chapter-inner { border-radius: 28px 10px 28px 10px; }
   .project-card { transform: none !important; }
   .project-card:nth-child(odd):hover, .project-card:nth-child(even):hover { transform: translateY(-3px) !important; }
+
+  .compressed-project-row {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+    align-items: flex-start;
+  }
+  .compressed-links {
+    justify-content: flex-start;
+    margin-top: 0.3rem;
+  }
 }
