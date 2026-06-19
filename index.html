@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <!--
-  Mark Anjoul — Portfolio (doodled-stars experiment)
-  A scroll-driven story on cream paper: hand-sketched stars trail the
-  cursor on a Canvas2D background, hand-drawn wonky borders throughout.
+  Mark Anjoul — Interactive Celestial Day-to-Night Hero
+  A hand-drawn astronomically inspired layout with animated sketching,
+  interactive pointer effects, and scroll-driven day-to-night transitions.
 -->
 <html lang="en">
 <head>
@@ -28,12 +28,680 @@
 
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.css">
-<link rel="stylesheet" href="styles.css">
+
+<!-- Google Fonts: Shantell Sans + Cabin Sketch + Outfit -->
+<link href="https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Outfit:wght@300;400;600&family=Shantell+Sans:wght@300..700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   Portfolio & Celestial Animations Styles
+   Cream paper, wobbly linework, astronomical day-to-night transitions.
+   ============================================================ */
+
+@font-face {
+  font-family: 'Shantell Sans';
+  src: url('assets/fonts/ShantellSans-Variable.ttf') format('truetype-variations');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --paper:      #f3ede0;
+  --paper-2:    #ece3cf;
+  --ink:        #1c1812;
+  --ink-2:      rgba(28, 24, 18, 0.72);
+  --ink-3:      rgba(28, 24, 18, 0.5);
+  --rule:       rgba(28, 24, 18, 0.22);
+  --accent:     #2b4dff;
+  --yellow:     #ffd400;
+
+  --font-display: 'Shantell Sans', cursive;
+  --font-body:    'Shantell Sans', sans-serif;
+
+  --wght: 420;
+  --bnce: 6;
+
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --maxw: 1180px;
+
+  /* hand-drawn wonky rectangle: mismatched corner radii */
+  --wonky: 255px 18px 225px 18px / 18px 225px 18px 255px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { font-size: 16px; scroll-behavior: auto; }
+
+body {
+  font-family: var(--font-body);
+  font-variation-settings: 'wght' 400, 'BNCE' 0;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  transition: background-color 0.8s ease;
+}
+
+/* Day/Night dynamic class for scrolling background colors */
+body.dark-mode {
+  background: #0b1021;
+  color: #f8fafc;
+}
+
+.logo-placeholder, .chapter-title, .project-modal-title, .cl-label, .project-card h3, .timeline-item h3, .mobile-nav a {
+  font-variation-settings: 'wght' var(--wght), 'BNCE' var(--bnce);
+}
+
+/* hand-drawn star cursor, desktop only */
+@media (hover: hover) and (pointer: fine) {
+  body {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M14 2 L16.3 11 L25 14 L16.3 17 L14 26 L11.7 17 L3 14 L11.7 11 Z' fill='none' stroke='%231c1812' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") 14 14, auto;
+  }
+  body.dark-mode {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M14 2 L16.3 11 L25 14 L16.3 17 L14 26 L11.7 17 L3 14 L11.7 11 Z' fill='none' stroke='%23f8fafc' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") 14 14, auto;
+  }
+  a, button, .project-card, [role="button"] {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M14 2 L16.3 11 L25 14 L16.3 17 L14 26 L11.7 17 L3 14 L11.7 11 Z' fill='%23ffd400' stroke='%231c1812' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") 14 14, pointer;
+  }
+}
+
+::selection { background: var(--yellow); color: var(--ink); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+a { color: inherit; text-decoration: none; }
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+/* ========== SKETCHED BORDERS ========== */
+.nav-inner, .chapter-inner, .detail-card, .project-card, .tag-list li,
+.project-modal-panel, .project-modal-close, .project-modal-links a,
+.media-tab, .demo-phone, .demo-browser, .contact-link {
+  position: relative;
+  border-color: transparent !important;
+}
+.nav-inner::before, .chapter-inner::before, .detail-card::before,
+.project-card::before, .tag-list li::before, .project-modal-panel::before,
+.project-modal-close::before, .project-modal-links a::before,
+.media-tab::before, .demo-phone::before, .demo-browser::before,
+.contact-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: inherit;
+  border-color: var(--ink);
+  border-radius: inherit;
+  filter: url(#sketchy);
+  pointer-events: none;
+}
+body.dark-mode .nav-inner::before,
+body.dark-mode .chapter-inner::before,
+body.dark-mode .detail-card::before,
+body.dark-mode .project-card::before,
+body.dark-mode .tag-list li::before,
+body.dark-mode .project-modal-panel::before,
+body.dark-mode .project-modal-close::before,
+body.dark-mode .project-modal-links a::before,
+body.dark-mode .media-tab::before,
+body.dark-mode .demo-phone::before,
+body.dark-mode .demo-browser::before,
+body.dark-mode .contact-link::before {
+  border-color: #f8fafc;
+}
+
+.pill-list li {
+  position: relative;
+  border-color: transparent !important;
+}
+.pill-list li::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: inherit;
+  border-color: var(--ink);
+  border-radius: inherit;
+  filter: url(#sketchy);
+  pointer-events: none;
+}
+body.dark-mode .pill-list li::after {
+  border-color: #f8fafc;
+}
+
+/* ========== BACKGROUND CANVAS & NOISE OVERLAY ========== */
+#celestial-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  display: block;
+}
+.paper-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+}
+
+/* ========== SCROLL PROGRESS ========== */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--yellow));
+  transform-origin: left;
+  transform: scaleX(0);
+  z-index: 200;
+}
+
+/* ========== NAV & CELESTIAL NAVBAR INTEGRATION ========== */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 1.1rem 1.5rem;
+  pointer-events: none;
+}
+.nav-container {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  pointer-events: none;
+}
+.logo-placeholder {
+  width: 200px;
+  height: 50px;
+  pointer-events: auto;
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  padding: 0.5rem 1.4rem;
+  box-shadow: 3px 3px 0 var(--ink);
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(-15px);
+  transition: background-color 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
+}
+body.dark-mode .nav-inner {
+  background: #17203a;
+  border-color: #f8fafc;
+  box-shadow: 3px 3px 0 #f8fafc;
+}
+.nav-links { list-style: none; display: flex; align-items: center; gap: 1.6rem; }
+.nav-links a { font-size: 0.92rem; color: var(--ink-2); transition: color 0.2s; }
+body.dark-mode .nav-links a { color: rgba(248, 250, 252, 0.8); }
+.nav-links a:hover { color: var(--accent); }
+body.dark-mode .nav-links a:hover { color: var(--yellow); }
+.nav-cta {
+  background: var(--yellow);
+  color: var(--ink) !important;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  border: 1.5px solid var(--ink);
+}
+body.dark-mode .nav-cta {
+  background: var(--yellow);
+  color: var(--ink) !important;
+  border-color: #f8fafc;
+}
+
+.mobile-menu-btn { display: none; flex-direction: column; gap: 4px; background: none; border: none; cursor: pointer; padding: 0.5rem; }
+.mobile-menu-btn span { width: 20px; height: 2px; background: var(--ink); border-radius: 2px; }
+body.dark-mode .mobile-menu-btn span { background: #f8fafc; }
+
+.mobile-nav {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  transform: translateY(-100%);
+  transition: transform 0.45s var(--ease-expo), background-color 0.8s ease;
+}
+body.dark-mode .mobile-nav {
+  background: #0b1021;
+}
+.mobile-nav.active { transform: translateY(0); }
+.mobile-nav ul { list-style: none; display: flex; flex-direction: column; align-items: center; gap: 1.6rem; }
+.mobile-nav a { font-family: var(--font-display); font-size: 2.2rem; }
+.mobile-nav-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: var(--ink); font-size: 1.5rem; cursor: pointer; }
+body.dark-mode .mobile-nav-close { color: #f8fafc; }
+
+/* ========== SCROLLABLE PORTFOLIO WRAPPER ========== */
+.scroll-wrapper {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+}
+
+/* ========== CHAPTERS / SECTIONS ========== */
+.chapter {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7rem 1.5rem;
+}
+
+.chapter:nth-of-type(even) .chapter-label,
+.chapter:nth-of-type(even) .chapter-num::before,
+.chapter:nth-of-type(even) .timeline-item::before,
+.chapter:nth-of-type(even) .pill-list li::before,
+.chapter:nth-of-type(even) .project-modal-features li::before {
+  color: var(--yellow);
+}
+.chapter:nth-of-type(even) .project-type,
+.chapter:nth-of-type(even) .timeline-item .org {
+  color: color-mix(in srgb, var(--yellow) 70%, var(--ink) 30%);
+}
+
+.chapter-wide {
+  align-items: flex-start;
+  padding-top: 6rem;
+}
+
+.chapter-inner {
+  max-width: 700px;
+  width: 100%;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--wonky);
+  padding: clamp(2rem, 5vw, 3.5rem);
+  box-shadow: 5px 5px 0 var(--ink);
+  transition: background-color 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
+}
+body.dark-mode .chapter-inner {
+  background: #17203a;
+  border-color: #f8fafc;
+  box-shadow: 5px 5px 0 #f8fafc;
+}
+
+.chapter-inner-wide { max-width: 980px; }
+
+/* Dedicated Hero Spacer & Hero Content styles */
+.chapter-hero {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  padding: 0;
+}
+.chapter-inner-hero {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  max-width: 760px;
+  padding: 0 1.5rem;
+  text-align: center;
+  margin-top: 70vh; /* Safely position content below the massive centered sun */
+}
+.chapter-inner-hero::before { content: none !important; }
+
+.scroll-hint {
+  position: absolute;
+  bottom: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  animation: floatHint 2s infinite ease-in-out;
+}
+body.dark-mode .scroll-hint {
+  color: rgba(248, 250, 252, 0.6);
+}
+@keyframes floatHint {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+.scroll-hint-arrow {
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.chapter-num {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--ink-3);
+  margin-bottom: 0.4rem;
+}
+body.dark-mode .chapter-num { color: rgba(248, 250, 252, 0.4); }
+.chapter-num::before { content: '✦  '; color: var(--accent); }
+body.dark-mode .chapter-num::before { color: var(--yellow); }
+
+.chapter-label {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+body.dark-mode .chapter-label { color: var(--yellow); }
+
+.chapter-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 6vw, 4.2rem);
+  line-height: 1.1;
+  margin-bottom: 1.1rem;
+  font-weight: 600;
+}
+
+.chapter-hero h1.split {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5.6vw, 3.6rem);
+  line-height: 1.15;
+  margin-bottom: 1.4rem;
+  color: var(--ink-2);
+}
+body.dark-mode .chapter-hero h1.split { color: rgba(248, 250, 252, 0.9); }
+
+.chapter p { color: var(--ink-2); font-size: 1.05rem; margin-bottom: 1rem; max-width: 56ch; }
+body.dark-mode .chapter p { color: rgba(248, 250, 252, 0.8); }
+.chapter p strong { color: var(--ink); }
+body.dark-mode .chapter p strong { color: #f8fafc; }
+
+/* Splitting.js char reveal */
+.split .char { display: inline-block; will-change: transform, opacity; }
+.split .word { white-space: nowrap; }
+
+/* ========== ABOUT details ========== */
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.9rem;
+  margin-top: 1.6rem;
+}
+.detail-card {
+  border: 1.5px solid var(--ink);
+  border-radius: 14px 4px 14px 4px;
+  padding: 1rem 1.1rem;
+  background: var(--paper-2);
+}
+body.dark-mode .detail-card {
+  border-color: #f8fafc;
+  background: #111a36;
+}
+.detail-card h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin-bottom: 0.35rem; }
+body.dark-mode .detail-card h4 { color: rgba(248, 250, 252, 0.4); }
+.detail-card p { font-size: 0.92rem; margin: 0; }
+
+/* ========== SKILLS ========== */
+.pill-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.6rem;
+}
+.pill-list li {
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  padding: 0.5rem 1rem 0.5rem 0.85rem;
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  background: var(--paper);
+  transition: background-color 0.2s, color 0.2s, border-color 0.8s ease;
+}
+body.dark-mode .pill-list li {
+  background: #17203a;
+  border-color: #f8fafc;
+  color: rgba(248, 250, 252, 0.85);
+}
+.pill-list li::before { content: '✦ '; color: var(--accent); }
+body.dark-mode .pill-list li::before { color: var(--yellow); }
+.pill-list li:hover { background: var(--paper-2); animation: wiggle 0.35s ease-in-out; }
+body.dark-mode .pill-list li:hover { background: #222d4f; }
+
+/* ========== PROJECTS ========== */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.4rem;
+  margin-top: 1.8rem;
+}
+.project-card {
+  border: 1.5px solid var(--ink);
+  border-radius: 20px 6px 20px 6px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  cursor: pointer;
+  background: var(--paper);
+  box-shadow: 4px 4px 0 var(--ink);
+  transition: transform 0.2s var(--ease-expo), box-shadow 0.2s var(--ease-expo), background-color 0.8s ease, border-color 0.8s ease;
+}
+body.dark-mode .project-card {
+  background: #17203a;
+  border-color: #f8fafc;
+  box-shadow: 4px 4px 0 #f8fafc;
+}
+.project-card:nth-child(odd) { transform: rotate(-0.5deg); }
+.project-card:nth-child(even) { transform: rotate(0.5deg); }
+.project-card:nth-child(odd):hover {
+  transform: rotate(0deg) translateY(-3px);
+  box-shadow: 6px 6px 0 var(--accent);
+}
+body.dark-mode .project-card:nth-child(odd):hover {
+  box-shadow: 6px 6px 0 var(--accent);
+}
+.project-card:nth-child(even):hover {
+  transform: rotate(0deg) translateY(-3px);
+  box-shadow: 6px 6px 0 var(--yellow);
+}
+body.dark-mode .project-card:nth-child(even):hover {
+  box-shadow: 6px 6px 0 var(--yellow);
+}
+.project-type { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); font-weight: 600; }
+body.dark-mode .project-type { color: var(--yellow); }
+.project-card h3 { font-family: var(--font-display); font-size: 1.7rem; font-weight: 600; }
+.project-card p { font-size: 0.92rem; color: var(--ink-2); margin: 0; }
+.tag-list { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.3rem 0 0.2rem; }
+.tag-list li { font-size: 0.74rem; color: var(--ink-3); border: 1px solid var(--rule); border-radius: 999px; padding: 0.2rem 0.6rem; transition: background-color 0.2s, border-color 0.8s ease; }
+body.dark-mode .tag-list li { color: rgba(248, 250, 252, 0.5); border-color: rgba(248, 250, 252, 0.2); }
+.tag-list li:hover { background: var(--paper-2); animation: wiggle 0.35s ease-in-out; }
+body.dark-mode .tag-list li:hover { background: #222d4f; }
+.project-link { font-size: 0.88rem; font-weight: 600; color: var(--ink); border-bottom: 1.5px solid var(--ink); width: fit-content; }
+body.dark-mode .project-link { color: #f8fafc; border-bottom-color: #f8fafc; }
+.project-link:hover { border-color: var(--accent); color: var(--accent); }
+body.dark-mode .project-link:hover { border-color: var(--yellow); color: var(--yellow); }
+
+/* ========== PROJECT DETAIL MODAL ========== */
+.project-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(28, 24, 18, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease-expo);
+}
+body.dark-mode .project-modal { background: rgba(0, 0, 0, 0.6); }
+.project-modal.active { opacity: 1; pointer-events: auto; }
+.project-modal-panel {
+  max-width: 620px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--wonky);
+  padding: clamp(1.8rem, 4vw, 2.8rem);
+  box-shadow: 6px 6px 0 var(--ink);
+  transform: translateY(16px) scale(0.98);
+  transition: transform 0.3s var(--ease-expo), background-color 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
+}
+body.dark-mode .project-modal-panel {
+  background: #17203a;
+  border-color: #f8fafc;
+  box-shadow: 6px 6px 0 #f8fafc;
+}
+.project-modal.active .project-modal-panel { transform: translateY(0) scale(1); }
+.project-modal-close {
+  position: absolute;
+  top: 1.2rem; right: 1.2rem;
+  background: var(--paper); border: 1.5px solid var(--ink); border-radius: 50%;
+  width: 32px; height: 32px;
+  color: var(--ink); font-size: 1rem; cursor: pointer; line-height: 1;
+}
+body.dark-mode .project-modal-close { background: #17203a; border-color: #f8fafc; color: #f8fafc; }
+.project-modal-close:hover { color: var(--accent); border-color: var(--accent); }
+body.dark-mode .project-modal-close:hover { color: var(--yellow); border-color: var(--yellow); }
+.project-modal-type { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); font-weight: 600; margin-bottom: 0.5rem; }
+body.dark-mode .project-modal-type { color: var(--yellow); }
+.project-modal-title { font-family: var(--font-display); font-size: 2.4rem; margin-bottom: 0.9rem; }
+.project-modal-desc { font-size: 0.98rem; color: var(--ink-2); margin-bottom: 1.2rem; }
+.project-modal-features { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.4rem; }
+.project-modal-features li { font-size: 0.92rem; color: var(--ink-2); padding-left: 1.2rem; position: relative; }
+.project-modal-features li::before { content: '✦'; position: absolute; left: 0; color: var(--accent); }
+body.dark-mode .project-modal-features li::before { color: var(--yellow); }
+.project-modal-links { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+.project-modal-links a {
+  font-size: 0.88rem; font-weight: 600; color: var(--ink);
+  border: 1.5px solid var(--ink); border-radius: 999px; padding: 0.6rem 1.2rem;
+  transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+}
+body.dark-mode .project-modal-links a { color: #f8fafc; border-color: #f8fafc; }
+.project-modal-links a:hover { border-color: var(--accent); color: var(--paper); background: var(--accent); }
+body.dark-mode .project-modal-links a:hover { border-color: var(--yellow); color: var(--ink); background: var(--yellow); }
+
+.project-modal-media { margin-bottom: 1.4rem; }
+.media-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.7rem; }
+.media-tab {
+  font-size: 0.78rem; color: var(--ink-3); background: var(--paper);
+  border: 1.5px solid var(--ink); border-radius: 999px; padding: 0.4rem 0.9rem;
+  cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+}
+body.dark-mode .media-tab { color: rgba(248, 250, 252, 0.5); background: #17203a; border-color: #f8fafc; }
+.media-tab.active, .media-tab:hover { border-color: var(--yellow); color: var(--ink); background: var(--yellow); }
+body.dark-mode .media-tab.active, body.dark-mode .media-tab:hover { border-color: var(--yellow); color: var(--ink); background: var(--yellow); }
+
+/* phone-mockup frame */
+.demo-phone {
+  width: 150px;
+  margin: 0 auto;
+  aspect-ratio: 800 / 1731;
+  background: var(--ink);
+  border: 1.5px solid var(--ink);
+  border-radius: 22px;
+  padding: 6px;
+}
+body.dark-mode .demo-phone { border-color: #f8fafc; background: #000; }
+.demo-phone-notch {
+  position: absolute;
+  top: 9px; left: 50%; transform: translateX(-50%);
+  width: 38px; height: 4px; border-radius: 3px;
+  background: rgba(255, 255, 255, 0.25);
+  z-index: 2;
+}
+.demo-phone-screen { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; display: block; background: #000; }
+
+/* browser-mockup frame */
+.demo-browser {
+  width: 100%;
+  background: var(--paper-2);
+  border: 1.5px solid var(--ink);
+  border-radius: 12px 12px 4px 4px;
+  overflow: hidden;
+}
+body.dark-mode .demo-browser { background: #111a36; border-color: #f8fafc; }
+.demo-browser-bar { display: flex; gap: 6px; padding: 0.6rem 0.7rem; background: var(--paper); border-bottom: 1.5px solid var(--ink); }
+body.dark-mode .demo-browser-bar { background: #17203a; border-bottom-color: #f8fafc; }
+.demo-browser-bar span { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--ink); }
+body.dark-mode .demo-browser-bar span { border-color: #f8fafc; }
+.demo-browser-screen { width: 100%; display: block; }
+
+/* ========== EXPERIENCE ========== */
+.timeline { margin-top: 1.8rem; display: flex; flex-direction: column; gap: 1.8rem; position: relative; padding-left: 1.6rem; }
+.timeline::before { content: ''; position: absolute; left: 0; top: 0.4rem; bottom: 0.4rem; width: 2px; border-left: 2px dashed var(--rule); }
+body.dark-mode .timeline::before { border-left-color: rgba(248, 250, 252, 0.2); }
+.timeline-item { position: relative; }
+.timeline-item::before { content: '✦'; position: absolute; left: -1.65rem; top: -0.1rem; color: var(--accent); font-size: 0.9rem; }
+body.dark-mode .timeline-item::before { color: var(--yellow); }
+.timeline-item .date { font-size: 0.8rem; color: var(--ink-3); display: block; margin-bottom: 0.35rem; }
+body.dark-mode .timeline-item .date { color: rgba(248, 250, 252, 0.4); }
+.timeline-item h3 { font-family: var(--font-display); font-size: 1.7rem; font-weight: 600; }
+.timeline-item .org { font-size: 0.85rem; color: var(--accent); margin-bottom: 0.35rem; }
+body.dark-mode .timeline-item .org { color: var(--yellow); }
+.timeline-item p { font-size: 0.92rem; margin: 0; }
+
+/* ========== CONTACT ========== */
+.contact-links { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 1.8rem; }
+.contact-link {
+  display: flex; align-items: center; justify-content: space-between;
+  border: 1.5px solid var(--ink); border-radius: 16px 4px 16px 4px; padding: 1rem 1.2rem;
+  background: var(--paper);
+  transition: border-color 0.2s, background-color 0.2s, transform 0.2s var(--ease-expo);
+}
+body.dark-mode .contact-link {
+  background: #17203a;
+  border-color: #f8fafc;
+}
+.contact-link:hover { border-color: var(--accent); background: var(--paper-2); transform: translateX(4px); }
+body.dark-mode .contact-link:hover { border-color: var(--yellow); background: #222d4f; }
+.cl-label { font-family: var(--font-display); font-size: 1.5rem; }
+.cl-meta { font-size: 0.84rem; color: var(--ink-3); margin-left: auto; margin-right: 1rem; }
+body.dark-mode .cl-meta { color: rgba(248, 250, 252, 0.4); }
+.cl-arrow { color: var(--accent); }
+body.dark-mode .cl-arrow { color: var(--yellow); }
+
+/* ========== FOOTER ========== */
+footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-size: 0.85rem; }
+body.dark-mode footer { color: rgba(248, 250, 252, 0.4); }
+
+/* ========== REDUCED MOTION ========== */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 760px) {
+  .logo-placeholder { width: 140px; }
+  .nav-links > li:not(:last-child) { display: none; }
+  .mobile-menu-btn { display: flex; }
+  .chapter { padding: 5.5rem 1rem; }
+  .detail-grid { grid-template-columns: 1fr; }
+  .chapter-inner { border-radius: 28px 10px 28px 10px; }
+  .project-card { transform: none !important; }
+  .project-card:nth-child(odd):hover, .project-card:nth-child(even):hover { transform: translateY(-3px) !important; }
+}
+</style>
 </head>
 <body>
 
-<!-- Hand-drawn wobble filter: every bordered box in styles.css runs through
-     this so straight CSS borders read as a hand-inked, slightly imperfect line. -->
+<!-- Hand-drawn wobble displacement filter used for sketchy card outlines -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <filter id="sketchy">
     <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="4" result="noise"/>
@@ -41,27 +709,29 @@
   </filter>
 </svg>
 
-<!-- Hand-sketched stars trail the cursor on a Canvas2D paper background. -->
-<canvas id="bg-canvas" aria-hidden="true"></canvas>
+<!-- The interactive astronomical canvas background -->
+<canvas id="celestial-canvas"></canvas>
 <div class="paper-grain" aria-hidden="true"></div>
 
 <!-- Scroll progress indicator -->
 <div class="scroll-progress" aria-hidden="true"></div>
 
-<!-- NAV -->
+<!-- NAVIGATION BAR -->
 <nav>
-  <div class="nav-inner">
-    <a href="#" class="logo">Mark Anjoul</a>
-    <ul class="nav-links">
-      <li><a href="#about">About</a></li>
-      <li><a href="#skills">Skills</a></li>
-      <li><a href="#projects">Projects</a></li>
-      <li><a href="#experience">Experience</a></li>
-      <li><a href="#contact" class="nav-cta">Let's Talk</a></li>
-    </ul>
-    <button class="mobile-menu-btn" aria-label="Open menu">
-      <span></span><span></span><span></span>
-    </button>
+  <div class="nav-container">
+    <div class="logo-placeholder"></div>
+    <div class="nav-inner">
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#contact" class="nav-cta">Let's Talk</a></li>
+      </ul>
+      <button class="mobile-menu-btn" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </div>
 </nav>
 
@@ -77,15 +747,19 @@
   </ul>
 </nav>
 
-<main>
+<!-- MAIN CONTENT WRAPPER -->
+<div class="scroll-wrapper">
 
-  <!-- HERO -->
+  <!-- Sticky spacer hero where day transitions to night on scroll -->
   <section class="chapter chapter-hero">
-    <div class="chapter-inner chapter-inner-hero">
-      <div class="hero-name split">Mark Anjoul</div>
+    <div class="chapter-inner chapter-inner-hero" id="hero-content">
       <div class="chapter-label">CS @ University of South Florida</div>
       <h1 class="split">Building at the intersection of AI, Mobile &amp; Robotics</h1>
       <p>Undergraduate student and developer focused on making intelligent programs that understand and communicate with people.</p>
+    </div>
+    <div class="scroll-hint" id="scroll-hint">
+      <span class="scroll-hint-text">Scroll to transition</span>
+      <span class="scroll-hint-arrow">↓</span>
     </div>
   </section>
 
@@ -259,9 +933,9 @@
     <p>Built by Mark · © 2026</p>
   </footer>
 
-</main>
+</div>
 
-<!-- PROJECT DETAIL -->
+<!-- PROJECT DETAIL MODAL -->
 <div class="project-modal" id="project-modal" role="dialog" aria-modal="true" aria-label="Project details">
   <div class="project-modal-panel" data-lenis-prevent>
     <button class="project-modal-close" aria-label="Close">✕</button>
@@ -274,11 +948,953 @@
   </div>
 </div>
 
-<!-- Classic UMD scripts, loaded in order so window globals exist before app.js (a module, always deferred) runs -->
+<!-- Scripts (in order) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.min.js"></script>
-<script type="module" src="assets/js/app.js"></script>
+
+<script>
+// ============================================================
+// Celestial Canvas Day-to-Night Animation & Portfolio Logic
+// ============================================================
+
+const { gsap, ScrollTrigger, Lenis, Splitting } = window;
+gsap.registerPlugin(ScrollTrigger);
+
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- smooth scroll (Lenis <-> GSAP ScrollTrigger) ---------- */
+let lenis;
+if (!reduceMotion) {
+  lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((time) => lenis.raf(time * 1000));
+  gsap.ticker.lagSmoothing(0);
+}
+
+/* ---------- Shantell Sans variable font hover interactivity ---------- */
+const root = document.documentElement;
+if (!reduceMotion) {
+  let lastX = null;
+  let lastY = null;
+  let lastT = 0;
+  let bounceTarget = 6;
+  window.addEventListener('pointermove', (e) => {
+    const now = performance.now();
+    if (lastX !== null) {
+      const dt = Math.max(now - lastT, 1);
+      const dist = Math.hypot(e.clientX - lastX, e.clientY - lastY);
+      bounceTarget = Math.min(6 + (dist / dt) * 18, 95);
+    }
+    lastX = e.clientX;
+    lastY = e.clientY;
+    lastT = now;
+  });
+  let bounceCurrent = 6;
+  (function easeBounce() {
+    bounceCurrent += (bounceTarget - bounceCurrent) * 0.12;
+    bounceTarget += (6 - bounceTarget) * 0.05;
+    root.style.setProperty('--bnce', bounceCurrent.toFixed(1));
+    requestAnimationFrame(easeBounce);
+  })();
+}
+
+/* ---------- letter-by-letter reveal on scroll ---------- */
+Splitting({ target: '.split', by: 'chars' });
+document.querySelectorAll('.split').forEach((el) => {
+  gsap.from(el.querySelectorAll('.char'), {
+    yPercent: 110,
+    opacity: 0,
+    stagger: 0.015,
+    duration: 0.7,
+    ease: 'power3.out',
+    scrollTrigger: { trigger: el, start: 'top 85%' },
+  });
+});
+
+/* ---------- chapter entrances ---------- */
+gsap.utils.toArray('.chapter-inner').forEach((el) => {
+  gsap.from(el, {
+    opacity: 0,
+    y: 60,
+    duration: 1,
+    ease: 'power3.out',
+    scrollTrigger: { trigger: el, start: 'top 80%' },
+  });
+});
+
+gsap.utils.toArray('.project-card').forEach((el, i) => {
+  gsap.from(el, {
+    opacity: 0,
+    y: 30,
+    duration: 0.7,
+    delay: (i % 3) * 0.08,
+    ease: 'power3.out',
+    scrollTrigger: { trigger: el, start: 'top 90%' },
+  });
+});
+
+/* ---------- project detail modal data ---------- */
+const projectData = {
+  appnest: {
+    type: 'Mobile App',
+    title: 'AppNest',
+    desc: "A job application tracker that parses pasted confirmation emails using Apple's on-device NaturalLanguage framework (no APIs), with SwiftData persistence, a centralized design system, search/sort/filter options, CSV export, and a profile stats dashboard.",
+    features: [
+      'On-device AI email parsing with NaturalLanguage framework',
+      'SwiftData persistence: no server, no accounts',
+      'Centralized design system for consistent UI',
+      'Search, sort, and filter applications',
+      'CSV export for spreadsheet tracking',
+      'Profile stats dashboard with application analytics',
+    ],
+    links: [{ label: 'View on GitHub →', href: 'https://github.com/marcanjoul/AppNest' }],
+    media: {
+      type: 'video',
+      poster: 'assets/appnest/poster.jpg',
+      items: [
+        { label: 'Parse email', src: 'assets/appnest/parse-email.mp4' },
+        { label: 'Parse link', src: 'assets/appnest/parse-link.mp4' },
+        { label: 'Import CSV', src: 'assets/appnest/import-csv.mp4' },
+        { label: 'Manual entry', src: 'assets/appnest/manual-entry.mp4' },
+      ],
+    },
+  },
+  spotify: {
+    type: 'Data Science / ML',
+    title: 'Spotify Hit Song Predictor',
+    desc: 'Logistic regression model exploring whether audio features can predict hit songs. Key insight: individual features have weak predictive power, and feature engineering is essential.',
+    features: [
+      'Audio features alone are weak predictors of commercial success',
+      'Feature engineering and combination significantly improve accuracy',
+      'Explored danceability, energy, valence, tempo, and more',
+      'Built full data pipeline from Spotify API to model evaluation',
+    ],
+    links: [{ label: 'View on GitHub →', href: 'https://github.com/marcanjoul/hit-song-predictor' }],
+  },
+  groov: {
+    type: 'Mobile App',
+    title: 'Groov',
+    desc: "iOS app that lets music lovers search for, track, and rate the albums they've listened to or save albums they want to check out later. What sets Groov apart is its attention to detail, making it a powerful tool for musical reflection and taste-building.",
+    features: [
+      'Album search powered by external music API',
+      'Personal library with listened & want-to-listen lists',
+      'Star rating system for albums',
+      'Clean, detail-oriented UI built with UIKit',
+      'Storyboard-based navigation flow',
+    ],
+    links: [{ label: 'View on GitHub →', href: 'https://github.com/marcanjoul/Groov' }],
+  },
+  noteweb: {
+    type: 'RAG / AI',
+    title: 'NoteWeb',
+    desc: 'A local-first RAG tool that semantically indexes and searches your documents using LLaMA 3 and vector embeddings. Everything runs locally: no cloud, and no data leaves your machine.',
+    features: [
+      'Semantic search across local documents',
+      'LLaMA 3 for local LLM inference',
+      'Vector embeddings for document indexing',
+      'Fully offline, no cloud dependencies',
+      'RAG pipeline from ingestion to query',
+    ],
+    links: [{ label: 'View on GitHub →', href: 'https://github.com/marcanjoul/NoteWeb' }],
+  },
+  ois: {
+    type: 'Web App',
+    title: 'OIS Competition Tracker',
+    desc: 'A fast, game-like retail competition web app built for my retail job. Associates log daily OIS (orders in store) performance, the app computes sales-per-hour automatically, and everyone can see where they stand on a live leaderboard. Managers get a PIN-protected admin view to oversee the competition.',
+    features: [
+      'Daily order logging with automatic sales-per-hour calculation',
+      'Live, real-time leaderboard visible to the whole team',
+      'Competition countdown timer with automatic winner reveal',
+      'PIN-protected manager admin view',
+      'Mobile-first UI built for quick use on the sales floor',
+    ],
+    links: [
+      { label: 'View Live Site →', href: 'https://hco-ois.vercel.app/' },
+      { label: 'View on GitHub →', href: 'https://github.com/marcanjoul/hco-ois-competition' },
+    ],
+    media: {
+      type: 'images',
+      items: [
+        { label: 'Home', src: 'assets/hco-ois/screen-home.png' },
+        { label: 'Leaderboard', src: 'assets/hco-ois/screen-leaderboard.png' },
+        { label: 'Manager', src: 'assets/hco-ois/screen-login.png' },
+      ],
+    },
+  },
+  kiosk: {
+    type: 'Systems / C',
+    title: 'Interactive Restaurant Kiosk',
+    desc: 'A C-based self-ordering restaurant simulation that mimics a digital kiosk system entirely from the terminal: browse a structured menu, build and modify an order, and complete a realistic payment flow.',
+    features: [
+      'Full menu navigation across appetizers, mains, beverages, and desserts',
+      'Singly linked list order system: add, update, and remove items',
+      'Simulated payment flow with tipping and change calculation',
+      'Itemized receipt with subtotal, tax, and tip',
+      'Input validation with graceful retry handling',
+    ],
+    links: [{ label: 'View on GitHub →', href: 'https://github.com/marcanjoul/Interactive-Restaurant-Kiosk' }],
+  },
+  houseprice: {
+    type: 'Data Science / ML',
+    title: 'House Price Predictor',
+    desc: 'Explores linear regression for predicting house prices, comparing a single-variable baseline (area only) against a multi-variable model (area, bedrooms, bathrooms, stories, parking) to show how feature selection impacts prediction accuracy.',
+    features: [
+      'Single-feature models underfit real-world price variance',
+      'Adding relevant features improves R² and lowers MSE',
+      'House prices are driven by multiple factors, not size alone',
+      'Evaluated with MSE, R², and residual analysis',
+    ],
+    links: [{ label: 'View on GitHub →', href: 'https://github.com/marcanjoul/house-price-predictor' }],
+  },
+};
+
+const modal = document.getElementById('project-modal');
+const modalType = modal.querySelector('.project-modal-type');
+const modalTitle = modal.querySelector('.project-modal-title');
+const modalDesc = modal.querySelector('.project-modal-desc');
+const modalFeatures = modal.querySelector('.project-modal-features');
+const modalLinks = modal.querySelector('.project-modal-links');
+const modalMedia = modal.querySelector('.project-modal-media');
+
+function renderMedia(media) {
+  if (!media) {
+    modalMedia.hidden = true;
+    modalMedia.innerHTML = '';
+    return;
+  }
+  modalMedia.hidden = false;
+  const tabs = media.items
+    .map((it, i) => `<button class="media-tab${i === 0 ? ' active' : ''}" data-src="${it.src}">${it.label}</button>`)
+    .join('');
+
+  if (media.type === 'video') {
+    modalMedia.innerHTML = `
+      <div class="demo-phone">
+        <span class="demo-phone-notch"></span>
+        <video class="demo-phone-screen" poster="${media.poster}" muted loop playsinline preload="none" src="${media.items[0].src}"></video>
+      </div>
+      <div class="media-tabs">${tabs}</div>
+    `;
+    const video = modalMedia.querySelector('video');
+    video.play().catch(() => {});
+    modalMedia.querySelectorAll('.media-tab').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        modalMedia.querySelectorAll('.media-tab').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        video.src = btn.dataset.src;
+        video.load();
+        video.play().catch(() => {});
+      });
+    });
+  } else if (media.type === 'images') {
+    modalMedia.innerHTML = `
+      <div class="demo-browser">
+        <div class="demo-browser-bar"><span></span><span></span><span></span></div>
+        <img class="demo-browser-screen" src="${media.items[0].src}" alt="${media.items[0].label} screenshot">
+      </div>
+      <div class="media-tabs">${tabs}</div>
+    `;
+    const img = modalMedia.querySelector('img');
+    modalMedia.querySelectorAll('.media-tab').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        modalMedia.querySelectorAll('.media-tab').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        img.src = btn.dataset.src;
+        img.alt = btn.textContent + ' screenshot';
+      });
+    });
+  }
+}
+
+function openProjectModal(id) {
+  const data = projectData[id];
+  if (!data) return;
+  renderMedia(data.media);
+  modalType.textContent = data.type;
+  modalTitle.textContent = data.title;
+  modalDesc.textContent = data.desc;
+  modalFeatures.innerHTML = data.features.map((f) => `<li>${f}</li>`).join('');
+  modalLinks.innerHTML = data.links
+    .map((l) => `<a href="${l.href}" target="_blank">${l.label}</a>`)
+    .join('');
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  if (lenis) lenis.stop();
+}
+function closeProjectModal() {
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
+  if (lenis) lenis.start();
+  const video = modalMedia.querySelector('video');
+  if (video) video.pause();
+}
+
+document.querySelectorAll('.project-card').forEach((card) => {
+  card.addEventListener('click', (e) => {
+    if (e.target.closest('a')) return;
+    openProjectModal(card.dataset.project);
+  });
+});
+modal.querySelector('.project-modal-close').addEventListener('click', closeProjectModal);
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) closeProjectModal();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeProjectModal();
+});
+
+/* ---------- mobile nav trigger ---------- */
+const menuBtn = document.querySelector('.mobile-menu-btn');
+const mobileNav = document.querySelector('.mobile-nav');
+const mobileNavClose = document.querySelector('.mobile-nav-close');
+menuBtn.addEventListener('click', () => {
+  mobileNav.classList.add('active');
+  document.body.style.overflow = 'hidden';
+});
+mobileNavClose.addEventListener('click', () => {
+  mobileNav.classList.remove('active');
+  document.body.style.overflow = '';
+});
+mobileNav.querySelectorAll('a').forEach((link) => {
+  link.addEventListener('click', () => {
+    mobileNav.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+});
+
+/* ---------- scroll progress bar ---------- */
+(function scrollProgress() {
+  const bar = document.querySelector('.scroll-progress');
+  if (!bar) return;
+  const update = () => {
+    const el = document.documentElement;
+    const max = el.scrollHeight - el.clientHeight;
+    bar.style.transform = 'scaleX(' + (max > 0 ? el.scrollTop / max : 0) + ')';
+  };
+  document.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+})();
+
+
+// ============================================================
+// INTERACTIVE CELESTIAL CANVAS LOGIC (SUN-TO-MOON TRANSITION)
+// ============================================================
+
+const canvas = document.getElementById('celestial-canvas');
+const ctx = canvas.getContext('2d');
+
+let dpr = Math.min(window.devicePixelRatio || 1, 2);
+let width = window.innerWidth;
+let height = window.innerHeight;
+
+// Moon layout target positions (recalculated on resize)
+let moonTargetX = 80;
+let moonTargetY = 52;
+let textTargetX = 160;
+let textTargetY = 52;
+
+// Pseudo-random seeded generator for organic, 12fps sketch jitter
+let seed = 1;
+let jitterSeed = 0;
+let lastJitterUpdate = 0;
+
+function seededRandom() {
+  const x = Math.sin(seed++) * 10000;
+  return x - Math.floor(x);
+}
+
+const state = {
+  transition: 0, // 0 = Full Day, 1 = Full Night (GSAP controlled on scroll)
+  mouse: { x: width / 2, y: height / 2 },
+  targetMouse: { x: width / 2, y: height / 2 },
+  isHoveringCenter: false,
+  time: 0
+};
+
+// Background stops configuration
+const dayStops = ['#7da7d9', '#cbe2f8', '#f3ede0'];
+const nightStops = ['#080a14', '#0f1424', '#1b243b'];
+
+function parseColor(color) {
+  if (color.startsWith('#')) {
+    let hex = color.substring(1);
+    if (hex.length === 3) hex = hex.split('').map(x => x + x).join('');
+    const num = parseInt(hex, 16);
+    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+  }
+  const match = color.match(/\d+/g);
+  if (match) return { r: parseInt(match[0]), g: parseInt(match[1]), b: parseInt(match[2]) };
+  return { r: 255, g: 255, b: 255 };
+}
+
+function interpolateColor(color1, color2, factor) {
+  const c1 = parseColor(color1);
+  const c2 = parseColor(color2);
+  const r = Math.round(c1.r + (c2.r - c1.r) * factor);
+  const g = Math.round(c1.g + (c2.g - c1.g) * factor);
+  const b = Math.round(c1.b + (c2.b - c1.b) * factor);
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+// Sketched line drawing tool
+function drawSketchedPath(points, color, width, jitter = 1.2, strokeCount = 2, close = false) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  for (let s = 0; s < strokeCount; s++) {
+    ctx.beginPath();
+    if (points.length < 2) return;
+
+    seed = jitterSeed + s * 300;
+
+    const startJitterX = (seededRandom() - 0.5) * jitter;
+    const startJitterY = (seededRandom() - 0.5) * jitter;
+    ctx.moveTo(points[0].x + startJitterX, points[0].y + startJitterY);
+
+    for (let i = 1; i < points.length; i++) {
+      const p1 = points[i - 1];
+      const p2 = points[i];
+
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const len = Math.hypot(dx, dy);
+      const steps = Math.max(1, Math.floor(len / 12));
+
+      for (let k = 1; k <= steps; k++) {
+        const t = k / steps;
+        const px = p1.x + dx * t;
+        const py = p1.y + dy * t;
+        const jx = (seededRandom() - 0.5) * jitter;
+        const jy = (seededRandom() - 0.5) * jitter;
+        ctx.lineTo(px + jx, py + jy);
+      }
+    }
+
+    if (close) {
+      const p1 = points[points.length - 1];
+      const p2 = points[0];
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const len = Math.hypot(dx, dy);
+      const steps = Math.max(1, Math.floor(len / 12));
+      for (let k = 1; k <= steps; k++) {
+        const t = k / steps;
+        const px = p1.x + dx * t;
+        const py = p1.y + dy * t;
+        const jx = (seededRandom() - 0.5) * jitter;
+        const jy = (seededRandom() - 0.5) * jitter;
+        ctx.lineTo(px + jx, py + jy);
+      }
+      ctx.closePath();
+    }
+    ctx.stroke();
+  }
+}
+
+function drawSketchedLine(x1, y1, x2, y2, color, width, jitter = 1.2, strokeCount = 2) {
+  drawSketchedPath([{ x: x1, y: y1 }, { x: x2, y: y2 }], color, width, jitter, strokeCount);
+}
+
+function drawSketchedCircle(cx, cy, r, color, width, jitter = 1.2, strokeCount = 2) {
+  const points = [];
+  const steps = Math.max(16, Math.floor(2 * Math.PI * r / 12));
+  for (let i = 0; i <= steps; i++) {
+    const angle = (i / steps) * Math.PI * 2;
+    points.push({ x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r });
+  }
+  drawSketchedPath(points, color, width, jitter, strokeCount, true);
+}
+
+// Sketched Crescent Moon drawing using Bezier curve matching
+function drawSketchedCrescent(cx, cy, r, color, width, opacity, jitter = 1.2) {
+  ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
+  ctx.lineWidth = width;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  const strokeCount = 2;
+  for (let s = 0; s < strokeCount; s++) {
+    ctx.beginPath();
+    seed = jitterSeed + s * 150;
+
+    const steps = 24;
+    // 1. Draw outer circle arc (left semi-circle)
+    for (let i = 0; i <= steps; i++) {
+      const angle = Math.PI / 2 + (i / steps) * Math.PI; // PI/2 to 3PI/2 (left crescent face)
+      const x = cx + Math.cos(angle) * r + (seededRandom() - 0.5) * jitter;
+      const y = cy + Math.sin(angle) * r + (seededRandom() - 0.5) * jitter;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+
+    // 2. Draw inner curving crescent line back to start using Bezier points
+    const startX = cx;
+    const startY = cy - r;
+    const endX = cx;
+    const endY = cy + r;
+    const ctrlX = cx - r * 0.28; // bezier curves inward
+    const ctrlY = cy;
+
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const px = (1 - t) * (1 - t) * startX + 2 * (1 - t) * t * ctrlX + t * t * endX;
+      const py = (1 - t) * (1 - t) * startY + 2 * (1 - t) * t * ctrlY + t * t * endY;
+      const jx = (seededRandom() - 0.5) * jitter;
+      const jy = (seededRandom() - 0.5) * jitter;
+      ctx.lineTo(px + jx, py + jy);
+    }
+
+    ctx.stroke();
+  }
+}
+
+// Day Clouds Setup
+const clouds = [
+  { x: width * 0.15, y: height * 0.2, scale: 0.9, speed: 0.12, parallax: 0.03 },
+  { x: width * 0.45, y: height * 0.12, scale: 1.1, speed: 0.08, parallax: 0.02 },
+  { x: width * 0.8, y: height * 0.25, scale: 0.75, speed: 0.15, parallax: 0.04 }
+];
+
+function drawSketchedCloud(cx, cy, scale, opacity) {
+  const fillStyle = `rgba(255, 255, 255, ${opacity * 0.88})`;
+  const strokeColor = `rgba(28, 24, 18, ${opacity})`;
+
+  ctx.fillStyle = fillStyle;
+  ctx.strokeStyle = strokeColor;
+  ctx.lineWidth = 1.2;
+
+  const circles = [
+    { dx: -35, dy: 5, r: 24 },
+    { dx: -12, dy: -14, r: 32 },
+    { dx: 16, dy: -8, r: 28 },
+    { dx: 38, dy: 10, r: 20 },
+    { dx: 0, dy: 12, r: 25 }
+  ];
+
+  // Draw fills first
+  ctx.beginPath();
+  circles.forEach(c => {
+    ctx.arc(cx + c.dx * scale, cy + c.dy * scale, c.r * scale, 0, Math.PI * 2);
+  });
+  ctx.fill();
+
+  // Draw wobbly sketchy outlines
+  circles.forEach(c => {
+    drawSketchedCircle(cx + c.dx * scale, cy + c.dy * scale, c.r * scale, strokeColor, 1.2, 1.2, 1);
+  });
+}
+
+// Night Stars Setup
+const stars = [];
+const numStars = 65;
+for (let i = 0; i < numStars; i++) {
+  stars.push({
+    baseX: Math.random() * width,
+    baseY: Math.random() * height,
+    size: 2.2 + Math.random() * 3.5,
+    speed: 0.02 + Math.random() * 0.04,
+    phase: Math.random() * Math.PI * 2,
+    parallax: 0.02 + Math.random() * 0.05
+  });
+}
+
+function drawCelestialStar(cx, cy, r, color, opacity) {
+  ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
+  ctx.lineWidth = 1.2;
+  ctx.lineCap = 'round';
+
+  const lines = 4;
+  for (let i = 0; i < lines; i++) {
+    const angle = (i / lines) * Math.PI + state.time * 0.005;
+    const jx = (Math.random() - 0.5) * 0.8;
+    const jy = (Math.random() - 0.5) * 0.8;
+    const x1 = cx - Math.cos(angle) * r + jx;
+    const y1 = cy - Math.sin(angle) * r + jy;
+    const x2 = cx + Math.cos(angle) * r + jx;
+    const y2 = cy + Math.sin(angle) * r + jy;
+
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+}
+
+// Connected Constellation Drawing (Night Only)
+const constellations = [
+  // Cassiopeia relative mappings
+  {
+    name: 'CASSIOPEIA',
+    points: [
+      { rx: 0.72, ry: 0.18 },
+      { rx: 0.75, ry: 0.22 },
+      { rx: 0.80, ry: 0.20 },
+      { rx: 0.83, ry: 0.26 },
+      { rx: 0.88, ry: 0.23 }
+    ]
+  },
+  // Big Dipper outline relative mappings
+  {
+    name: 'URSA MAJOR',
+    points: [
+      { rx: 0.12, ry: 0.24 },
+      { rx: 0.18, ry: 0.23 },
+      { rx: 0.23, ry: 0.28 },
+      { rx: 0.27, ry: 0.33 },
+      { rx: 0.34, ry: 0.31 },
+      { rx: 0.36, ry: 0.40 },
+      { rx: 0.28, ry: 0.41 },
+      { rx: 0.27, ry: 0.33 }
+    ]
+  }
+];
+
+function drawConstellationLines(transition) {
+  if (transition < 0.1) return;
+  const opacity = transition * 0.12;
+  const color = `rgba(248, 250, 252, ${opacity})`;
+
+  ctx.save();
+  ctx.setLineDash([3, 6]);
+  const parallaxX = (state.mouse.x - width / 2) * 0.02;
+  const parallaxY = (state.mouse.y - height / 2) * 0.02;
+
+  const outlineC = parseColor('#e2e8f0');
+
+  constellations.forEach(c => {
+    // Generate screenspace vertices
+    const screenPoints = c.points.map(p => ({
+      x: p.rx * width + parallaxX,
+      y: p.ry * height + parallaxY
+    }));
+
+    // Draw connecting segments
+    for (let i = 0; i < screenPoints.length - 1; i++) {
+      drawSketchedLine(screenPoints[i].x, screenPoints[i].y, screenPoints[i+1].x, screenPoints[i+1].y, color, 0.8, 1.0, 1);
+    }
+
+    // Draw little astronomical star shapes at each node
+    screenPoints.forEach(p => {
+      drawCelestialStar(p.x, p.y, 4, outlineC, transition * 0.4);
+    });
+
+    // Write wobbly label beside the constellation
+    ctx.fillStyle = `rgba(248, 250, 252, ${transition * 0.35})`;
+    ctx.font = '8px "Shantell Sans", sans-serif';
+    ctx.fillText(c.name, screenPoints[0].x + 10, screenPoints[0].y + 4);
+  });
+
+  ctx.restore();
+}
+
+// Celestial Blueprint grid markings (double ruled frame, compass ticks)
+function drawCelestialPosterGrid(transition) {
+  const opacity = 0.08 + 0.04 * transition;
+  const color = transition < 0.5
+    ? `rgba(28, 24, 18, ${opacity})`
+    : `rgba(248, 250, 252, ${opacity})`;
+
+  const margin1 = 20;
+  const margin2 = 28;
+
+  // Double ruled sketched border
+  drawSketchedLine(margin1, margin1, width - margin1, margin1, color, 0.8, 1.2, 1);
+  drawSketchedLine(width - margin1, margin1, width - margin1, height - margin1, color, 0.8, 1.2, 1);
+  drawSketchedLine(width - margin1, height - margin1, margin1, height - margin1, color, 0.8, 1.2, 1);
+  drawSketchedLine(margin1, height - margin1, margin1, margin1, color, 0.8, 1.2, 1);
+
+  drawSketchedLine(margin2, margin2, width - margin2, margin2, color, 0.5, 1.0, 1);
+  drawSketchedLine(width - margin2, margin2, width - margin2, height - margin2, color, 0.5, 1.0, 1);
+  drawSketchedLine(width - margin2, height - margin2, margin2, height - margin2, color, 0.5, 1.0, 1);
+  drawSketchedLine(margin2, height - margin2, margin2, margin2, color, 0.5, 1.0, 1);
+
+  // Orbital ring path showing relative sun-moon transit route
+  const orbitR = Math.hypot(width / 2 - moonTargetX, height / 2 - moonTargetY);
+  ctx.save();
+  ctx.setLineDash([4, 10]);
+  drawSketchedCircle(width / 2, height / 2, orbitR, color, 0.6, 1.2, 1);
+  ctx.restore();
+
+  // Faint cardinal crosshairs (fade out at night)
+  const crossOpacity = opacity * Math.max(0, 1 - transition * 2.0);
+  const crossColor = `rgba(28, 24, 18, ${crossOpacity})`;
+  if (crossOpacity > 0.01) {
+    drawSketchedLine(margin2, height / 2, width - margin2, height / 2, crossColor, 0.5, 1.2, 1);
+    drawSketchedLine(width / 2, margin2, width / 2, height - margin2, crossColor, 0.5, 1.2, 1);
+
+    // Concentric coordinate rings
+    drawSketchedCircle(width / 2, height / 2, 180, crossColor, 0.4, 1.2, 1);
+    drawSketchedCircle(width / 2, height / 2, 380, crossColor, 0.4, 1.2, 1);
+  }
+}
+
+// Target elements and positions calculator
+function resize() {
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  width = window.innerWidth;
+  height = window.innerHeight;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  ctx.scale(dpr, dpr);
+
+  // Visual boundaries alignment handler
+  const placeholder = document.querySelector('.logo-placeholder');
+  if (placeholder) {
+    const rect = placeholder.getBoundingClientRect();
+    moonTargetX = rect.left + 65; // base center
+    moonTargetY = rect.top + rect.height / 2;
+    textTargetX = rect.left + 115; // text center
+    textTargetY = rect.top + rect.height / 2;
+  } else {
+    moonTargetX = Math.max(80, (width - 1180) / 2 + 80);
+    moonTargetY = 52;
+    textTargetX = moonTargetX + 50;
+    textTargetY = 52;
+  }
+}
+window.addEventListener('resize', resize);
+// Call once on launch to index logo position bounds
+document.fonts.ready.then(() => {
+  resize();
+});
+
+// Cursor drag and move bindings
+function updatePointer(clientX, clientY) {
+  state.targetMouse.x = clientX;
+  state.targetMouse.y = clientY;
+}
+window.addEventListener('pointermove', (e) => updatePointer(e.clientX, e.clientY));
+window.addEventListener('touchmove', (e) => {
+  const t = e.touches[0];
+  if (t) updatePointer(t.clientX, t.clientY);
+}, { passive: true });
+
+// Scroll triggered state timeline handler
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const triggerHeight = window.innerHeight; // 100vh spacer height
+  const targetT = Math.min(Math.max(scrollTop / triggerHeight, 0), 1);
+
+  gsap.to(state, {
+    transition: targetT,
+    duration: 0.65,
+    ease: "power2.out",
+    overwrite: "auto"
+  });
+
+  // Toggle dark mode class on body for theme swaps
+  if (targetT > 0.5) {
+    document.body.classList.add('dark-mode');
+  } else {
+    document.body.classList.remove('dark-mode');
+  }
+});
+
+// Master rendering loop
+function draw(time) {
+  state.time = time;
+  // Clear layout canvas
+  ctx.clearRect(0, 0, width, height);
+
+  // 1. Draw watercolor background gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, height);
+  const stop0 = interpolateColor(dayStops[0], nightStops[0], state.transition);
+  const stop1 = interpolateColor(dayStops[1], nightStops[1], state.transition);
+  const stop2 = interpolateColor(dayStops[2], nightStops[2], state.transition);
+
+  grad.addColorStop(0, stop0);
+  grad.addColorStop(0.6, stop1);
+  grad.addColorStop(1, stop2);
+
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, width, height);
+
+  // Trigger wobbly sketch jitter state swap at 12fps (80ms interval)
+  if (time - lastJitterUpdate > 80) {
+    jitterSeed = Math.random() * 5000;
+    lastJitterUpdate = time;
+  }
+
+  // Linear pointer coordination smoothing (lerp)
+  state.mouse.x += (state.targetMouse.x - state.mouse.x) * 0.1;
+  state.mouse.y += (state.targetMouse.y - state.mouse.y) * 0.1;
+
+  // 2. Draw poster grid blueprints
+  drawCelestialPosterGrid(state.transition);
+
+  // 3. Draw twinkling starry sky (Night State)
+  if (state.transition > 0.01) {
+    const starColor = parseColor('#ffd400');
+    const outlineColor = parseColor('#e2e8f0');
+
+    stars.forEach(star => {
+      const sparkle = 0.35 + 0.65 * Math.sin(time * star.speed + star.phase);
+      const alpha = state.transition * sparkle;
+
+      // Parallax drift offset
+      const px = star.baseX + (state.mouse.x - width / 2) * star.parallax;
+      const py = star.baseY + (state.mouse.y - height / 2) * star.parallax;
+
+      // Wrap coordinate bounds
+      const sx = (px + width) % width;
+      const sy = (py + height) % height;
+
+      drawCelestialStar(sx, sy, star.size, starColor, alpha);
+    });
+
+    drawConstellationLines(state.transition);
+  }
+
+  // 4. Draw drifting clouds (Day State)
+  if (state.transition < 0.99) {
+    clouds.forEach(cloud => {
+      // Drifts slowly right
+      cloud.x += cloud.speed;
+      if (cloud.x > width + 100) cloud.x = -100;
+
+      // Parallax coordinate updates
+      const cx = cloud.x + (state.mouse.x - width / 2) * cloud.parallax;
+      const cy = cloud.y + (state.mouse.y - height / 2) * cloud.parallax;
+
+      const alpha = (1 - state.transition) * 0.72;
+      drawSketchedCloud(cx, cy, cloud.scale, alpha);
+    });
+  }
+
+  // 5. Draw Sun / Moon Celestial morph transitions
+  const centerX = gsap.utils.interpolate(width / 2, moonTargetX, state.transition);
+  const centerY = gsap.utils.interpolate(height / 2, moonTargetY, state.transition);
+
+  const baseSunR = Math.max(45, Math.min(width * 0.1, height * 0.12, 75));
+  const sunR = baseSunR * (1 - state.transition);
+  const moonR = 14 * state.transition;
+
+  // A. Draw Sun base circle
+  if (state.transition < 0.99) {
+    const sunColor = `rgba(255, 212, 0, ${1 - state.transition})`;
+    // Draw outer wobbly ring
+    drawSketchedCircle(centerX, centerY, sunR, sunColor, 1.8, 1.5, 2);
+  }
+
+  // B. Draw Sun Rays (stretch, pulse & hover interactive)
+  if (state.transition < 0.9) {
+    const numRays = 14;
+    const rayColor = `243, 176, 7`;
+    const dx = state.mouse.x - centerX;
+    const dy = state.mouse.y - centerY;
+    const dist = Math.hypot(dx, dy);
+    const pointerAngle = Math.atan2(dy, dx);
+
+    const r1 = sunR + 10;
+    const r2 = sunR + 55 * (1 - state.transition);
+
+    for (let i = 0; i < numRays; i++) {
+      const baseAngle = (i / numRays) * 2 * Math.PI + time * 0.0012;
+      
+      // Calculate angular distance to pointer
+      let diff = baseAngle - pointerAngle;
+      diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+
+      // Stretch rays facing pointer using Gaussian distribution curve
+      const stretchIntensity = Math.exp(-Math.pow(diff / 0.55, 2));
+      const stretch = stretchIntensity * Math.min(dist * 0.32, 100) * (1 - state.transition);
+      
+      // Continuous ray pulsing
+      const wave = Math.sin(time * 0.038 + i) * 6 * (1 - state.transition);
+
+      const rx1 = centerX + Math.cos(baseAngle) * r1;
+      const ry1 = centerY + Math.sin(baseAngle) * r1;
+      const rx2 = centerX + Math.cos(baseAngle) * (r2 + stretch + wave);
+      const ry2 = centerY + Math.sin(baseAngle) * (r2 + stretch + wave);
+
+      const rayOpacity = (1 - state.transition) * 0.8;
+      drawSketchedLine(rx1, ry1, rx2, ry2, `rgba(${rayColor}, ${rayOpacity})`, 1.6, 1.4, 1);
+    }
+  }
+
+  // C. Draw Moon Crescent & Crater details
+  if (state.transition > 0.05) {
+    const moonColor = parseColor('#e2e8f0');
+    // Crescent shifts left relative to centering target
+    const moonCX = centerX - 40 * state.transition;
+    drawSketchedCrescent(moonCX, centerY, moonR, moonColor, 1.5, state.transition);
+
+    // Draw moon crater doodles
+    if (state.transition > 0.6) {
+      const craterColor = `rgba(248, 250, 252, ${state.transition * 0.28})`;
+      // Crater A
+      drawSketchedCircle(moonCX - 5, centerY - 4, 2.5, craterColor, 0.8, 1.0, 1);
+      // Crater B
+      drawSketchedCircle(moonCX - 2, centerY + 5, 2.0, craterColor, 0.8, 1.0, 1);
+    }
+  }
+
+  // 6. Draw name typography "Mark Anjoul" (Cabin Sketch variables)
+  const textX = gsap.utils.interpolate(width / 2, textTargetX, state.transition);
+  const textY = gsap.utils.interpolate(height / 2 + 10, textTargetY + 6, state.transition);
+
+  const baseFontSize = Math.max(32, Math.min(width * 0.07, height * 0.09, 56));
+  const nightFontSize = Math.max(16, Math.min(width * 0.04, 22));
+  const fontSize = gsap.utils.interpolate(baseFontSize, nightFontSize, state.transition);
+
+  ctx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  const text = "Mark Anjoul";
+
+  // Sketch marker shadow (Day State only)
+  if (state.transition < 0.9) {
+    ctx.fillStyle = `rgba(243, 112, 7, ${(1 - state.transition) * 0.35})`;
+    ctx.fillText(text, textX + 2.5, textY + 2.5);
+  }
+
+  // Solid fill
+  const fillCol = interpolateColor('#ffd400', '#f8fafc', state.transition);
+  ctx.fillStyle = fillCol;
+  ctx.fillText(text, textX, textY);
+
+  // Sketch outline text
+  const strokeCol = interpolateColor('#1c1812', '#e2e8f0', state.transition);
+  ctx.strokeStyle = strokeCol;
+  ctx.lineWidth = state.transition < 0.5 ? 1.5 : 0.8;
+  ctx.strokeText(text, textX, textY);
+
+  // 7. Dynamic layout effects updates
+  // Fade hero HTML text on scroll
+  const heroContent = document.getElementById('hero-content');
+  if (heroContent) {
+    heroContent.style.opacity = Math.max(0, 1 - state.transition * 2.0);
+  }
+  const scrollHint = document.getElementById('scroll-hint');
+  if (scrollHint) {
+    scrollHint.style.opacity = Math.max(0, 1 - state.transition * 3.0);
+  }
+
+  // Slide navbar in and out
+  const navInner = document.querySelector('.nav-inner');
+  if (navInner) {
+    gsap.set(navInner, {
+      opacity: state.transition,
+      y: (1 - state.transition) * -15,
+      pointerEvents: state.transition > 0.15 ? 'auto' : 'none'
+    });
+  }
+
+  requestAnimationFrame(draw);
+}
+
+// Start visual frame loop once fonts are loaded
+document.fonts.ready.then(() => {
+  requestAnimationFrame(draw);
+});
+
+</script>
 </body>
 </html>
