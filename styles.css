@@ -1,10 +1,23 @@
 /* ============================================================
    Mark Anjoul — Portfolio (doodled-stars experiment)
-   Cream paper, ink linework, one electric-blue marker accent.
-   Display: Caveat (handwritten) · Body/UI: Inter
-   Background: hand-sketched stars trail the cursor on a Canvas2D
-   sheet of paper grain; every panel/card is a wonky, hand-drawn box.
+   Cream paper, ink linework, blue + yellow marker brand colors.
+   One typeface throughout: Shantell Sans, a variable handwritten
+   sans with wght + BNCE (bounce) axes — weight does the heading
+   hierarchy, bounce reacts to scroll and cursor speed (app.js).
+   Background: hand-sketched stars trail the cursor, connect into
+   little constellations, shoot across the sky, and burst on click
+   on a Canvas2D sheet of paper grain. Every bordered box is wobbled
+   by an SVG filter (#sketchy, defined inline in index.html) so
+   nothing reads as a clean vector rectangle — it's all hand linework.
    ============================================================ */
+
+@font-face {
+  font-family: 'Shantell Sans';
+  src: url('assets/fonts/ShantellSans-Variable.ttf') format('truetype-variations');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   --paper:      #f3ede0;
@@ -14,10 +27,15 @@
   --ink-3:      rgba(28, 24, 18, 0.5);
   --rule:       rgba(28, 24, 18, 0.22);
   --accent:     #2b4dff;
-  --accent-2:   #ff5a36;
+  --yellow:     #ffd400;
 
-  --font-display: 'Caveat', cursive;
-  --font-body:    'Inter', sans-serif;
+  --font-display: 'Shantell Sans', cursive;
+  --font-body:    'Shantell Sans', sans-serif;
+
+  /* base variable-font axis values; app.js nudges --wght on scroll and
+     --bnce on cursor speed for .bouncy elements (headings/logo/buttons) */
+  --wght: 420;
+  --bnce: 6;
 
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --maxw: 1180px;
@@ -26,12 +44,14 @@
   --wonky: 255px 18px 225px 18px / 18px 225px 18px 255px;
 }
 
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html { font-size: 16px; }
 
 body {
   font-family: var(--font-body);
+  font-variation-settings: 'wght' 400, 'BNCE' 0;
   background: var(--paper);
   color: var(--ink);
   line-height: 1.7;
@@ -40,11 +60,76 @@ body {
   overflow-x: hidden;
 }
 
-::selection { background: var(--accent); color: var(--paper); }
+/* headings/wordmarks read the live --wght/--bnce custom properties, which
+   app.js drives from scroll position (weight) and cursor speed (bounce) —
+   body copy above stays static so legibility never wobbles */
+.logo, .hero-name, .chapter-title, .chapter-hero h1.split,
+.project-modal-title, .cl-label, .project-card h3, .timeline-item h3,
+.mobile-nav a {
+  font-variation-settings: 'wght' var(--wght), 'BNCE' var(--bnce);
+}
+
+/* hand-drawn star cursor, desktop only — mobile keeps the native touch cursor */
+@media (hover: hover) and (pointer: fine) {
+  body {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M14 2 L16.3 11 L25 14 L16.3 17 L14 26 L11.7 17 L3 14 L11.7 11 Z' fill='none' stroke='%231c1812' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") 14 14, auto;
+  }
+  a, button, .project-card, [role="button"] {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M14 2 L16.3 11 L25 14 L16.3 17 L14 26 L11.7 17 L3 14 L11.7 11 Z' fill='%23ffd400' stroke='%231c1812' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") 14 14, pointer;
+  }
+}
+
+::selection { background: var(--yellow); color: var(--ink); }
 
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
 
 a { color: inherit; text-decoration: none; }
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+/* ========== SKETCHED BORDERS ==========
+   Every boxed element below has its crisp CSS border hidden and
+   replaced by a ::before/::after twin run through the #sketchy SVG
+   displacement filter, so the outline wobbles like it was inked by
+   hand instead of rendered by a browser. */
+.nav-inner, .chapter-inner, .detail-card, .project-card, .tag-list li,
+.project-modal-panel, .project-modal-close, .project-modal-links a,
+.media-tab, .demo-phone, .demo-browser, .contact-link {
+  position: relative;
+  border-color: transparent !important;
+}
+.nav-inner::before, .chapter-inner::before, .detail-card::before,
+.project-card::before, .tag-list li::before, .project-modal-panel::before,
+.project-modal-close::before, .project-modal-links a::before,
+.media-tab::before, .demo-phone::before, .demo-browser::before,
+.contact-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: inherit;
+  border-color: var(--ink);
+  border-radius: inherit;
+  filter: url(#sketchy);
+  pointer-events: none;
+}
+.pill-list li {
+  position: relative;
+  border-color: transparent !important;
+}
+.pill-list li::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: inherit;
+  border-color: var(--ink);
+  border-radius: inherit;
+  filter: url(#sketchy);
+  pointer-events: none;
+}
 
 /* ========== BACKGROUND: star canvas + paper grain ========== */
 #bg-canvas {
@@ -71,7 +156,7 @@ a { color: inherit; text-decoration: none; }
   top: 0; left: 0;
   width: 100%;
   height: 3px;
-  background: var(--accent);
+  background: linear-gradient(90deg, var(--accent), var(--yellow));
   transform-origin: left;
   transform: scaleX(0);
   z-index: 200;
@@ -101,8 +186,8 @@ nav {
 .nav-links a { font-size: 0.92rem; color: var(--ink-2); transition: color 0.2s; }
 .nav-links a:hover { color: var(--accent); }
 .nav-cta {
-  background: var(--accent);
-  color: var(--paper) !important;
+  background: var(--yellow);
+  color: var(--ink) !important;
   padding: 0.55rem 1.1rem;
   border-radius: 999px;
   font-weight: 600;
@@ -138,6 +223,19 @@ nav {
   padding: 7rem 1.5rem;
 }
 
+/* alternating brand rhythm: odd chapters lean blue, even chapters lean yellow */
+.chapter:nth-of-type(even) .chapter-label,
+.chapter:nth-of-type(even) .chapter-num::before,
+.chapter:nth-of-type(even) .timeline-item::before,
+.chapter:nth-of-type(even) .pill-list li::before,
+.chapter:nth-of-type(even) .project-modal-features li::before {
+  color: var(--yellow);
+}
+.chapter:nth-of-type(even) .project-type,
+.chapter:nth-of-type(even) .timeline-item .org {
+  color: color-mix(in srgb, var(--yellow) 70%, var(--ink) 30%);
+}
+
 /* projects has more content than fits centered — pin it near the top so
    the grid is visible as soon as you reach the section, not below the fold */
 .chapter-wide {
@@ -168,6 +266,7 @@ nav {
   padding: 0;
   text-align: left;
 }
+.chapter-inner-hero::before { content: none; }
 
 .chapter-num {
   display: block;
@@ -248,8 +347,10 @@ nav {
   font-size: 0.88rem;
   color: var(--ink-2);
   background: var(--paper);
+  transition: background 0.2s;
 }
 .pill-list li::before { content: '✦ '; color: var(--accent); }
+.pill-list li:hover { background: var(--paper-2); animation: wiggle 0.35s ease-in-out; }
 
 /* ========== PROJECTS ========== */
 .project-grid {
@@ -272,15 +373,20 @@ nav {
 }
 .project-card:nth-child(odd) { transform: rotate(-0.5deg); }
 .project-card:nth-child(even) { transform: rotate(0.5deg); }
-.project-card:hover {
+.project-card:nth-child(odd):hover {
   transform: rotate(0deg) translateY(-3px);
   box-shadow: 6px 6px 0 var(--accent);
+}
+.project-card:nth-child(even):hover {
+  transform: rotate(0deg) translateY(-3px);
+  box-shadow: 6px 6px 0 var(--yellow);
 }
 .project-type { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); font-weight: 600; }
 .project-card h3 { font-family: var(--font-display); font-size: 1.7rem; font-weight: 600; }
 .project-card p { font-size: 0.92rem; color: var(--ink-2); margin: 0; }
 .tag-list { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.3rem 0 0.2rem; }
-.tag-list li { font-size: 0.74rem; color: var(--ink-3); border: 1px solid var(--rule); border-radius: 999px; padding: 0.2rem 0.6rem; }
+.tag-list li { font-size: 0.74rem; color: var(--ink-3); border: 1px solid var(--rule); border-radius: 999px; padding: 0.2rem 0.6rem; transition: background 0.2s; }
+.tag-list li:hover { background: var(--paper-2); animation: wiggle 0.35s ease-in-out; }
 .project-link { font-size: 0.88rem; font-weight: 600; color: var(--ink); border-bottom: 1.5px solid var(--ink); width: fit-content; }
 .project-link:hover { border-color: var(--accent); color: var(--accent); }
 
@@ -300,7 +406,6 @@ nav {
 }
 .project-modal.active { opacity: 1; pointer-events: auto; }
 .project-modal-panel {
-  position: relative;
   max-width: 620px;
   width: 100%;
   max-height: 80vh;
@@ -343,11 +448,10 @@ nav {
   border: 1.5px solid var(--ink); border-radius: 999px; padding: 0.4rem 0.9rem;
   cursor: pointer; transition: border-color 0.2s, color 0.2s, background 0.2s;
 }
-.media-tab.active, .media-tab:hover { border-color: var(--accent); color: var(--paper); background: var(--accent); }
+.media-tab.active, .media-tab:hover { border-color: var(--yellow); color: var(--ink); background: var(--yellow); }
 
 /* small phone-mockup frame for autoplaying app demo clips */
 .demo-phone {
-  position: relative;
   width: 150px;
   margin: 0 auto;
   aspect-ratio: 800 / 1731;
@@ -416,4 +520,5 @@ footer { text-align: center; padding: 3rem 1.5rem; color: var(--ink-3); font-siz
   .detail-grid { grid-template-columns: 1fr; }
   .chapter-inner { border-radius: 28px 10px 28px 10px; }
   .project-card { transform: none !important; }
+  .project-card:nth-child(odd):hover, .project-card:nth-child(even):hover { transform: translateY(-3px) !important; }
 }

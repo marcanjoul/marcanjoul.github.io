@@ -27,13 +27,19 @@
 <meta name="twitter:image" content="https://markanjoul.com/og.png">
 
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.css">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<!-- Hand-drawn wobble filter: every bordered box in styles.css runs through
+     this so straight CSS borders read as a hand-inked, slightly imperfect line. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="sketchy">
+    <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="4" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
 
 <!-- Hand-sketched stars trail the cursor on a Canvas2D paper background. -->
 <canvas id="bg-canvas" aria-hidden="true"></canvas>

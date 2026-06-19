@@ -12,6 +12,47 @@ if (!reduceMotion) {
   gsap.ticker.lagSmoothing(0);
 }
 
+/* ---------- Shantell Sans variable-font interactivity ----------
+   wght rises as you scroll deeper into the page; BNCE (bounce) spikes
+   with cursor speed and eases back — both read by .logo/.hero-name/
+   .chapter-title/etc. in styles.css via var(--wght)/var(--bnce). */
+const root = document.documentElement;
+if (!reduceMotion) {
+  ScrollTrigger.create({
+    trigger: document.body,
+    start: 'top top',
+    end: 'bottom bottom',
+    scrub: true,
+    onUpdate(self) {
+      const wght = 380 + self.progress * 300;
+      root.style.setProperty('--wght', wght.toFixed(0));
+    },
+  });
+
+  let lastX = null;
+  let lastY = null;
+  let lastT = 0;
+  let bounceTarget = 6;
+  window.addEventListener('pointermove', (e) => {
+    const now = performance.now();
+    if (lastX !== null) {
+      const dt = Math.max(now - lastT, 1);
+      const dist = Math.hypot(e.clientX - lastX, e.clientY - lastY);
+      bounceTarget = Math.min(6 + (dist / dt) * 18, 95);
+    }
+    lastX = e.clientX;
+    lastY = e.clientY;
+    lastT = now;
+  });
+  let bounceCurrent = 6;
+  (function easeBounce() {
+    bounceCurrent += (bounceTarget - bounceCurrent) * 0.12;
+    bounceTarget += (6 - bounceTarget) * 0.05; // settle back to resting bounce
+    root.style.setProperty('--bnce', bounceCurrent.toFixed(1));
+    requestAnimationFrame(easeBounce);
+  })();
+}
+
 /* ---------- letter-by-letter reveal on scroll ---------- */
 Splitting({ target: '.split', by: 'chars' });
 document.querySelectorAll('.split').forEach((el) => {
@@ -299,7 +340,9 @@ if (!ctx) {
   // no canvas support: the cream paper background alone still reads fine
 } else {
   const INK = '28, 24, 18';
-  const ACCENT = '43, 77, 255';
+  const BLUE = '43, 77, 255';
+  const YELLOW = '230, 175, 0';
+  const brandColor = () => (Math.random() < 0.5 ? BLUE : YELLOW);
   const dpr = Math.min(devicePixelRatio || 1, 2);
 
   function resize() {
@@ -335,38 +378,97 @@ if (!ctx) {
     ctx.stroke();
   }
 
-  // faint ambient constellation — always present, gently twinkling
-  const AMBIENT_COUNT = Math.round((innerWidth * innerHeight) / 22000);
-  const ambient = Array.from({ length: AMBIENT_COUNT }, () => ({
-    x: Math.random() * innerWidth,
-    y: Math.random() * innerHeight,
-    r: 4 + Math.random() * 7,
-    rotation: Math.random() * Math.PI,
-    seed: Math.random() * 100,
-  }));
-  window.addEventListener('resize', () => {
-    ambient.forEach((s) => {
-      s.x = Math.min(s.x, innerWidth);
-      s.y = Math.min(s.y, innerHeight);
+  // a hand-drawn "connect the dots" line between the cursor and a nearby star
+  function drawSketchyLine(x1, y1, x2, y2, alpha) {
+    const midx = (x1 + x2) / 2 + (Math.random() - 0.5) * 6;
+    const midy = (y1 + y2) / 2 + (Math.random() - 0.5) * 6;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.quadraticCurveTo(midx, midy, x2, y2);
+    ctx.strokeStyle = `rgba(${INK}, ${alpha})`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // three depth layers — far/small/slow to near/large/fast — for a sense of
+  // scale, like looking up through a notebook page into an actual sky
+  const LAYERS = [
+    { count: (w, h) => (w * h) / 38000, rMin: 3, rMax: 5, parallax: 0.015, alpha: [0.1, 0.18] },
+    { count: (w, h) => (w * h) / 48000, rMin: 5, rMax: 8, parallax: 0.035, alpha: [0.15, 0.26] },
+    { count: (w, h) => (w * h) / 70000, rMin: 8, rMax: 13, parallax: 0.06, alpha: [0.2, 0.34] },
+  ];
+  let ambient = [];
+  function buildAmbient() {
+    ambient = [];
+    LAYERS.forEach((layer, li) => {
+      const n = Math.round(layer.count(innerWidth, innerHeight));
+      for (let i = 0; i < n; i++) {
+        ambient.push({
+          x: Math.random() * innerWidth,
+          y: Math.random() * innerHeight,
+          r: layer.rMin + Math.random() * (layer.rMax - layer.rMin),
+          rotation: Math.random() * Math.PI,
+          seed: Math.random() * 100,
+          layer: li,
+          parallax: layer.parallax,
+          alphaMin: layer.alpha[0],
+          alphaMax: layer.alpha[1],
+        });
+      }
     });
+    buildConstellationEdges();
+  }
+
+  // stars don't change position relative to each other (only a uniform
+  // per-layer parallax shift), so their nearest-neighbor links are computed
+  // once and just redrawn each frame — cheap, and reads as a real star chart
+  let edges = [];
+  function buildConstellationEdges() {
+    edges = [];
+    const maxDist = 170;
+    ambient.forEach((a, i) => {
+      let best = null;
+      let bestDist = maxDist;
+      ambient.forEach((b, j) => {
+        if (i === j || a.layer !== b.layer) return;
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (d < bestDist) {
+          bestDist = d;
+          best = j;
+        }
+      });
+      if (best !== null && Math.random() < 0.55) edges.push([i, best]);
+    });
+  }
+  buildAmbient();
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(buildAmbient, 200);
   });
 
   // the cursor leaves a trail of doodled stars that fade out and vanish
   let trail = [];
-  function spawnTrailStar(x, y) {
+  function spawnTrailStar(x, y, big) {
     trail.push({
       x,
       y,
-      r: 9 + Math.random() * 10,
+      r: (big ? 14 : 9) + Math.random() * 10,
       rotation: Math.random() * Math.PI,
       born: performance.now(),
       life: 1100 + Math.random() * 500,
+      color: brandColor(),
     });
-    if (trail.length > 60) trail.shift();
+    if (trail.length > 80) trail.shift();
   }
 
+  // live pointer position, used to draw "connect the dots" constellation
+  // lines out to whichever ambient stars are nearby — null when idle/touch
+  const pointer = { x: null, y: null };
   let lastSpawn = 0;
   function setPointer(x, y) {
+    pointer.x = x;
+    pointer.y = y;
     const now = performance.now();
     if (now - lastSpawn > 60) {
       spawnTrailStar(x, y);
@@ -374,6 +476,7 @@ if (!ctx) {
     }
   }
   window.addEventListener('pointermove', (e) => setPointer(e.clientX, e.clientY));
+  window.addEventListener('pointerleave', () => { pointer.x = null; pointer.y = null; });
   window.addEventListener(
     'touchmove',
     (e) => {
@@ -383,25 +486,78 @@ if (!ctx) {
     { passive: true }
   );
 
+  // click/tap doodles a little starburst — interactive, not just decorative
+  window.addEventListener('pointerdown', (e) => {
+    const count = 6 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      const dist = 14 + Math.random() * 26;
+      spawnTrailStar(e.clientX + Math.cos(angle) * dist, e.clientY + Math.sin(angle) * dist, true);
+    }
+  });
+
   // idle ambient trail star so the page still feels alive with no pointer input
   setInterval(() => {
     if (reduceMotion) return;
     spawnTrailStar(Math.random() * innerWidth, Math.random() * innerHeight * 0.6);
   }, 1400);
 
-  // gentle parallax: ambient stars drift opposite scroll for a hint of depth
+  // gentle parallax: each layer drifts opposite scroll at its own depth speed
   let scrollY = 0;
   window.addEventListener('scroll', () => (scrollY = window.scrollY), { passive: true });
+
+  // a star occasionally streaks across the sky — the "grand" gesture that
+  // makes the page feel alive even when nobody's touched it yet
+  let shootingStar = null;
+  function maybeSpawnShootingStar() {
+    if (reduceMotion || shootingStar) return;
+    if (Math.random() > 0.35) return;
+    const fromLeft = Math.random() < 0.5;
+    shootingStar = {
+      x: fromLeft ? -40 : innerWidth + 40,
+      y: Math.random() * innerHeight * 0.5,
+      vx: (fromLeft ? 1 : -1) * (7 + Math.random() * 4),
+      vy: 2.5 + Math.random() * 1.5,
+      born: performance.now(),
+      color: brandColor(),
+    };
+  }
+  setInterval(maybeSpawnShootingStar, 5000);
+
+  function ambientY(s, parallax) {
+    const h = innerHeight + 60;
+    return ((s.y - parallax * s.parallax + h * 50) % h) - 30;
+  }
 
   let raf;
   function tick(time) {
     ctx.clearRect(0, 0, innerWidth, innerHeight);
-    const parallax = scrollY * 0.04;
+    const parallax = scrollY;
+
+    // constellation web first, so the stars themselves draw on top of it
+    edges.forEach(([i, j]) => {
+      const a = ambient[i];
+      const b = ambient[j];
+      if (!a || !b) return;
+      const ay = ambientY(a, parallax);
+      const by = ambientY(b, parallax);
+      drawSketchyLine(a.x, ay, b.x, by, 0.07);
+    });
 
     ambient.forEach((s) => {
-      const twinkle = 0.18 + 0.14 * Math.sin(time * 0.0006 + s.seed);
-      drawStar(s.x, (s.y - parallax) % (innerHeight + 40), s.r, s.rotation + time * 0.00005, 1.2, twinkle, INK, 1.2);
+      const twinkle = s.alphaMin + (s.alphaMax - s.alphaMin) * (0.5 + 0.5 * Math.sin(time * 0.0006 + s.seed));
+      drawStar(s.x, ambientY(s, parallax), s.r, s.rotation + time * 0.00005, 1.2, twinkle, INK, 1.2);
     });
+
+    // cursor "connect the dots" — thin sketchy lines out to nearby stars
+    if (pointer.x !== null) {
+      ambient.forEach((s) => {
+        if (s.layer < 1) return;
+        const sy = ambientY(s, parallax);
+        const d = Math.hypot(pointer.x - s.x, pointer.y - sy);
+        if (d < 130) drawSketchyLine(pointer.x, pointer.y, s.x, sy, (1 - d / 130) * 0.22);
+      });
+    }
 
     const now = performance.now();
     trail = trail.filter((s) => now - s.born < s.life);
@@ -409,8 +565,27 @@ if (!ctx) {
       const age = (now - s.born) / s.life;
       const alpha = age < 0.15 ? age / 0.15 : 1 - (age - 0.15) / 0.85;
       const scale = 0.7 + age * 0.5;
-      drawStar(s.x, s.y, s.r * scale, s.rotation, 1.6, Math.max(alpha, 0) * 0.85, ACCENT, 1.8);
+      drawStar(s.x, s.y, s.r * scale, s.rotation, 1.6, Math.max(alpha, 0) * 0.85, s.color, 1.8);
     });
+
+    if (shootingStar) {
+      const age = (now - shootingStar.born) / 700;
+      if (age >= 1) {
+        shootingStar = null;
+      } else {
+        const sx = shootingStar.x + shootingStar.vx * (now - shootingStar.born) * 0.06;
+        const sy = shootingStar.y + shootingStar.vy * (now - shootingStar.born) * 0.06;
+        const tailX = sx - shootingStar.vx * 3;
+        const tailY = sy - shootingStar.vy * 3;
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(sx, sy);
+        ctx.strokeStyle = `rgba(${shootingStar.color}, ${(1 - age) * 0.7})`;
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+        drawStar(sx, sy, 7, age * 4, 1.4, (1 - age) * 0.9, shootingStar.color, 1.6);
+      }
+    }
 
     raf = requestAnimationFrame(tick);
   }
