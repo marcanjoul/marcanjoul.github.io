@@ -1889,10 +1889,10 @@ document.querySelectorAll('.split').forEach((el) => {
       '--char-infm': 0,
       '--char-bnce': 1,
       '--char-ital': 0,
-      duration: isMobile ? 0.5 : 0.65,
-      stagger: isMobile ? 0.012 : 0.018,
+      duration: 0.5,
+      stagger: 0.012,
       ease: 'back.out(2)',
-      scrollTrigger: { trigger: el, start: isMobile ? 'top 98%' : 'top 93%' },
+      scrollTrigger: { trigger: el, start: 'top 98%' },
     }
   );
 });
@@ -1922,23 +1922,18 @@ if (reduceMotion) {
       return;
     }
 
-    const startState = { opacity: 0, y: isMobile ? 15 : 50 };
+    const startState = { opacity: 0, y: 15 };
     const endState = {
       opacity: 1,
       y: 0,
-      duration: isMobile ? 0.3 : 0.55,
+      duration: 0.3,
       ease: 'power2.out',
       scrollTrigger: {
         trigger: parentChapter,
-        start: isMobile ? 'top 98%' : 'top 92%', // Animates in right as it enters so fast scrolls don't outrun it
-        toggleActions: isMobile ? 'play none none none' : 'play none none reverse' // No reverse on mobile: avoids flicker on fast flicks
+        start: 'top 98%', // Animates in right as it enters so fast scrolls don't outrun it
+        toggleActions: 'play none none none' // No reverse: avoids flicker on fast flicks
       }
     };
-
-    if (!isMobile) {
-      startState.filter = 'blur(3px)';
-      endState.filter = 'blur(0px)';
-    }
 
     gsap.fromTo(el, startState, endState);
   });
@@ -1948,11 +1943,10 @@ if (reduceMotion) {
 gsap.utils.toArray('.project-card').forEach((el, i) => {
   gsap.from(el, {
     opacity: 0,
-    y: isMobile ? 10 : 30,
-    duration: isMobile ? 0.3 : 0.5,
-    delay: isMobile ? 0 : (i % 3) * 0.05,
+    y: 10,
+    duration: 0.3,
     ease: 'power3.out',
-    scrollTrigger: { trigger: el, start: isMobile ? 'top 99%' : 'top 96%' },
+    scrollTrigger: { trigger: el, start: 'top 99%' },
   });
 });
 
