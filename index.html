@@ -32,7 +32,7 @@
 <!-- Google Font Cabin Sketch and Shantell Sans-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Shantell+Sans:wght@300..700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Share+Tech+Mono&family=Shantell+Sans:wght@300..700&display=swap" rel="stylesheet">
 
 <style>
 /* ============================================================
@@ -342,6 +342,7 @@ nav {
   gap: 2rem;
   transform: translateY(-100%);
   transition: transform 0.45s var(--ease-expo), background-color 0.8s ease;
+  pointer-events: auto;
 }
 .mobile-nav.active { transform: translateY(0); }
 .mobile-nav ul { list-style: none; display: flex; flex-direction: column; align-items: center; gap: 1.6rem; }
@@ -362,7 +363,7 @@ nav {
 .scroll-wrapper::before {
   content: '';
   position: absolute;
-  top: 72vh; /* Starts below the hero content */
+  top: 95vh; /* Starts below the hero content */
   bottom: 12vh; /* Ends above the footer */
   left: 50%;
   transform: translateX(-50%);
@@ -629,13 +630,13 @@ nav {
   max-width: 760px;
   padding: 0 1.5rem;
   text-align: center;
-  margin-top: calc(50vh + 75px); /* Safely position content below the massive centered sun */
+  margin-top: calc(50vh + 25px); /* Safely position content below the massive centered sun */
 }
 .chapter-inner-hero::before { content: none !important; }
 
 .scroll-hint {
   position: absolute;
-  bottom: 2.5rem;
+  bottom: 1.5rem;
   left: 0;
   right: 0;
   margin: 0 auto;
@@ -695,6 +696,7 @@ nav {
   display: inline-block;
   vertical-align: middle;
   mix-blend-mode: multiply;
+  transform: translateY(-2px);
 }
 
 .chapter-title {
@@ -2283,10 +2285,15 @@ let lastLogoTransition = -1;
 
 let mouseX = -1000;
 let mouseY = -1000;
+let lastMouseX = -1000;
+let lastMouseY = -1000;
 let logoHoverScale = 1.0;
 let logoTilt = 0;
 let lastLogoHoverScale = 1.0;
 let lastLogoTilt = 0;
+let glitchFrameCount = 0;
+let lastIsHoveredState = false;
+let lastBlinkState = false;
 
 function applyStepStyles(isModern) {
   if (isModern === lastIsModern) return;
@@ -2506,9 +2513,9 @@ function drawSketchedBird(bx, by, size, flap, color, opacity) {
 
 // Day/Sunset Clouds Config
 const clouds = [
-  { x: width * 0.12, y: height * 0.18, scale: 0.95, speed: 0.14 },
-  { x: width * 0.48, y: height * 0.14, scale: 1.15, speed: 0.09 },
-  { x: width * 0.78, y: height * 0.24, scale: 0.8, speed: 0.16 }
+  { x: width * 0.12, y: height * 0.18, scale: 0.95, speed: 0.24 },
+  { x: width * 0.48, y: height * 0.14, scale: 1.15, speed: 0.16 },
+  { x: width * 0.78, y: height * 0.24, scale: 0.8, speed: 0.32 }
 ];
 
 // Hand-drawn Flapping Birds Setup
@@ -2665,13 +2672,16 @@ function updateCachedPaths() {
       { dx: 0, dy: 12, r: 25 }
     ];
     
+    const isMobile = width < 760;
+    const finalScale = isMobile ? cloud.scale * 0.52 : cloud.scale;
+    
     return {
-      scale: cloud.scale,
+      scale: finalScale,
       circles: circles.map(c => {
         const points = [];
-        const r = c.r * cloud.scale;
-        const tcx = c.dx * cloud.scale;
-        const tcy = c.dy * cloud.scale;
+        const r = c.r * finalScale;
+        const tcx = c.dx * finalScale;
+        const tcy = c.dy * finalScale;
         const steps = Math.max(8, Math.floor(2 * Math.PI * r / 36));
         for (let i = 0; i <= steps; i++) {
           const angle = (i / steps) * Math.PI * 2;
@@ -2819,6 +2829,18 @@ function resize() {
     moonTargetX = document.documentElement.clientWidth / 2;
     moonTargetY = 52;
   }
+  
+  if (clouds && clouds.length >= 3) {
+    clouds[0].x = width * 0.12; clouds[0].y = height * 0.18;
+    clouds[1].x = width * 0.48; clouds[1].y = height * 0.14;
+    clouds[2].x = width * 0.78; clouds[2].y = height * 0.24;
+  }
+  if (birds && birds.length >= 3) {
+    birds[0].x = width * 0.2; birds[0].y = height * 0.28;
+    birds[1].x = width * 0.55; birds[1].y = height * 0.22;
+    birds[2].x = width * 0.85; birds[2].y = height * 0.32;
+  }
+
   updateSectionOffsets();
   updateCachedPaths();
   setupScrollTriggers();
@@ -2845,6 +2867,22 @@ logoCanvas.addEventListener('click', () => {
 document.fonts.ready.then(() => {
   resize();
 });
+
+// Scramble helper for matrix transition on hover
+const matrixChars = "01<>/_[]$#@%&*?+=!x-";
+function getScrambledText(targetText, frameCount, totalFrames = 12) {
+  if (frameCount <= 0) return targetText;
+  let result = "";
+  const progress = (totalFrames - frameCount) / totalFrames;
+  for (let i = 0; i < targetText.length; i++) {
+    if (Math.random() > progress * 1.25 && targetText[i] !== ' ') {
+      result += matrixChars[Math.floor(Math.random() * matrixChars.length)];
+    } else {
+      result += targetText[i];
+    }
+  }
+  return result;
+}
 
 // Main Draw Loop
 function draw(time) {
@@ -2929,7 +2967,10 @@ function draw(time) {
   if (state.transition < 0.99) {
     clouds.forEach((cloud, index) => {
       cloud.x += cloud.speed;
-      if (cloud.x > width + 100) cloud.x = -100;
+      if (cloud.x > width + 120) {
+        cloud.x = -120 - Math.random() * 180;
+        cloud.y = height * (0.08 + Math.random() * 0.18);
+      }
 
       const alpha = (1 - state.transition) * 0.75;
       drawSketchedCloudCached(index, cloud.x, cloud.y, alpha, state.transition);
@@ -2959,7 +3000,7 @@ function draw(time) {
   // 6. Compute name typography layout values
   const clientWidth = document.documentElement.clientWidth;
   const textX = gsap.utils.interpolate(clientWidth / 2, moonTargetX, state.logoTransition);
-  const textY = gsap.utils.interpolate(height / 2 + 10, moonTargetY + 6, state.logoTransition);
+  const textY = gsap.utils.interpolate(height / 2 - 30, moonTargetY + 6, state.logoTransition);
 
   const baseFontSize = Math.max(48, Math.min(width * 0.09, height * 0.12, 105));
   const nightFontSize = Math.max(16, Math.min(width * 0.04, 22));
@@ -2975,6 +3016,12 @@ function draw(time) {
                     mouseX <= textX + textWidth / 2 + 20 &&
                     mouseY >= textY - textHeight / 2 - 20 &&
                     mouseY <= textY + textHeight / 2 + 20;
+
+  // Trigger glitch scramble countdown on mouse enter
+  if (isHovered && !lastIsHoveredState) {
+    glitchFrameCount = 12;
+  }
+  lastIsHoveredState = isHovered;
 
   const logoHoverScaleTarget = isHovered ? 1.15 : 1.0;
   logoHoverScale += (logoHoverScaleTarget - logoHoverScale) * 0.16;
@@ -2996,23 +3043,47 @@ function draw(time) {
     ? interpolateColor('#ffd400', '#f35e07', state.transition * 2)
     : interpolateColor('#f35e07', '#ffffff', (state.transition - 0.5) * 2);
 
-  // Redraw logo canvas ONLY when position/size/glow changes OR hover scale/tilt updates
-  const logoMoved = Math.abs(textX - lastLogoX) > 0.01 ||
-                    Math.abs(textY - lastLogoY) > 0.01 ||
-                    Math.abs(fontSize - lastLogoSize) > 0.01 ||
-                    Math.abs(glowOpacity - lastGlowOpacity) > 0.01 ||
-                    Math.abs(state.logoTransition - lastLogoTransition) > 0.01 ||
-                    Math.abs(state.transition - lastStyleProgress) > 0.01 ||
-                    Math.abs(logoHoverScale - lastLogoHoverScale) > 0.001 ||
-                    Math.abs(logoTilt - lastLogoTilt) > 0.01;
+  // Redraw logo canvas ONLY when position/size/glow changes OR hover scale/tilt updates OR mouse moves while hovering OR matrix scramble is active
+  let logoMoved = Math.abs(textX - lastLogoX) > 0.01 ||
+                  Math.abs(textY - lastLogoY) > 0.01 ||
+                  Math.abs(fontSize - lastLogoSize) > 0.01 ||
+                  Math.abs(glowOpacity - lastGlowOpacity) > 0.01 ||
+                  Math.abs(state.logoTransition - lastLogoTransition) > 0.01 ||
+                  Math.abs(state.transition - lastStyleProgress) > 0.01 ||
+                  Math.abs(logoHoverScale - lastLogoHoverScale) > 0.001 ||
+                  Math.abs(logoTilt - lastLogoTilt) > 0.01 ||
+                  glitchFrameCount > 0 ||
+                  (isHovered && (Math.abs(mouseX - lastMouseX) > 0.5 || Math.abs(mouseY - lastMouseY) > 0.5));
+
+  const blinkState = isHovered && glitchFrameCount === 0 && (Math.floor(time / 350) % 2 === 0);
+  if (blinkState !== lastBlinkState) {
+    lastBlinkState = blinkState;
+    logoMoved = true;
+  }
 
   if (logoMoved) {
     logoCtx.clearRect(0, 0, width, height);
-    logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
+    
+    let text = "Mark Anjoul";
+    let isTech = isHovered;
+    
+    if (isTech) {
+      logoCtx.font = `bold ${fontSize * 0.82}px "Share Tech Mono", monospace`;
+      
+      const rawTechText = "<mark_anjoul />";
+      const scrambledText = getScrambledText(rawTechText, glitchFrameCount);
+      const cursorStr = (glitchFrameCount === 0 && blinkState) ? "_" : "";
+      text = scrambledText + cursorStr;
+      
+      logoCtx.fillStyle = '#ffd400';
+    } else {
+      logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
+      logoCtx.fillStyle = '#1c1812';
+      logoCtx.strokeStyle = '#1c1812';
+    }
+    
     logoCtx.textAlign = 'center';
     logoCtx.textBaseline = 'middle';
-
-    const text = "Mark Anjoul";
 
     logoCtx.save();
     logoCtx.translate(textX, textY);
@@ -3029,17 +3100,23 @@ function draw(time) {
       logoCtx.fillText(text, -1.5, 1.5);
       logoCtx.fillText(text, 1.5, 1.5);
 
-      logoCtx.strokeStyle = `rgba(${glowParsed.r}, ${glowParsed.g}, ${glowParsed.b}, ${glowOpacity * 0.48})`;
-      logoCtx.lineWidth = fontSize * 0.09;
-      logoCtx.strokeText(text, 0, 0);
+      if (!isTech) {
+        logoCtx.strokeStyle = `rgba(${glowParsed.r}, ${glowParsed.g}, ${glowParsed.b}, ${glowOpacity * 0.48})`;
+        logoCtx.lineWidth = fontSize * 0.09;
+        logoCtx.strokeText(text, 0, 0);
+      }
     }
 
-    logoCtx.fillStyle = '#1c1812';
+    const baseColor = isTech ? '#ffd400' : '#1c1812';
+    logoCtx.fillStyle = baseColor;
     logoCtx.fillText(text, 0, 0);
 
-    logoCtx.strokeStyle = '#1c1812';
-    logoCtx.lineWidth = state.transition < 0.5 ? 1.5 : 0.8;
-    logoCtx.strokeText(text, 0, 0);
+    if (!isTech) {
+      const strokeColor = '#1c1812';
+      logoCtx.strokeStyle = strokeColor;
+      logoCtx.lineWidth = state.transition < 0.5 ? 1.5 : 0.8;
+      logoCtx.strokeText(text, 0, 0);
+    }
 
     logoCtx.restore();
 
@@ -3050,6 +3127,12 @@ function draw(time) {
     lastLogoTransition = state.logoTransition;
     lastLogoHoverScale = logoHoverScale;
     lastLogoTilt = logoTilt;
+    lastMouseX = mouseX;
+    lastMouseY = mouseY;
+
+    if (glitchFrameCount > 0) {
+      glitchFrameCount--;
+    }
   }
 
   // 7. Fade out hero elements on scroll
