@@ -3111,12 +3111,10 @@ function draw(time) {
     logoCtx.fillStyle = baseColor;
     logoCtx.fillText(text, 0, 0);
 
-    if (!isTech) {
-      const strokeColor = '#1c1812';
-      logoCtx.strokeStyle = strokeColor;
-      logoCtx.lineWidth = state.transition < 0.5 ? 1.5 : 0.8;
-      logoCtx.strokeText(text, 0, 0);
-    }
+    const strokeColor = isTech ? 'rgba(28, 24, 18, 0.05)' : '#1c1812';
+    logoCtx.strokeStyle = strokeColor;
+    logoCtx.lineWidth = isTech ? 1.0 : (state.transition < 0.5 ? 1.5 : 0.8);
+    logoCtx.strokeText(text, 0, 0);
 
     logoCtx.restore();
 
