@@ -523,18 +523,26 @@ body.dark-mode .usf-logo {
 .skill-item.swift { --skill-color: #F05138; }
 .skill-item.swiftui { --skill-color: #EE4F2F; }
 .skill-item.uikit { --skill-color: #007AFF; }
+.skill-item.swiftdata { --skill-color: #FA7343; }
 .skill-item.cpp { --skill-color: #00599C; }
 .skill-item.java { --skill-color: #E76F00; }
 .skill-item.javascript { --skill-color: #d48806; }
+.skill-item.risc-v-assembly { --skill-color: #003262; }
 .skill-item.scikit-learn { --skill-color: #3499CD; }
 .skill-item.numpy { --skill-color: #007299; }
 .skill-item.pandas { --skill-color: #E70488; }
 .skill-item.matplotlib { --skill-color: #11557C; }
 .skill-item.opencv { --skill-color: #5C3EE6; }
+.skill-item.ollama { --skill-color: #000000; }
+.skill-item.mediapipe { --skill-color: #0097A7; }
 .skill-item.firebase { --skill-color: #f57c00; }
 .skill-item.git { --skill-color: #F05032; }
 .skill-item.github { --skill-color: #24292E; }
 .skill-item.postman { --skill-color: #FF6C37; }
+.skill-item.xcode { --skill-color: #1575F9; }
+.skill-item.vs-code { --skill-color: #007ACC; }
+.skill-item.linux { --skill-color: #FCC624; }
+.skill-item.vercel { --skill-color: #000000; }
 .skill-item.html5 { --skill-color: #E34F26; }
 .skill-item.css3 { --skill-color: #1572B6; }
 .skill-item.jupyter { --skill-color: #F37626; }
@@ -711,21 +719,36 @@ body.dark-mode .skill-item:hover .skill-icon-wrapper {
 }
 .project-card:nth-child(odd) { transform: rotate(-0.5deg); }
 .project-card:nth-child(even) { transform: rotate(0.5deg); }
-.project-card:nth-child(odd):hover {
-  transform: rotate(0deg) translateY(-3px);
-  box-shadow: 6px 6px 0 var(--accent);
-}
-.project-card:nth-child(even):hover {
-  transform: rotate(0deg) translateY(-3px);
-  box-shadow: 6px 6px 0 var(--yellow);
+@media (hover: hover) and (pointer: fine) {
+  .project-card:nth-child(odd):hover {
+    transform: rotate(0deg) translateY(-3px);
+    box-shadow: 6px 6px 0 var(--accent);
+  }
+  .project-card:nth-child(even):hover {
+    transform: rotate(0deg) translateY(-3px);
+    box-shadow: 6px 6px 0 var(--yellow);
+  }
+  .project-card h3.scrubbing {
+    background: radial-gradient(
+      circle 45px at var(--mouse-x, 0px) var(--mouse-y, 0px),
+      var(--yellow) 0%,
+      var(--yellow) 65%,
+      currentColor 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 }
 .project-type { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); font-weight: 600; }
 .project-card h3 {
-  font-family: 'Cabin', var(--font-display);
+  font-family: 'Cabin Sketch', var(--font-display);
   font-weight: 700;
   font-size: 1.55rem;
   color: var(--ink);
   margin-bottom: 0.3rem;
+  position: relative;
+  display: inline-block;
 }
 .project-card p { font-size: 0.92rem; color: var(--ink-2); margin: 0; }
 .tag-list { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.3rem 0 0.2rem; }
