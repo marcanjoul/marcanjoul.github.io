@@ -284,10 +284,7 @@ nav {
   width: 200px;
   height: 50px;
   pointer-events: auto;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
 }
 .logo-link {
   display: block;
@@ -638,7 +635,7 @@ nav {
 
 .scroll-hint {
   position: absolute;
-  bottom: 5.5rem;
+  bottom: 2.5rem;
   left: 0;
   right: 0;
   margin: 0 auto;
@@ -1081,8 +1078,65 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 /* ========== RESPONSIVE ========== */
 @media (max-width: 760px) {
   .logo-placeholder { width: 140px; }
-  .nav-links > li:not(:last-child) { display: none; }
+  .nav-links { display: none; }
+  .nav-inner { padding: 0.3rem; }
   .mobile-menu-btn { display: flex; }
+  .hero-label-wrapper {
+    font-size: clamp(1.15rem, 5vw, 1.45rem);
+    gap: 0.5rem;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+  }
+  .usf-logo {
+    height: clamp(1.8rem, 7.5vw, 2.2rem);
+  }
+  .skills-grid {
+    grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+    gap: 0.6rem;
+  }
+  .skill-icon-wrapper {
+    width: 2.8rem;
+    height: 2.8rem;
+    margin-bottom: 0.3rem;
+  }
+  .skill-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .skill-label {
+    font-size: 0.75rem;
+  }
+  .project-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
+    margin-top: 1.2rem;
+  }
+  .project-card {
+    padding: 1rem;
+    gap: 0.3rem;
+  }
+  .project-card .project-link:first-of-type {
+    margin-top: auto;
+  }
+  .project-card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.15rem;
+  }
+  .project-card p {
+    font-size: 0.8rem;
+    line-height: 1.25;
+  }
+  .tag-list {
+    gap: 0.25rem;
+  }
+  .tag-list li {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.4rem;
+  }
+  .project-link {
+    font-size: 0.8rem;
+  }
   .chapter { padding: 1.2rem 1rem; } /* Reduced padding for tighter mobile layout */
   .detail-grid { grid-template-columns: 1fr; }
   .contact-links { grid-template-columns: 1fr; }
@@ -1653,7 +1707,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
           <div class="cl-icon-wrapper" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="cl-icon"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/></svg>
           </div>
-          <span class="cl-label">Resumé</span>
+          <span class="cl-label">Resume</span>
           <span class="cl-meta">PDF</span>
         </a>
       </div>
