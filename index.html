@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <!--
-  Mark Anjoul — Interactive Celestial Day-to-Night Hero
-  A hand-drawn astronomically inspired layout with animated sketching,
-  interactive pointer effects, and scroll-driven day-to-night transitions.
+  Mark Anjoul — Interactive Celestial Hero
+  A hand-drawn sketched layout with animated sketching and interactive pointer effects.
 -->
 <html lang="en">
 <head>
@@ -1790,7 +1789,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 
 <script>
 // ============================================================
-// Celestial Canvas Day-to-Night Animation & Portfolio Logic
+// Celestial Canvas Animation & Portfolio Logic
 // ============================================================
 
 const { gsap, ScrollTrigger, Lenis, Splitting } = window;
@@ -1799,7 +1798,6 @@ gsap.registerPlugin(ScrollTrigger);
 const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
 const state = {
-  transition: 0, // 0 = Full Day, 0.5 = Sunset, 1.0 = Full Night (driven by scroll)
   logoTransition: 0, // 0 = Centered Sun, 1 = Upper Moon navbar (docked by scrollTop = 600)
   time: 0
 };
@@ -2506,24 +2504,10 @@ let height = window.innerHeight;
 let moonTargetX = 80;
 let moonTargetY = 52;
 
-// Section offsets, cached on resize
-let experienceOffset = 0;
-let contactOffset = 0;
-function updateSectionOffsets() {
-  const experienceEl = document.getElementById('experience');
-  const contactEl = document.getElementById('contact');
-  experienceOffset = experienceEl ? experienceEl.offsetTop : window.innerHeight * 4.0;
-  contactOffset = contactEl ? contactEl.offsetTop : window.innerHeight * 5.0;
-}
-
 // Optimization caches to avoid DOM writes / layout thrashing
-let lastStyleProgress = null;
-let lastIsModern = null;
-
 let lastLogoX = -1;
 let lastLogoY = -1;
 let lastLogoSize = -1;
-let lastGlowOpacity = -1;
 let lastLogoTransition = -1;
 
 let mouseX = -1000;
@@ -2538,17 +2522,6 @@ let glitchFrameCount = 0;
 let lastIsHoveredState = false;
 let lastBlinkState = false;
 
-function applyStepStyles(isModern) {
-  if (isModern === lastIsModern) return;
-  lastIsModern = isModern;
-  const root = document.documentElement;
-  root.style.setProperty('--chapter-radius', isModern ? '16px' : '255px 18px 225px 18px / 18px 225px 18px 255px');
-  root.style.setProperty('--project-radius', isModern ? '12px' : '20px 6px 20px 6px');
-  root.style.setProperty('--detail-radius', isModern ? '8px' : '14px 4px 14px 4px');
-  root.style.setProperty('--contact-radius', isModern ? '12px' : '16px 4px 16px 4px');
-  root.style.setProperty('--timeline-style', isModern ? 'solid' : 'dashed');
-}
-
 // Pseudo-random seeded generator for organic, 12fps sketch jitter
 let seed = 1;
 let jitterSeed = 0;
@@ -2559,10 +2532,8 @@ function seededRandom() {
   return x - Math.floor(x);
 }
 
-// Gradient color stops configurations
-const dayStops = ['#8cb5e1', '#b9d5f3', '#f3ede0'];
-const sunsetStops = ['#342c5c', '#f36b6b', '#fcd890'];
-const nightStops = ['#060810', '#0b1021', '#131b33'];
+// Static watercolor sky gradient stops
+const skyStops = ['#8cb5e1', '#b9d5f3', '#f3ede0'];
 
 function parseColor(color) {
   if (color.startsWith('#')) {
@@ -2576,14 +2547,10 @@ function parseColor(color) {
   return { r: 255, g: 255, b: 255 };
 }
 
-function interpolateColor(color1, color2, factor) {
-  const c1 = parseColor(color1);
-  const c2 = parseColor(color2);
-  const r = Math.round(c1.r + (c2.r - c1.r) * factor);
-  const g = Math.round(c1.g + (c2.g - c1.g) * factor);
-  const b = Math.round(c1.b + (c2.b - c1.b) * factor);
-  return `rgb(${r}, ${g}, ${b})`;
-}
+// Static cloud/bird colors (previously interpolated between day/night states)
+const cloudFillColor = parseColor('#ffffff');
+const cloudStrokeColor = parseColor('#1c1812');
+const birdColor = parseColor('#1c1812');
 
 // Sketched path generator (used to pre-calculate paths)
 function generateSketchedPath(points, jitter = 1.2, strokeCount = 2, close = false) {
@@ -2754,7 +2721,7 @@ function drawSketchedBird(bx, by, size, flap, color, opacity) {
   }
 }
 
-// Day/Sunset Clouds Config
+// Drifting Clouds Config
 const clouds = [
   { x: width * 0.12, y: height * 0.18, scale: 0.95, speed: 0.24 },
   { x: width * 0.48, y: height * 0.14, scale: 1.15, speed: 0.16 },
@@ -2768,143 +2735,13 @@ const birds = [
   { x: width * 0.85, y: height * 0.32, size: 11, speedX: 0.9, flapSpeed: 0.07, phase: Math.PI }
 ];
 
-// Night Stars Setup (Big, spinning subtly, floating slowly, no blinking)
-const stars = [];
-const numStars = 45;
-for (let i = 0; i < numStars; i++) {
-  stars.push({
-    baseX: Math.random() * width,
-    baseY: Math.random() * height,
-    size: 7.0 + Math.random() * 9.0, // Big stars
-    driftX: (Math.random() - 0.5) * 0.12, // Slow floating movement
-    driftY: (Math.random() - 0.5) * 0.08,
-    spinSpeed: 0.00015 + Math.random() * 0.00025, // Very subtle spin rotation
-    initialRotation: Math.random() * Math.PI
-  });
-}
-
-// Connected Constellation Drawing Config
-const constellations = [
-  {
-    name: 'CASSIOPEIA',
-    points: [
-      { rx: 0.72, ry: 0.18 },
-      { rx: 0.75, ry: 0.22 },
-      { rx: 0.80, ry: 0.20 },
-      { rx: 0.83, ry: 0.26 },
-      { rx: 0.88, ry: 0.23 }
-    ]
-  },
-  {
-    name: 'URSA MAJOR',
-    points: [
-      { rx: 0.12, ry: 0.24 },
-      { rx: 0.18, ry: 0.23 },
-      { rx: 0.23, ry: 0.28 },
-      { rx: 0.27, ry: 0.33 },
-      { rx: 0.34, ry: 0.31 },
-      { rx: 0.36, ry: 0.40 },
-      { rx: 0.28, ry: 0.41 },
-      { rx: 0.27, ry: 0.33 }
-    ]
-  }
-];
-
-// Offscreen canvas for fast hardware-accelerated modern star glow rendering
-const starGlowCanvas = document.createElement('canvas');
-starGlowCanvas.width = 64;
-starGlowCanvas.height = 64;
-const starGlowCtx = starGlowCanvas.getContext('2d');
-const starGlowGrad = starGlowCtx.createRadialGradient(32, 32, 0, 32, 32, 32);
-starGlowGrad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-starGlowGrad.addColorStop(0.3, 'rgba(255, 212, 0, 0.8)');
-starGlowGrad.addColorStop(1, 'rgba(255, 212, 0, 0)');
-starGlowCtx.fillStyle = starGlowGrad;
-starGlowCtx.beginPath();
-starGlowCtx.arc(32, 32, 32, 0, Math.PI * 2);
-starGlowCtx.fill();
-
-// Pre-calculated vertices for a unit 5-point star to avoid trig inside loop
-const unitStarVertices = [];
-for (let i = 0; i < 10; i++) {
-  const radius = i % 2 === 0 ? 1 : 0.42;
-  const angle = i * Math.PI / 5;
-  unitStarVertices.push({
-    cos: Math.cos(angle) * radius,
-    sin: Math.sin(angle) * radius
-  });
-}
-
-function drawDoodleStar(cx, cy, r, color, opacity, starRotation) {
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(starRotation);
-  
-  ctx.beginPath();
-  ctx.moveTo(unitStarVertices[0].cos * r, unitStarVertices[0].sin * r);
-  for (let i = 1; i < 10; i++) {
-    ctx.lineTo(unitStarVertices[i].cos * r, unitStarVertices[i].sin * r);
-  }
-  ctx.closePath();
-  
-  ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity * 0.45})`;
-  ctx.fill();
-
-  ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
-  ctx.lineWidth = 1.0;
-  ctx.stroke();
-  
-  ctx.restore();
-}
-
-function drawCelestialStar(cx, cy, r, color, opacity, starRotation) {
-  const modernFactor = state.transition;
-  
-  // Draw modern glowing dot
-  const modernOpacity = opacity * modernFactor;
-  if (modernOpacity > 0.01) {
-    ctx.save();
-    ctx.globalAlpha = modernOpacity;
-    ctx.drawImage(starGlowCanvas, cx - r * 1.5, cy - r * 1.5, r * 3, r * 3);
-    ctx.restore();
-  }
-
-  // Draw doodle star
-  const doodleOpacity = opacity * (1 - modernFactor);
-  if (doodleOpacity > 0.01) {
-    drawDoodleStar(cx, cy, r, color, doodleOpacity, starRotation);
-  }
-}
-
 // Dynamic Sketch Path Cache definition
 const pathCache = {
-  constellations: [],
   clouds: []
 };
 
 // Generates wobbly lines/circles once and stores them, updating only on resize or at 12fps
 function updateCachedPaths() {
-  // Constellation connecting lines
-  pathCache.constellations = constellations.map(c => {
-    const screenPoints = c.points.map(p => ({
-      x: p.rx * width,
-      y: p.ry * height
-    }));
-    
-    const lines = [];
-    for (let i = 0; i < screenPoints.length - 1; i++) {
-      lines.push(generateSketchedPath([screenPoints[i], screenPoints[i + 1]], 1.0, 1)[0]);
-    }
-    
-    return {
-      name: c.name,
-      labelX: screenPoints[0].x + 10,
-      labelY: screenPoints[0].y + 4,
-      nodes: screenPoints,
-      lines: lines
-    };
-  });
-
   // Clouds pre-rendering (local coordinates)
   pathCache.clouds = clouds.map(cloud => {
     const circles = [
@@ -2941,60 +2778,10 @@ function updateCachedPaths() {
   });
 }
 
-function drawConstellationLines(transition) {
-  if (transition < 0.1) return;
-  const opacity = transition * 0.12 * (1 - state.transition);
-  if (opacity < 0.005) return;
-  const color = `rgba(248, 250, 252, ${opacity})`;
-
-  ctx.save();
-  ctx.setLineDash([3, 6]);
-
-  const outlineC = parseColor('#e2e8f0');
-
-  pathCache.constellations.forEach(c => {
-    // Draw connecting segments
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 0.8;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    
-    c.lines.forEach(linePoints => {
-      ctx.beginPath();
-      if (linePoints.length < 2) return;
-      ctx.moveTo(linePoints[0].x, linePoints[0].y);
-      for (let i = 1; i < linePoints.length; i++) {
-        ctx.lineTo(linePoints[i].x, linePoints[i].y);
-      }
-      ctx.stroke();
-    });
-
-    // Draw stars at nodes
-    c.nodes.forEach(p => {
-      drawCelestialStar(p.x, p.y, 5, outlineC, transition * 0.4, state.time * 0.003);
-    });
-
-    // Write wobbly label
-    ctx.fillStyle = `rgba(248, 250, 252, ${transition * 0.35 * (1 - state.transition)})`;
-    ctx.font = '8px "Shantell Sans", sans-serif';
-    ctx.fillText(c.name, c.labelX, c.labelY);
-  });
-
-  ctx.restore();
-}
-
-function drawSketchedCloudCached(cloudIndex, cx, cy, opacity, transition) {
-  const fillCol = transition < 0.5
-    ? interpolateColor('#ffffff', '#ffeedd', transition * 2)
-    : interpolateColor('#ffeedd', '#17203a', (transition - 0.5) * 2);
-
-  const strokeCol = transition < 0.5
-    ? interpolateColor('#1c1812', '#a63a2e', transition * 2)
-    : interpolateColor('#a63a2e', '#e2e8f0', (transition - 0.5) * 2);
-
-  const fillParsed = parseColor(fillCol);
+function drawSketchedCloudCached(cloudIndex, cx, cy, opacity) {
+  const fillParsed = cloudFillColor;
   ctx.fillStyle = `rgba(${fillParsed.r}, ${fillParsed.g}, ${fillParsed.b}, ${opacity * 0.88})`;
-  const strokeColor = `rgba(${parseColor(strokeCol).r}, ${parseColor(strokeCol).g}, ${parseColor(strokeCol).b}, ${opacity})`;
+  const strokeColor = `rgba(${cloudStrokeColor.r}, ${cloudStrokeColor.g}, ${cloudStrokeColor.b}, ${opacity})`;
 
   const cachedCloud = pathCache.clouds[cloudIndex];
   if (!cachedCloud) return;
@@ -3084,7 +2871,6 @@ function resize() {
     birds[2].x = width * 0.85; birds[2].y = height * 0.32;
   }
 
-  updateSectionOffsets();
   updateCachedPaths();
   setupScrollTriggers();
 }
@@ -3135,45 +2921,13 @@ function getScrambledText(targetText, frameCount, totalFrames = 12) {
 function draw(time) {
   state.time = time;
   ctx.clearRect(0, 0, width, height);
-
-  // Update style transition custom properties on documentElement only when changed
-  const progressStr = state.transition.toFixed(3);
-  if (progressStr !== lastStyleProgress) {
-    const root = document.documentElement;
-    root.style.setProperty('--style-progress', progressStr);
-    lastStyleProgress = progressStr;
-  }
-
-  // Swapping styles on scroll for doodle-to-modern transition
-  applyStepStyles(state.transition >= 0.6);
-
-  // Compute star fade-in factor dynamically
   const scrollTop = window.scrollY;
-  let starFadeIn = 0;
-  if (scrollTop > experienceOffset) {
-    const range = contactOffset - experienceOffset;
-    starFadeIn = range > 0 ? Math.min((scrollTop - experienceOffset) / range, 1.0) : 1.0;
-  }
 
-  // 1. Draw watercolor background gradient (Interpolating Day -> Sunset -> Night)
+  // 1. Draw static watercolor sky background
   const grad = ctx.createLinearGradient(0, 0, 0, height);
-  let stop0, stop1, stop2;
-
-  if (state.transition < 0.5) {
-    const factor = state.transition * 2;
-    stop0 = interpolateColor(dayStops[0], sunsetStops[0], factor);
-    stop1 = interpolateColor(dayStops[1], sunsetStops[1], factor);
-    stop2 = interpolateColor(dayStops[2], sunsetStops[2], factor);
-  } else {
-    const factor = (state.transition - 0.5) * 2;
-    stop0 = interpolateColor(sunsetStops[0], nightStops[0], factor);
-    stop1 = interpolateColor(sunsetStops[1], nightStops[1], factor);
-    stop2 = interpolateColor(sunsetStops[2], nightStops[2], factor);
-  }
-
-  grad.addColorStop(0, stop0);
-  grad.addColorStop(0.6, stop1);
-  grad.addColorStop(1, stop2);
+  grad.addColorStop(0, skyStops[0]);
+  grad.addColorStop(0.6, skyStops[1]);
+  grad.addColorStop(1, skyStops[2]);
 
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, width, height);
@@ -3186,64 +2940,27 @@ function draw(time) {
     updateCachedPaths();
   }
 
-  // 3. Draw starry sky
-  if (state.transition > 0.01) {
-    const starColor = parseColor('#ffd400');
+  // 2. Draw drifting clouds
+  clouds.forEach((cloud, index) => {
+    cloud.x += cloud.speed;
+    if (cloud.x > width + 120) {
+      cloud.x = -120 - Math.random() * 180;
+      cloud.y = height * (0.08 + Math.random() * 0.18);
+    }
+    drawSketchedCloudCached(index, cloud.x, cloud.y, 0.75);
+  });
 
-    stars.forEach(star => {
-      // Float/drift updates
-      star.baseX += star.driftX;
-      star.baseY += star.driftY;
+  // 3. Draw flying birds
+  birds.forEach(bird => {
+    bird.x += bird.speedX;
+    if (bird.x > width + 50) {
+      bird.x = -50;
+      bird.y = height * (0.12 + Math.random() * 0.35);
+    }
 
-      // Wrap boundaries
-      const sx = (star.baseX + width) % width;
-      const sy = (star.baseY + height) % height;
-
-      // Subtle slow star rotation
-      const starRotation = star.initialRotation + time * star.spinSpeed;
-      const alpha = starFadeIn * 0.85;
-
-      if (alpha > 0.01) {
-        drawCelestialStar(sx, sy, star.size, starColor, alpha, starRotation);
-      }
-    });
-
-    drawConstellationLines(starFadeIn);
-  }
-
-  // 4. Draw drifting clouds (Day & Sunset States)
-  if (state.transition < 0.99) {
-    clouds.forEach((cloud, index) => {
-      cloud.x += cloud.speed;
-      if (cloud.x > width + 120) {
-        cloud.x = -120 - Math.random() * 180;
-        cloud.y = height * (0.08 + Math.random() * 0.18);
-      }
-
-      const alpha = (1 - state.transition) * 0.75;
-      drawSketchedCloudCached(index, cloud.x, cloud.y, alpha, state.transition);
-    });
-  }
-
-  // 5. Draw flying birds (Day & Sunset States)
-  if (state.transition < 0.9) {
-    birds.forEach(bird => {
-      bird.x += bird.speedX;
-      if (bird.x > width + 50) {
-        bird.x = -50;
-        bird.y = height * (0.12 + Math.random() * 0.35);
-      }
-
-      const flap = Math.sin(time * bird.flapSpeed + bird.phase);
-      const alpha = (1 - state.transition) * 0.75;
-
-      const birdColor = state.transition < 0.5
-        ? interpolateColor('#1c1812', '#8a2d21', state.transition * 2)
-        : '#8a2d21';
-
-      drawSketchedBird(bird.x, bird.y, bird.size, flap, parseColor(birdColor), alpha);
-    });
-  }
+    const flap = Math.sin(time * bird.flapSpeed + bird.phase);
+    drawSketchedBird(bird.x, bird.y, bird.size, flap, birdColor, 0.75);
+  });
 
   // 6. Compute name typography layout values
   const clientWidth = document.documentElement.clientWidth;
@@ -3286,18 +3003,11 @@ function draw(time) {
     logoCanvas.style.pointerEvents = 'none';
   }
 
-  const glowOpacity = state.transition < 0.05 ? 0 : (state.transition < 0.5 ? state.transition * 0.9 : (1 - (state.transition - 0.5) * 0.4));
-  const glowColor = state.transition < 0.5
-    ? interpolateColor('#ffd400', '#f35e07', state.transition * 2)
-    : interpolateColor('#f35e07', '#ffffff', (state.transition - 0.5) * 2);
-
-  // Redraw logo canvas ONLY when position/size/glow changes OR hover scale/tilt updates OR mouse moves while hovering OR matrix scramble is active
+  // Redraw logo canvas ONLY when position/size changes OR hover scale/tilt updates OR mouse moves while hovering OR matrix scramble is active
   let logoMoved = Math.abs(textX - lastLogoX) > 0.01 ||
                   Math.abs(textY - lastLogoY) > 0.01 ||
                   Math.abs(fontSize - lastLogoSize) > 0.01 ||
-                  Math.abs(glowOpacity - lastGlowOpacity) > 0.01 ||
                   Math.abs(state.logoTransition - lastLogoTransition) > 0.01 ||
-                  Math.abs(state.transition - lastStyleProgress) > 0.01 ||
                   Math.abs(logoHoverScale - lastLogoHoverScale) > 0.001 ||
                   Math.abs(logoTilt - lastLogoTilt) > 0.01 ||
                   glitchFrameCount > 0 ||
@@ -3330,11 +3040,8 @@ function draw(time) {
       logoCtx.strokeStyle = strokeColor;
     } else {
       logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
-      const interpolatedCol = state.transition < 0.5
-        ? interpolateColor('#1c1812', '#8a3a2d', state.transition * 2)
-        : interpolateColor('#8a3a2d', '#ffffff', (state.transition - 0.5) * 2);
-      baseColor = interpolatedCol;
-      strokeColor = interpolatedCol;
+      baseColor = '#1c1812';
+      strokeColor = '#1c1812';
       logoCtx.fillStyle = baseColor;
       logoCtx.strokeStyle = strokeColor;
     }
@@ -3349,21 +3056,6 @@ function draw(time) {
       logoCtx.rotate(logoTilt * Math.PI / 180);
     }
 
-    if (glowOpacity > 0.01) {
-      const glowParsed = parseColor(glowColor);
-      logoCtx.fillStyle = `rgba(${glowParsed.r}, ${glowParsed.g}, ${glowParsed.b}, ${glowOpacity * 0.65})`;
-      logoCtx.fillText(text, -1.5, -1.5);
-      logoCtx.fillText(text, 1.5, -1.5);
-      logoCtx.fillText(text, -1.5, 1.5);
-      logoCtx.fillText(text, 1.5, 1.5);
-
-      if (!isTech) {
-        logoCtx.strokeStyle = `rgba(${glowParsed.r}, ${glowParsed.g}, ${glowParsed.b}, ${glowOpacity * 0.48})`;
-        logoCtx.lineWidth = fontSize * 0.09;
-        logoCtx.strokeText(text, 0, 0);
-      }
-    }
-
     logoCtx.fillStyle = baseColor;
     logoCtx.fillText(text, 0, 0);
 
@@ -3372,7 +3064,7 @@ function draw(time) {
       logoCtx.lineWidth = 1.0;
       logoCtx.strokeText(text, 0, 0);
     } else if (fontSize > 36) {
-      logoCtx.lineWidth = state.transition < 0.5 ? Math.max(0.4, fontSize * 0.015) : Math.max(0.2, fontSize * 0.008);
+      logoCtx.lineWidth = Math.max(0.4, fontSize * 0.015);
       logoCtx.strokeText(text, 0, 0);
     }
 
@@ -3381,7 +3073,6 @@ function draw(time) {
     lastLogoX = textX;
     lastLogoY = textY;
     lastLogoSize = fontSize;
-    lastGlowOpacity = glowOpacity;
     lastLogoTransition = state.logoTransition;
     lastLogoHoverScale = logoHoverScale;
     lastLogoTilt = logoTilt;
