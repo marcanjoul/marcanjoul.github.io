@@ -212,7 +212,7 @@ body.modern-cursor a, body.modern-cursor button, body.modern-cursor .project-car
   left: 0; right: 0; bottom: 0;
   height: 0;
   z-index: 1;
-  background: linear-gradient(to bottom, #5a3e28, #3d2b1f);
+  background: linear-gradient(to bottom, #6f4f32, #4a3320);
   pointer-events: none;
   /* Irregular torn-earth top edge instead of a flat line */
   clip-path: polygon(0% 4%, 6% 0%, 13% 5%, 20% 1%, 28% 6%, 36% 2%, 44% 7%, 52% 1%, 60% 5%, 68% 0%, 76% 6%, 84% 2%, 92% 5%, 100% 0%, 100% 100%, 0% 100%);
@@ -252,9 +252,56 @@ body.modern-cursor a, body.modern-cursor button, body.modern-cursor .project-car
   0% { transform: rotate(-1deg); }
   100% { transform: rotate(1deg); }
 }
+#lawn-text {
+  position: fixed;
+  left: 50%;
+  bottom: 15vh;
+  transform: translateX(-50%);
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+  color: #6f93ff;
+  text-align: center;
+  white-space: nowrap;
+}
+.lawn-text-name {
+  font-family: 'Cabin Sketch', cursive;
+  font-size: clamp(1.6rem, 3.9vw, 2.8rem);
+  font-weight: 700;
+}
+.lawn-text-label {
+  font-family: 'Cabin Sketch', cursive;
+  font-size: clamp(1rem, 2.1vw, 1.3rem);
+  font-weight: 700;
+  margin-top: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.lawn-usf-logo {
+  height: 1.05em;
+  width: auto;
+  mix-blend-mode: normal;
+  filter: url(#sketchy) drop-shadow(0 0 6px rgba(43, 77, 255, 0.55)) drop-shadow(0 0 12px rgba(43, 77, 255, 0.35));
+}
+#lawn-text .usf-logo-link,
+#lawn-text .tech-word,
+#lawn-text .lawn-text-name {
+  pointer-events: auto;
+}
+.lawn-text-tagline {
+  font-family: var(--font-display);
+  font-size: clamp(0.82rem, 1.65vw, 1.05rem);
+  margin-top: 0.3rem;
+  white-space: normal;
+  max-width: 70vw;
+  margin-left: auto;
+  margin-right: auto;
+}
 #laptop-illustration {
   position: fixed;
-  left: 54%;
+  left: 75%;
   bottom: 6vh;
   width: clamp(120px, 18vw, 220px);
   height: auto;
@@ -293,7 +340,7 @@ body.modern-cursor a, body.modern-cursor button, body.modern-cursor .project-car
 }
 #gadget-headphones {
   left: 88%;
-  bottom: 24vh;
+  bottom: 14vh;
   width: clamp(60px, 7vw, 92px);
   transform: translateX(-50%) rotate(9deg);
 }
@@ -305,13 +352,13 @@ body.modern-cursor a, body.modern-cursor button, body.modern-cursor .project-car
 }
 #gadget-earbuds-case {
   left: 18%;
-  bottom: 27vh;
+  bottom: 12vh;
   width: clamp(24px, 3vw, 36px);
   transform: translateX(-50%) rotate(10deg);
 }
 #gadget-robot {
-  left: 42%;
-  bottom: 22vh;
+  left: 30%;
+  bottom: 10vh;
   width: clamp(38px, 5vw, 58px);
   transform-origin: bottom center;
   animation: robot-bob 2.4s ease-in-out infinite;
@@ -325,8 +372,8 @@ body.modern-cursor a, body.modern-cursor button, body.modern-cursor .project-car
   animation: laptop-glow 2.2s ease-in-out infinite;
 }
 #gadget-chip {
-  left: 62%;
-  bottom: 29vh;
+  left: 65%;
+  bottom: 11vh;
   width: clamp(28px, 3.5vw, 42px);
   transform: translateX(-50%) rotate(8deg);
 }
@@ -473,18 +520,6 @@ body.modern-cursor a, body.modern-cursor button, body.modern-cursor .project-car
   background-size: 180px 180px, 420px 420px;
 }
 
-/* ========== SCROLL PROGRESS ========== */
-.scroll-progress {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(90deg, var(--accent), var(--yellow));
-  transform-origin: left;
-  transform: scaleX(0);
-  z-index: 200;
-}
-
 /* ========== NAV & CELESTIAL NAVBAR INTEGRATION ========== */
 nav {
   position: fixed;
@@ -578,6 +613,10 @@ nav {
   z-index: 6;
   width: 100%;
   padding-bottom: 55vh; /* lets the lawn scene clear the last card and footer at the bottom of the page */
+  pointer-events: none; /* the empty padding area shouldn't block hover/clicks on the lawn scene beneath it */
+}
+.scroll-wrapper > * {
+  pointer-events: auto;
 }
 
 /* ========== CHAPTERS / SECTIONS ========== */
@@ -1421,6 +1460,11 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   <div class="ground-pebble" style="left:48%; width:8px; height:5px;"></div>
   <div class="ground-pebble" style="left:73%; width:12px; height:8px;"></div>
 </div>
+<div id="lawn-text">
+  <div class="lawn-text-name">Mark Anjoul</div>
+  <div class="lawn-text-label">Computer Science @ <a href="https://www.usf.edu" target="_blank" rel="noopener" class="usf-logo-link" aria-label="University of South Florida website"><img class="usf-logo lawn-usf-logo" src="https://1000logos.net/wp-content/uploads/2020/02/South-Florida-Bulls-Logo.png" alt="USF Logo"></a></div>
+  <div class="lawn-text-tagline split">Building at the intersection of <span class="tech-word"><span class="tech-word-text">AI</span><span class="tech-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/><line x1="9" y1="2" x2="9" y2="7"/><line x1="15" y1="2" x2="15" y2="7"/><line x1="9" y1="17" x2="9" y2="22"/><line x1="15" y1="17" x2="15" y2="22"/><line x1="2" y1="9" x2="7" y2="9"/><line x1="2" y1="15" x2="7" y2="15"/><line x1="17" y1="9" x2="22" y2="9"/><line x1="17" y1="15" x2="22" y2="15"/></svg></span></span>, <span class="tech-word"><span class="tech-word-text">Mobile</span><span class="tech-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="10" y1="19" x2="14" y2="19"/></svg></span></span> &amp; <span class="tech-word"><span class="tech-word-text">Robotics</span><span class="tech-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="2"/><line x1="12" y1="2" x2="12" y2="8"/><circle cx="12" cy="3" r="1.2"/><circle cx="9" cy="13" r="1.3"/><circle cx="15" cy="13" r="1.3"/><line x1="8" y1="17" x2="16" y2="17"/></svg></span></span></div>
+</div>
 <svg id="laptop-illustration" aria-hidden="true" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
   <g transform="rotate(-4 60 50)">
     <rect x="22" y="14" width="76" height="48" rx="4" fill="#2b2620"/>
@@ -1501,9 +1545,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 <div id="top-blur-header" aria-hidden="true"></div>
 <div class="paper-grain" aria-hidden="true"></div>
 
-<!-- Scroll progress indicator -->
-<div class="scroll-progress" aria-hidden="true"></div>
-
 <!-- NAVIGATION BAR -->
 <nav>
   <div class="nav-container">
@@ -1544,13 +1585,13 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   <section class="chapter chapter-hero">
     <div class="chapter-inner chapter-inner-hero" id="hero-content">
       <h1 class="sr-only">Mark Anjoul</h1>
-      <div class="chapter-label hero-label-wrapper">
-        <span>Computer Science @</span>
+      <div class="chapter-label hero-label-wrapper" id="hero-label">
+        <span class="split">Computer Science @</span>
         <a href="https://www.usf.edu" target="_blank" rel="noopener" class="usf-logo-link" aria-label="University of South Florida website">
           <img class="usf-logo" src="https://1000logos.net/wp-content/uploads/2020/02/South-Florida-Bulls-Logo.png" alt="USF Logo">
         </a>
       </div>
-      <h2 class="split">Building at the intersection of <span class="tech-word"><span class="tech-word-text">AI</span><span class="tech-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/><line x1="9" y1="2" x2="9" y2="7"/><line x1="15" y1="2" x2="15" y2="7"/><line x1="9" y1="17" x2="9" y2="22"/><line x1="15" y1="17" x2="15" y2="22"/><line x1="2" y1="9" x2="7" y2="9"/><line x1="2" y1="15" x2="7" y2="15"/><line x1="17" y1="9" x2="22" y2="9"/><line x1="17" y1="15" x2="22" y2="15"/></svg></span></span>, <span class="tech-word"><span class="tech-word-text">Mobile</span><span class="tech-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="10" y1="19" x2="14" y2="19"/></svg></span></span> &amp; <span class="tech-word"><span class="tech-word-text">Robotics</span><span class="tech-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="2"/><line x1="12" y1="2" x2="12" y2="8"/><circle cx="12" cy="3" r="1.2"/><circle cx="9" cy="13" r="1.3"/><circle cx="15" cy="13" r="1.3"/><line x1="8" y1="17" x2="16" y2="17"/></svg></span></span></h2>
+      <h2 class="split" id="hero-subhead">Building at the intersection of <span class="tech-word"><span class="tech-word-text">AI</span><span class="tech-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/><line x1="9" y1="2" x2="9" y2="7"/><line x1="15" y1="2" x2="15" y2="7"/><line x1="9" y1="17" x2="9" y2="22"/><line x1="15" y1="17" x2="15" y2="22"/><line x1="2" y1="9" x2="7" y2="9"/><line x1="2" y1="15" x2="7" y2="15"/><line x1="17" y1="9" x2="22" y2="9"/><line x1="17" y1="15" x2="22" y2="15"/></svg></span></span>, <span class="tech-word"><span class="tech-word-text">Mobile</span><span class="tech-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="10" y1="19" x2="14" y2="19"/></svg></span></span> &amp; <span class="tech-word"><span class="tech-word-text">Robotics</span><span class="tech-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="2"/><line x1="12" y1="2" x2="12" y2="8"/><circle cx="12" cy="3" r="1.2"/><circle cx="9" cy="13" r="1.3"/><circle cx="15" cy="13" r="1.3"/><line x1="8" y1="17" x2="16" y2="17"/></svg></span></span></h2>
     </div>
 
   </section>
@@ -2080,12 +2121,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
       </div>
     </div>
   </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <p>Built by Mark Anjoul · © 2026</p>
-  </footer>
-
 </div>
 
 <!-- PROJECT DETAIL MODAL -->
@@ -2216,6 +2251,53 @@ document.querySelectorAll('.split').forEach((el) => {
     }
   );
 });
+
+/* ---------- lawn name gets the same hover-scramble as the hero name ---------- */
+const lawnNameEl = document.querySelector('.lawn-text-name');
+if (lawnNameEl) {
+  const lawnOriginalText = lawnNameEl.textContent;
+  let lawnGlitchFrame = 0;
+  let lawnGlitchRaf = null;
+  function lawnScrambleTick() {
+    lawnNameEl.textContent = getScrambledText('<mark_anjoul />', lawnGlitchFrame);
+    if (lawnGlitchFrame > 0) {
+      lawnGlitchFrame--;
+      lawnGlitchRaf = requestAnimationFrame(lawnScrambleTick);
+    }
+  }
+  lawnNameEl.addEventListener('mouseenter', () => {
+    lawnNameEl.classList.add('lawn-name-tech');
+    lawnGlitchFrame = 12;
+    cancelAnimationFrame(lawnGlitchRaf);
+    lawnScrambleTick();
+  });
+  lawnNameEl.addEventListener('mouseleave', () => {
+    cancelAnimationFrame(lawnGlitchRaf);
+    lawnNameEl.classList.remove('lawn-name-tech');
+    lawnNameEl.textContent = lawnOriginalText;
+  });
+}
+
+/* ---------- hero intro text falls away letter by letter on scroll ---------- */
+const heroFallTarget = {
+  x: (i) => (i % 2 === 0 ? -1 : 1) * gsap.utils.random(260, 560), // alternate L/R so the split is balanced from the first letter
+  y: () => window.innerHeight * 1.3 + gsap.utils.random(0, 200),
+  rotation: () => gsap.utils.random(-90, 90),
+  opacity: 0,
+  color: '#2b4dff',
+  ease: 'power1.in', // gravity-like acceleration, matches the falling motion
+  stagger: 0.02,
+  scrollTrigger: {
+    trigger: document.documentElement,
+    start: 'top top',
+    end: 450,
+    scrub: 0.5
+  }
+};
+// "Computer Science @ USF" is already accent blue at rest
+gsap.fromTo('#hero-label .char, #hero-label .usf-logo-link', { x: 0, y: 0, rotation: 0, opacity: 1, color: '#2b4dff' }, heroFallTarget);
+// The subheading paragraph is dark ink at rest
+gsap.fromTo('#hero-subhead .char', { x: 0, y: 0, rotation: 0, opacity: 1, color: '#1c1812' }, heroFallTarget);
 
 /* ---------- chapter scroll animations (entrance + hold + exit suction) ---------- */
 if (reduceMotion) {
@@ -3042,6 +3124,9 @@ const clouds = [
   { x: width * 0.78, y: height * 0.24, scale: 0.8, speed: 0.32 }
 ];
 
+// Hand-drawn sketched sun, parked in the upper sky
+const sun = { x: width * 0.15, y: height * 0.24, radius: 46 };
+
 // Hand-drawn Flapping Birds Setup
 const birds = [
   { x: width * 0.2, y: height * 0.28, size: 13, speedX: 0.7, flapSpeed: 0.05, phase: 0 },
@@ -3058,6 +3143,7 @@ const grassBackLayerEl = document.getElementById('grass-back-layer');
 const grassFrontLayerEl = document.getElementById('grass-front-layer');
 const bugLayerEl = document.getElementById('bug-layer');
 const laptopEl = document.getElementById('laptop-illustration');
+const lawnTextEl = document.getElementById('lawn-text');
 const lawnGadgetEls = document.querySelectorAll('.lawn-gadget');
 
 const grassBlades = []; // { wrap, delayFrac }
@@ -3100,7 +3186,8 @@ function updateGrass(grassT) {
 
 // Dynamic Sketch Path Cache definition
 const pathCache = {
-  clouds: []
+  clouds: [],
+  sun: { circle: [], rays: [] }
 };
 
 // Generates wobbly lines/circles once and stores them, updating only on resize or at 12fps
@@ -3139,6 +3226,27 @@ function updateCachedPaths() {
       })
     };
   });
+
+  // Sun: sketchy disc outline + radiating rays (local coordinates, drawn around 0,0)
+  const sunCirclePoints = [];
+  const sunSteps = Math.max(12, Math.floor(2 * Math.PI * sun.radius / 30));
+  for (let i = 0; i <= sunSteps; i++) {
+    const angle = (i / sunSteps) * Math.PI * 2;
+    sunCirclePoints.push({ x: Math.cos(angle) * sun.radius, y: Math.sin(angle) * sun.radius });
+  }
+  pathCache.sun.circle = generateSketchedPath(sunCirclePoints, 1.4, 1, true);
+
+  const rayCount = 10;
+  pathCache.sun.rays = [];
+  for (let i = 0; i < rayCount; i++) {
+    const angle = (i / rayCount) * Math.PI * 2;
+    const innerR = sun.radius + 8;
+    const outerR = sun.radius + 20;
+    pathCache.sun.rays.push(generateSketchedPath([
+      { x: Math.cos(angle) * innerR, y: Math.sin(angle) * innerR },
+      { x: Math.cos(angle) * outerR, y: Math.sin(angle) * outerR }
+    ], 1.0, 1)[0]);
+  }
 }
 
 function drawSketchedCloudCached(cloudIndex, cx, cy, opacity) {
@@ -3165,15 +3273,52 @@ function drawSketchedCloudCached(cloudIndex, cx, cy, opacity) {
   ctx.restore();
 }
 
+function drawSun(targetCtx, cx, cy, opacity, time, scale = 1) {
+  if (opacity < 0.01) return;
+  const pulse = (0.85 + Math.sin(time * 0.0012) * 0.15) * scale; // slow gentle breathing glow, scaled when docking
+
+  targetCtx.save();
+  targetCtx.translate(cx, cy);
+
+  // Soft radial glow behind the disc
+  const glowR = sun.radius * 2.6 * pulse;
+  const glow = targetCtx.createRadialGradient(0, 0, sun.radius * 0.4 * scale, 0, 0, glowR);
+  glow.addColorStop(0, `rgba(255, 212, 0, ${0.35 * opacity})`);
+  glow.addColorStop(1, 'rgba(255, 212, 0, 0)');
+  targetCtx.fillStyle = glow;
+  targetCtx.beginPath();
+  targetCtx.arc(0, 0, glowR, 0, Math.PI * 2);
+  targetCtx.fill();
+
+  // Sketchy radiating rays, slowly rotating
+  targetCtx.save();
+  targetCtx.rotate(time * 0.00006);
+  targetCtx.scale(scale, scale);
+  pathCache.sun.rays.forEach(ray => {
+    drawCachedStrokes([ray], `rgba(243, 94, 7, ${opacity * 0.55})`, 2 / scale, targetCtx);
+  });
+  targetCtx.restore();
+
+  // Sun disc fill + sketchy outline (scaled together so they breathe in sync)
+  targetCtx.save();
+  targetCtx.scale(pulse, pulse);
+  targetCtx.beginPath();
+  targetCtx.arc(0, 0, sun.radius, 0, Math.PI * 2);
+  targetCtx.fillStyle = `rgba(255, 212, 0, ${opacity})`;
+  targetCtx.fill();
+  drawCachedStrokes(pathCache.sun.circle, `rgba(28, 24, 18, ${opacity * 0.7})`, 1.6 / pulse, targetCtx, true);
+  targetCtx.restore();
+
+  targetCtx.restore();
+}
+
 // ScrollTrigger state management variable
 let scrollTriggerLogoTransition;
-let scrollTriggerProgress;
 
 function setupScrollTriggers() {
   if (scrollTriggerLogoTransition) scrollTriggerLogoTransition.kill();
-  if (scrollTriggerProgress) scrollTriggerProgress.kill();
 
-  // 1. Name logo transition (Centered sun -> docked moon)
+  // Name logo transition (Centered sun -> docked moon)
   scrollTriggerLogoTransition = ScrollTrigger.create({
     trigger: document.documentElement,
     start: "top top",
@@ -3183,20 +3328,6 @@ function setupScrollTriggers() {
       state.logoTransition = self.progress;
     }
   });
-
-  // 2. Progress bar indicator
-  const progressBar = document.querySelector('.scroll-progress');
-  if (progressBar) {
-    scrollTriggerProgress = ScrollTrigger.create({
-      trigger: document.documentElement,
-      start: "top top",
-      end: "bottom bottom",
-      scrub: true,
-      onUpdate: (self) => {
-        progressBar.style.transform = `scaleX(${self.progress})`;
-      }
-    });
-  }
 }
 
 // Resize recalculates coordinates & rebuilds caches/triggers
@@ -3228,6 +3359,8 @@ function resize() {
     clouds[1].x = width * 0.48; clouds[1].y = height * 0.14;
     clouds[2].x = width * 0.78; clouds[2].y = height * 0.24;
   }
+  sun.x = width * 0.15;
+  sun.y = height * 0.24;
   if (birds && birds.length >= 3) {
     birds[0].x = width * 0.2; birds[0].y = height * 0.28;
     birds[1].x = width * 0.55; birds[1].y = height * 0.22;
@@ -3310,9 +3443,11 @@ function draw(time) {
     updateCachedPaths();
   }
 
-  // 2 & 3. Draw clouds and birds, fading out as we descend below the clouds (60-80% scroll)
-  const skyFade = 1 - Math.min(Math.max((sceneProgress - 0.6) / 0.2, 0), 1);
+  // 1b, 2 & 3. Draw the ambient sun, clouds and birds, fading out as we descend below them
+  const skyFade = 1 - Math.min(Math.max((sceneProgress - 0.3) / 0.2, 0), 1);
   if (skyFade > 0.01) {
+    drawSun(ctx, sun.x, sun.y, 0.9 * skyFade, time);
+
     clouds.forEach((cloud, index) => {
       cloud.x += cloud.speed;
       if (cloud.x > width + 120) {
@@ -3338,6 +3473,9 @@ function draw(time) {
   const groundReveal = Math.min(Math.max((rawProgress - 0.9) / 0.1, 0), 1);
   const groundHeightPx = groundReveal * 0.4 * height;
   if (groundLayerEl) groundLayerEl.style.height = `${groundHeightPx}px`;
+
+  // The name, having fallen all the way down, turns up again in the lawn
+  if (lawnTextEl) lawnTextEl.style.opacity = groundReveal;
 
   // Bushes fade in along the horizon, held back until raw scroll position hits 90%
   if (bushLayerEl) {
@@ -3377,7 +3515,7 @@ function draw(time) {
   const textY = gsap.utils.interpolate(height / 2 - 30, moonTargetY + 6, state.logoTransition);
 
   const baseFontSize = Math.max(48, Math.min(width * 0.09, height * 0.12, 105));
-  const nightFontSize = Math.max(16, Math.min(width * 0.04, 22));
+  const nightFontSize = Math.max(22, Math.min(width * 0.055, 32));
   const fontSize = gsap.utils.interpolate(baseFontSize, nightFontSize, state.logoTransition);
 
   // Measure text dimensions for hover bounding box
@@ -3420,6 +3558,7 @@ function draw(time) {
                   Math.abs(logoHoverScale - lastLogoHoverScale) > 0.001 ||
                   Math.abs(logoTilt - lastLogoTilt) > 0.01 ||
                   glitchFrameCount > 0 ||
+                  skyFade > 0.01 || // keep redrawing while the sun's idle pulse/ray rotation is visible
                   (isHovered && (Math.abs(mouseX - lastMouseX) > 0.5 || Math.abs(mouseY - lastMouseY) > 0.5));
 
   const blinkState = isHovered && glitchFrameCount === 0 && (Math.floor(time / 350) % 2 === 0);
@@ -3430,54 +3569,81 @@ function draw(time) {
 
   if (logoMoved) {
     logoCtx.clearRect(0, 0, width, height);
-    
+
     let text = "Mark Anjoul";
     let isTech = isHovered;
-    
-    let baseColor, strokeColor;
+
+    logoCtx.textAlign = 'center';
+    logoCtx.textBaseline = 'middle';
+
     if (isTech) {
       logoCtx.font = `bold ${fontSize * 0.82}px "Share Tech Mono", monospace`;
-      
+
       const rawTechText = "<mark_anjoul />";
       const scrambledText = getScrambledText(rawTechText, glitchFrameCount);
       const cursorStr = (glitchFrameCount === 0 && blinkState) ? "_" : "";
       text = scrambledText + cursorStr;
-      
-      baseColor = '#ffd400';
-      strokeColor = 'rgba(28, 24, 18, 0.05)';
+
+      const baseColor = '#ffd400';
+      const strokeColor = 'rgba(28, 24, 18, 0.05)';
+
+      logoCtx.save();
+      logoCtx.translate(textX, textY);
+      logoCtx.scale(logoHoverScale, logoHoverScale);
+      if (Math.abs(logoTilt) > 0.01) {
+        logoCtx.rotate(logoTilt * Math.PI / 180);
+      }
       logoCtx.fillStyle = baseColor;
+      logoCtx.fillText(text, 0, 0);
       logoCtx.strokeStyle = strokeColor;
-    } else {
-      logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
-      baseColor = '#1c1812';
-      strokeColor = '#1c1812';
-      logoCtx.fillStyle = baseColor;
-      logoCtx.strokeStyle = strokeColor;
-    }
-    
-    logoCtx.textAlign = 'center';
-    logoCtx.textBaseline = 'middle';
-
-    logoCtx.save();
-    logoCtx.translate(textX, textY);
-    logoCtx.scale(logoHoverScale, logoHoverScale);
-    if (Math.abs(logoTilt) > 0.01) {
-      logoCtx.rotate(logoTilt * Math.PI / 180);
-    }
-
-    logoCtx.fillStyle = baseColor;
-    logoCtx.fillText(text, 0, 0);
-
-    logoCtx.strokeStyle = strokeColor;
-    if (isTech) {
       logoCtx.lineWidth = 1.0;
       logoCtx.strokeText(text, 0, 0);
-    } else if (fontSize > 36) {
-      logoCtx.lineWidth = Math.max(0.4, fontSize * 0.015);
-      logoCtx.strokeText(text, 0, 0);
-    }
+      logoCtx.restore();
+    } else {
+      // Letters peel off and fall to either side of the page, letter by letter, as the user scrolls
+      const t = state.logoTransition;
+      logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
+      logoCtx.textAlign = 'left';
 
-    logoCtx.restore();
+      const chars = text.split('');
+      const charWidths = chars.map((c) => logoCtx.measureText(c).width);
+      const totalTextWidth = charWidths.reduce((a, b) => a + b, 0);
+      const charCount = chars.length;
+      const fallStagger = 0.06; // each letter starts falling slightly after the previous one
+
+      let cursorX = textX - totalTextWidth / 2;
+      chars.forEach((c, i) => {
+        const w = charWidths[i];
+        const charCenterX = cursorX + w / 2;
+        const localT = Math.min(Math.max((t - i * fallStagger) / (1 - (charCount - 1) * fallStagger), 0), 1);
+        const fallEase = localT * localT; // power1.in: gravity-like acceleration
+        const fallY = fallEase * height * 1.4;
+        const fallX = fallEase * (i % 2 === 0 ? -1 : 1) * (260 + i * 12); // alternate L/R so the split is balanced from the first letter
+        const rotation = fallEase * (i % 2 === 0 ? 1 : -1) * 80;
+        const charAlpha = skyFade * (1 - Math.min(localT * 1.15, 1));
+        const charColor = gsap.utils.interpolate('#1c1812', '#2b4dff', fallEase);
+
+        if (charAlpha > 0.01) {
+          logoCtx.save();
+          logoCtx.globalAlpha = charAlpha;
+          logoCtx.translate(charCenterX + fallX, textY + fallY);
+          logoCtx.rotate(rotation * Math.PI / 180);
+          logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
+          logoCtx.fillStyle = charColor;
+          logoCtx.textAlign = 'center';
+          logoCtx.textBaseline = 'middle';
+          logoCtx.fillText(c, 0, 0);
+          if (fontSize > 36) {
+            // Restores the bolder, more inked look the resting Cabin Sketch name originally had
+            logoCtx.strokeStyle = charColor;
+            logoCtx.lineWidth = Math.max(0.4, fontSize * 0.015);
+            logoCtx.strokeText(c, 0, 0);
+          }
+          logoCtx.restore();
+        }
+        cursorX += w;
+      });
+    }
 
     lastLogoX = textX;
     lastLogoY = textY;
@@ -3498,6 +3664,7 @@ function draw(time) {
     const heroFade = Math.max(0, 1 - (scrollTop / (window.innerHeight * 0.5)));
     cachedHeroContent.style.opacity = heroFade;
   }
+
 
 
   // Fade in the top blur header overlay on scroll to avoid text overlap
