@@ -29,40 +29,47 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.css">
 
-<!-- Google Font Cabin Sketch and Shantell Sans-->
+<!-- Google Font Cabin Sketch -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Share+Tech+Mono&family=Shantell+Sans:wght@300..700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
 <style>
 /* ============================================================
-   Portfolio & Celestial Animations Styles
-   Cream paper, wobbly linework, astronomical day-to-night transitions.
+   Portfolio & Hand-Sketched Styles
+   Cream paper, wobbly linework, and sketchy notebook styling.
    ============================================================ */
 
 @font-face {
-  font-family: 'Shantell Sans';
-  src: url('assets/fonts/ShantellSans-Variable.ttf') format('truetype-variations');
+  font-family: 'Winky Rough';
+  src: url('assets/fonts/WinkyRough-VariableFont_wght.ttf') format('truetype-variations'),
+       url('assets/fonts/WinkyRough-VariableFont_wght.ttf') format('truetype');
   font-weight: 300 700;
   font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Winky Rough';
+  src: url('assets/fonts/WinkyRough-Italic-VariableFont_wght.ttf') format('truetype-variations'),
+       url('assets/fonts/WinkyRough-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 300 700;
+  font-style: italic;
   font-display: swap;
 }
 
 :root {
   --paper:      #f3ede0;
   --paper-2:    #ece3cf;
-  --ink:        #000;
+  --ink:        #1c1812;
   --ink-2:      rgba(28, 24, 18, 0.72);
   --ink-3:      rgba(28, 24, 18, 0.65);
   --rule:       rgba(134, 109, 71, 0.22);
   --accent:     #2b4dff;
   --yellow:     #ffd400;
 
-  --font-display: 'Shantell Sans', cursive;
-  --font-body:    'Shantell Sans', sans-serif;
-
-  --wght: 420;
-  --bnce: 1;
+  --font-display: 'Winky Rough', cursive;
+  --font-body:    'Winky Rough', sans-serif;
 
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --maxw: 1180px;
@@ -71,19 +78,18 @@
   --wonky: 255px 18px 225px 18px / 18px 225px 18px 255px;
 
   --ink-rgb:    28, 24, 18;
-  --style-progress: 0;
-  --doodle-opacity: calc(1 - var(--style-progress));
-  --modern-opacity: var(--style-progress);
 
-  --border-color: rgba(28, 24, 18, var(--modern-opacity, 0));
-  --doodle-border-color: rgba(28, 24, 18, var(--doodle-opacity, 1));
+  --chapter-radius: var(--wonky);
+  --project-radius: 20px 6px 20px 6px;
+  --detail-radius:  14px 4px 14px 4px;
+  --contact-radius: 16px 4px 16px 4px;
+  --timeline-style: dashed;
 
-  --chapter-shadow: 
-    calc(5px * var(--doodle-opacity)) calc(5px * var(--doodle-opacity)) 0 var(--ink),
-    0 calc(10px * var(--modern-opacity)) calc(30px * var(--modern-opacity)) rgba(0, 0, 0, calc(0.06 * var(--modern-opacity)));
-  --project-shadow: 
-    calc(4px * var(--doodle-opacity)) calc(4px * var(--doodle-opacity)) 0 var(--ink),
-    0 calc(8px * var(--modern-opacity)) calc(24px * var(--modern-opacity)) rgba(0, 0, 0, calc(0.05 * var(--modern-opacity)));
+  --border-color: transparent;
+  --doodle-border-color: var(--ink);
+
+  --chapter-shadow: 5px 5px 0 var(--ink);
+  --project-shadow: 4px 4px 0 var(--ink);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -846,17 +852,6 @@ nav {
     position: relative;
     display: inline-block;
   }
-  .project-card h3.scrubbing {
-    background: radial-gradient(
-      circle 45px at var(--mouse-x, 0px) var(--mouse-y, 0px),
-      var(--yellow) 0%,
-      var(--yellow) 65%,
-      currentColor 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
 }
 .project-type { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); font-weight: 600; }
 .project-card h3 {
@@ -865,6 +860,8 @@ nav {
   font-size: 1.55rem;
   color: var(--ink);
   margin-bottom: 0.3rem;
+  position: relative;
+  display: inline-block;
 }
 .project-card p { font-size: 0.92rem; color: var(--ink-2); margin: 0; }
 .tag-list { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.3rem 0 0.2rem; }
@@ -987,13 +984,13 @@ nav {
 /* ========== CONTACT ========== */
 .contact-links {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
   margin-top: 1.8rem;
 }
 .contact-link {
   position: relative;
-  display: flex; flex-direction: column; align-items: flex-start;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
   border: 1.5px solid rgba(var(--ink-rgb), var(--modern-opacity, 0)) !important;
   border-radius: var(--contact-radius, 16px 4px 16px 4px) !important;
   padding: 1.2rem;
@@ -1033,8 +1030,6 @@ nav {
   color: var(--ink);
   display: block;
 }
-.cl-meta { font-size: 0.8rem; color: var(--ink-3); display: block; margin-top: 0.15rem; }
-.cl-arrow { position: absolute; top: 1rem; right: 1.1rem; color: var(--accent); }
 
 /* ========== FOOTER ========== */
 footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-size: 0.85rem; }
@@ -1077,7 +1072,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
     font-size: 0.75rem;
   }
   .project-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: 0.8rem;
     margin-top: 1.2rem;
   }
@@ -1110,8 +1105,11 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
     font-size: 0.8rem;
   }
   .chapter { padding: 1.2rem 1rem; } /* Reduced padding for tighter mobile layout */
-  .contact-links { grid-template-columns: 1fr; }
-  .contact-link { transform: none !important; }
+  .contact-links { grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+  .contact-link { transform: none !important; padding: 0.7rem 0.4rem; }
+  .cl-icon-wrapper { width: 2.2rem; height: 2.2rem; margin-bottom: 0.4rem; }
+  .cl-icon { width: 1.1rem; height: 1.1rem; }
+  .cl-label { font-size: 0.85rem; }
   .chapter-inner { border-radius: 28px 10px 28px 10px; }
   .project-card { transform: none !important; }
   .project-card:nth-child(odd):hover, .project-card:nth-child(even):hover { transform: translateY(-3px) !important; }
@@ -1695,36 +1693,28 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
       <p>I'm currently looking for internships and opportunities in AI, mobile/web development, and UI/UX.</p>
       <div class="contact-links">
         <a href="mailto:marc.anjoul@gmail.com" class="contact-link cl-mail">
-          <span class="cl-arrow" aria-hidden="true">↗</span>
           <div class="cl-icon-wrapper" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="cl-icon"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="currentColor"/></svg>
           </div>
           <span class="cl-label">Email</span>
-          <span class="cl-meta">marc.anjoul@gmail.com</span>
         </a>
         <a href="https://github.com/marcanjoul" target="_blank" class="contact-link cl-github">
-          <span class="cl-arrow" aria-hidden="true">↗</span>
           <div class="cl-icon-wrapper" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="cl-icon"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" fill="currentColor"/></svg>
           </div>
           <span class="cl-label">GitHub</span>
-          <span class="cl-meta">github.com/marcanjoul</span>
         </a>
         <a href="https://www.linkedin.com/in/markanjoul/" target="_blank" class="contact-link cl-linkedin">
-          <span class="cl-arrow" aria-hidden="true">↗</span>
           <div class="cl-icon-wrapper" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="cl-icon"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" fill="currentColor"/></svg>
           </div>
           <span class="cl-label">LinkedIn</span>
-          <span class="cl-meta">in/markanjoul</span>
         </a>
         <a href="Mark_Anjoul_Resume.pdf" target="_blank" class="contact-link cl-resume">
-          <span class="cl-arrow" aria-hidden="true">↗</span>
           <div class="cl-icon-wrapper" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="cl-icon"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/></svg>
           </div>
           <span class="cl-label">Resume</span>
-          <span class="cl-meta">PDF</span>
         </a>
       </div>
     </div>
@@ -1859,10 +1849,10 @@ document.querySelectorAll('.split').forEach((el) => {
       '--char-infm': 0,
       '--char-bnce': 1,
       '--char-ital': 0,
-      duration: 0.9,
-      stagger: 0.025,
+      duration: isMobile ? 0.5 : 0.9,
+      stagger: isMobile ? 0.012 : 0.025,
       ease: 'back.out(2)',
-      scrollTrigger: { trigger: el, start: 'top 85%' },
+      scrollTrigger: { trigger: el, start: isMobile ? 'top 98%' : 'top 85%' },
     }
   );
 });
@@ -1892,16 +1882,16 @@ if (reduceMotion) {
       return;
     }
 
-    const startState = { opacity: 0, y: isMobile ? 25 : 50 };
+    const startState = { opacity: 0, y: isMobile ? 15 : 50 };
     const endState = {
       opacity: 1,
       y: 0,
-      duration: isMobile ? 0.45 : 0.8,
+      duration: isMobile ? 0.3 : 0.8,
       ease: 'power2.out',
       scrollTrigger: {
         trigger: parentChapter,
-        start: isMobile ? 'top 92%' : 'top 80%', // Animates in earlier on mobile so it is ready
-        toggleActions: 'play none none reverse' // Plays going down, reverses going back up
+        start: isMobile ? 'top 98%' : 'top 80%', // Animates in right as it enters so fast mobile scrolls don't outrun it
+        toggleActions: isMobile ? 'play none none none' : 'play none none reverse' // No reverse on mobile: avoids flicker on fast flicks
       }
     };
 
@@ -1918,11 +1908,11 @@ if (reduceMotion) {
 gsap.utils.toArray('.project-card').forEach((el, i) => {
   gsap.from(el, {
     opacity: 0,
-    y: isMobile ? 15 : 30,
-    duration: isMobile ? 0.45 : 0.7,
-    delay: isMobile ? (i % 2) * 0.05 : (i % 3) * 0.08,
+    y: isMobile ? 10 : 30,
+    duration: isMobile ? 0.3 : 0.7,
+    delay: isMobile ? 0 : (i % 3) * 0.08,
     ease: 'power3.out',
-    scrollTrigger: { trigger: el, start: isMobile ? 'top 95%' : 'top 90%' },
+    scrollTrigger: { trigger: el, start: isMobile ? 'top 99%' : 'top 90%' },
   });
 });
 
@@ -2221,59 +2211,203 @@ document.querySelectorAll('.skill-item').forEach(item => {
 });
 
 // Cursor scrubbing/coloring effect for project card headings (Emil Kowalski style spring/lerp motion)
-if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-  document.querySelectorAll('.project-card h3').forEach(heading => {
-    let targetX = 0;
-    let targetY = 0;
-    let currentX = 0;
-    let currentY = 0;
-    let isHovered = false;
-    let animationFrameId = null;
+class CanvasTextScribbler {
+  constructor(heading) {
+    this.heading = heading;
+    this.text = heading.textContent.trim();
+    this.points = [];
+    this.isHovered = false;
+    this.fadeOpacity = 0;
+    this.animating = false;
 
-    function updatePosition() {
-      // Linear interpolation (LERP) for fluid lag/spring scrubbing motion
-      currentX += (targetX - currentX) * 0.15;
-      currentY += (targetY - currentY) * 0.15;
-
-      heading.style.setProperty('--mouse-x', `${currentX}px`);
-      heading.style.setProperty('--mouse-y', `${currentY}px`);
-
-      if (isHovered || Math.abs(targetX - currentX) > 0.1 || Math.abs(targetY - currentY) > 0.1) {
-        animationFrameId = requestAnimationFrame(updatePosition);
-      } else {
-        animationFrameId = null;
+    this.canvas = document.createElement('canvas');
+    this.canvas.className = 'doodle-text-canvas';
+    this.ctx = this.canvas.getContext('2d');
+    
+    this.canvas.style.position = 'absolute';
+    this.canvas.style.top = '0';
+    this.canvas.style.left = '0';
+    this.canvas.style.pointerEvents = 'none';
+    
+    this.heading.appendChild(this.canvas);
+    this.heading.style.color = 'transparent';
+    this.heading.style.position = 'relative';
+    this.heading.style.display = 'inline-block';
+    
+    this.init();
+    this.bindEvents();
+  }
+  
+  init() {
+    const rect = this.heading.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    
+    this.canvas.width = rect.width * dpr;
+    this.canvas.height = rect.height * dpr;
+    this.canvas.style.width = `${rect.width}px`;
+    this.canvas.style.height = `${rect.height}px`;
+    this.ctx.resetTransform();
+    this.ctx.scale(dpr, dpr);
+    
+    const style = window.getComputedStyle(this.heading);
+    this.fontFamily = style.fontFamily;
+    this.fontSize = style.fontSize;
+    this.fontWeight = style.fontWeight;
+    this.textAlign = style.textAlign || 'left';
+    
+    let lh = parseFloat(style.lineHeight);
+    if (isNaN(lh)) {
+      lh = parseFloat(style.fontSize) * 1.35;
+    }
+    this.lineHeight = lh;
+    
+    this.draw();
+  }
+  
+  bindEvents() {
+    this.heading.addEventListener('mouseenter', (e) => {
+      this.isHovered = true;
+      this.fadeOpacity = 1;
+      const rect = this.heading.getBoundingClientRect();
+      this.targetX = e.clientX - rect.left;
+      this.targetY = e.clientY - rect.top;
+      this.brushX = this.targetX;
+      this.brushY = this.targetY;
+      this.points = [{ x: this.brushX, y: this.brushY }];
+      this.startLoop();
+    });
+    
+    this.heading.addEventListener('mousemove', (e) => {
+      if (!this.isHovered) return;
+      const rect = this.heading.getBoundingClientRect();
+      this.targetX = e.clientX - rect.left;
+      this.targetY = e.clientY - rect.top;
+    });
+    
+    this.heading.addEventListener('mouseleave', () => {
+      this.isHovered = false;
+    });
+    
+    window.addEventListener('resize', () => {
+      setTimeout(() => this.init(), 50);
+    });
+  }
+  
+  startLoop() {
+    if (this.animating) return;
+    this.animating = true;
+    const tick = () => {
+      this.update();
+      this.draw();
+      if (this.animating) {
+        requestAnimationFrame(tick);
+      }
+    };
+    requestAnimationFrame(tick);
+  }
+  
+  update() {
+    if (this.isHovered) {
+      const dx = this.targetX - this.brushX;
+      const dy = this.targetY - this.brushY;
+      
+      if (Math.hypot(dx, dy) > 0.5) {
+        this.brushX += dx * 0.15;
+        this.brushY += dy * 0.15;
+        this.points.push({ x: this.brushX, y: this.brushY });
+        
+        if (this.points.length > 800) {
+          this.points.shift();
+        }
+      }
+    } else {
+      this.fadeOpacity -= 0.05;
+      if (this.fadeOpacity <= 0) {
+        this.fadeOpacity = 0;
+        this.points = [];
+        this.animating = false;
       }
     }
-
-    heading.addEventListener('mouseenter', (e) => {
-      isHovered = true;
-      heading.classList.add('scrubbing');
+  }
+  
+  draw() {
+    const width = this.canvas.width / (window.devicePixelRatio || 1);
+    const height = this.canvas.height / (window.devicePixelRatio || 1);
+    const ctx = this.ctx;
+    
+    ctx.clearRect(0, 0, width, height);
+    if (width === 0 || height === 0) return;
+    
+    const rootStyles = window.getComputedStyle(document.documentElement);
+    const currentInk = rootStyles.getPropertyValue('--ink').trim() || '#1c1812';
+    const currentYellow = rootStyles.getPropertyValue('--yellow').trim() || '#ffd400';
+    
+    ctx.font = `${this.fontWeight} ${this.fontSize} ${this.fontFamily}`;
+    ctx.textBaseline = 'top';
+    ctx.textAlign = this.textAlign;
+    
+    const lines = this.getWrappedLines(width);
+    
+    ctx.fillStyle = currentInk;
+    lines.forEach((line, index) => {
+      let x = 0;
+      if (this.textAlign === 'center') x = width / 2;
+      else if (this.textAlign === 'right') x = width;
+      ctx.fillText(line, x, index * this.lineHeight);
+    });
+    
+    if (this.points.length > 0 && this.fadeOpacity > 0) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'source-atop';
       
-      const rect = heading.getBoundingClientRect();
-      targetX = e.clientX - rect.left;
-      targetY = e.clientY - rect.top;
-      currentX = targetX;
-      currentY = targetY;
+      ctx.beginPath();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 42;
+      ctx.strokeStyle = currentYellow;
+      ctx.globalAlpha = this.fadeOpacity;
       
-      if (!animationFrameId) {
-        updatePosition();
+      if (this.points.length === 1) {
+        ctx.arc(this.points[0].x, this.points[0].y, 21, 0, Math.PI * 2);
+        ctx.fillStyle = currentYellow;
+        ctx.fill();
+      } else {
+        ctx.moveTo(this.points[0].x, this.points[0].y);
+        for (let i = 1; i < this.points.length; i++) {
+          ctx.lineTo(this.points[i].x, this.points[i].y);
+        }
+        ctx.stroke();
       }
-    });
-
-    heading.addEventListener('mousemove', (e) => {
-      const rect = heading.getBoundingClientRect();
-      targetX = e.clientX - rect.left;
-      targetY = e.clientY - rect.top;
       
-      if (!animationFrameId) {
-        updatePosition();
+      ctx.restore();
+    }
+  }
+  
+  getWrappedLines(maxWidth) {
+    const words = this.text.split(/\s+/);
+    let line = '';
+    const lines = [];
+    
+    this.ctx.font = `${this.fontWeight} ${this.fontSize} ${this.fontFamily}`;
+    
+    for (let n = 0; n < words.length; n++) {
+      let testLine = line + words[n] + ' ';
+      let metrics = this.ctx.measureText(testLine.trim());
+      if (metrics.width > maxWidth && n > 0) {
+        lines.push(line.trim());
+        line = words[n] + ' ';
+      } else {
+        line = testLine;
       }
-    });
+    }
+    lines.push(line.trim());
+    return lines;
+  }
+}
 
-    heading.addEventListener('mouseleave', () => {
-      isHovered = false;
-      heading.classList.remove('scrubbing');
-    });
+if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  document.querySelectorAll('.project-card h3').forEach(heading => {
+    new CanvasTextScribbler(heading);
   });
 }
 
@@ -3188,10 +3322,13 @@ function draw(time) {
     logoCtx.fillText(text, 0, 0);
 
     logoCtx.strokeStyle = strokeColor;
-    logoCtx.lineWidth = isTech 
-      ? 1.0 
-      : (state.transition < 0.5 ? Math.max(0.4, fontSize * 0.015) : Math.max(0.2, fontSize * 0.008));
-    logoCtx.strokeText(text, 0, 0);
+    if (isTech) {
+      logoCtx.lineWidth = 1.0;
+      logoCtx.strokeText(text, 0, 0);
+    } else if (fontSize > 36) {
+      logoCtx.lineWidth = state.transition < 0.5 ? Math.max(0.4, fontSize * 0.015) : Math.max(0.2, fontSize * 0.008);
+      logoCtx.strokeText(text, 0, 0);
+    }
 
     logoCtx.restore();
 
