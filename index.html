@@ -672,6 +672,10 @@ nav {
   color: var(--accent);
   margin-bottom: 0.8rem;
 }
+.usf-logo-link {
+  display: inline-block;
+  vertical-align: middle;
+}
 .usf-logo {
   height: 2.8rem;
   width: auto;
@@ -680,6 +684,10 @@ nav {
   vertical-align: middle;
   mix-blend-mode: multiply;
   transform: translateY(-2px);
+  transition: transform 0.25s var(--ease-expo);
+}
+@media (hover: hover) and (pointer: fine) {
+  .usf-logo-link:hover .usf-logo { transform: translateY(-2px) scale(1.12); }
 }
 
 .chapter-title {
@@ -688,6 +696,38 @@ nav {
   line-height: 1.1;
   margin-bottom: 1.1rem;
   font-weight: 700;
+}
+
+.tech-word { position: relative; display: inline-block; }
+.tech-word-text { transition: opacity 0.2s ease; }
+.tech-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  width: 1.5em;
+  height: 1.5em;
+  margin: auto;
+  color: var(--accent);
+  filter: url(#sketchy);
+  transform: scale(0.4) rotate(-10deg);
+  transition: transform 0.3s var(--ease-expo), opacity 0.2s ease;
+}
+.tech-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@media (hover: hover) and (pointer: fine) {
+  .tech-word:hover .tech-word-text { opacity: 0; }
+  .tech-word:hover .tech-icon { opacity: 1; transform: scale(1) rotate(-4deg); }
 }
 .chapter-hero h2.split {
   font-family: var(--font-display);
@@ -1187,9 +1227,11 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
       <h1 class="sr-only">Mark Anjoul</h1>
       <div class="chapter-label hero-label-wrapper">
         <span>Computer Science @</span>
-        <img class="usf-logo" src="https://1000logos.net/wp-content/uploads/2020/02/South-Florida-Bulls-Logo.png" alt="USF Logo">
+        <a href="https://www.usf.edu" target="_blank" rel="noopener" class="usf-logo-link" aria-label="University of South Florida website">
+          <img class="usf-logo" src="https://1000logos.net/wp-content/uploads/2020/02/South-Florida-Bulls-Logo.png" alt="USF Logo">
+        </a>
       </div>
-      <h2 class="split">Building at the intersection of AI, Mobile &amp; Robotics</h2>
+      <h2 class="split">Building at the intersection of <span class="tech-word"><span class="tech-word-text">AI</span><span class="tech-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/><line x1="9" y1="2" x2="9" y2="7"/><line x1="15" y1="2" x2="15" y2="7"/><line x1="9" y1="17" x2="9" y2="22"/><line x1="15" y1="17" x2="15" y2="22"/><line x1="2" y1="9" x2="7" y2="9"/><line x1="2" y1="15" x2="7" y2="15"/><line x1="17" y1="9" x2="22" y2="9"/><line x1="17" y1="15" x2="22" y2="15"/></svg></span></span>, <span class="tech-word"><span class="tech-word-text">Mobile</span><span class="tech-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="10" y1="19" x2="14" y2="19"/></svg></span></span> &amp; <span class="tech-word"><span class="tech-word-text">Robotics</span><span class="tech-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="2"/><line x1="12" y1="2" x2="12" y2="8"/><circle cx="12" cy="3" r="1.2"/><circle cx="9" cy="13" r="1.3"/><circle cx="15" cy="13" r="1.3"/><line x1="8" y1="17" x2="16" y2="17"/></svg></span></span></h2>
     </div>
 
   </section>
@@ -1773,7 +1815,7 @@ const cachedLogoLink = document.querySelector('.logo-link');
 /* ---------- smooth scroll (Lenis <-> GSAP ScrollTrigger) ---------- */
 let lenis;
 if (!reduceMotion && !isMobile) {
-  lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+  lenis = new Lenis({ duration: 0.85, smoothWheel: true });
   window.lenis = lenis;
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((time) => lenis.raf(time * 1000));
@@ -1849,10 +1891,10 @@ document.querySelectorAll('.split').forEach((el) => {
       '--char-infm': 0,
       '--char-bnce': 1,
       '--char-ital': 0,
-      duration: isMobile ? 0.5 : 0.9,
-      stagger: isMobile ? 0.012 : 0.025,
+      duration: isMobile ? 0.5 : 0.65,
+      stagger: isMobile ? 0.012 : 0.018,
       ease: 'back.out(2)',
-      scrollTrigger: { trigger: el, start: isMobile ? 'top 98%' : 'top 85%' },
+      scrollTrigger: { trigger: el, start: isMobile ? 'top 98%' : 'top 93%' },
     }
   );
 });
@@ -1886,11 +1928,11 @@ if (reduceMotion) {
     const endState = {
       opacity: 1,
       y: 0,
-      duration: isMobile ? 0.3 : 0.8,
+      duration: isMobile ? 0.3 : 0.55,
       ease: 'power2.out',
       scrollTrigger: {
         trigger: parentChapter,
-        start: isMobile ? 'top 98%' : 'top 80%', // Animates in right as it enters so fast mobile scrolls don't outrun it
+        start: isMobile ? 'top 98%' : 'top 92%', // Animates in right as it enters so fast scrolls don't outrun it
         toggleActions: isMobile ? 'play none none none' : 'play none none reverse' // No reverse on mobile: avoids flicker on fast flicks
       }
     };
@@ -1909,10 +1951,10 @@ gsap.utils.toArray('.project-card').forEach((el, i) => {
   gsap.from(el, {
     opacity: 0,
     y: isMobile ? 10 : 30,
-    duration: isMobile ? 0.3 : 0.7,
-    delay: isMobile ? 0 : (i % 3) * 0.08,
+    duration: isMobile ? 0.3 : 0.5,
+    delay: isMobile ? 0 : (i % 3) * 0.05,
     ease: 'power3.out',
-    scrollTrigger: { trigger: el, start: isMobile ? 'top 99%' : 'top 90%' },
+    scrollTrigger: { trigger: el, start: isMobile ? 'top 99%' : 'top 96%' },
   });
 });
 
@@ -3047,7 +3089,11 @@ function resize() {
   setupScrollTriggers();
 }
 
-window.addEventListener('resize', resize);
+let resizeDebounceId;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeDebounceId);
+  resizeDebounceId = setTimeout(resize, 150);
+});
 
 window.addEventListener('pointermove', (e) => {
   mouseX = e.clientX;
