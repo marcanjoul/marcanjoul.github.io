@@ -2266,15 +2266,17 @@ if (lawnNameEl) {
   });
 }
 
-/* ---------- hero intro text falls away letter by letter on scroll ---------- */
-const heroFallTarget = {
-  x: (i) => (i % 2 === 0 ? -1 : 1) * gsap.utils.random(260, 560), // alternate L/R so the split is balanced from the first letter
-  y: () => window.innerHeight * 1.3 + gsap.utils.random(0, 200),
-  rotation: () => gsap.utils.random(-90, 90),
+/* ---------- hero intro text evaporates letter by letter on scroll ---------- */
+const heroEvaporateTarget = {
+  x: () => gsap.utils.random(-70, 70), // loose sideways drift — vapor wanders, it doesn't march
+  y: () => -window.innerHeight * gsap.utils.random(0.35, 0.6),
+  rotation: () => gsap.utils.random(-20, 20),
+  scale: () => gsap.utils.random(1.25, 1.6), // vapor expands as it thins out
   opacity: 0,
-  color: '#2b4dff',
-  ease: 'power1.in', // gravity-like acceleration, matches the falling motion
-  stagger: 0.02,
+  filter: 'blur(5px)',
+  color: '#cfe2f7', // ink pales into the sky as it disperses
+  ease: 'sine.out', // quick release, then a weightless drift upward
+  stagger: { each: 0.02, from: 'random' }, // molecules don't queue up
   scrollTrigger: {
     trigger: document.documentElement,
     start: 'top top',
@@ -2283,9 +2285,9 @@ const heroFallTarget = {
   }
 };
 // "Computer Science @ USF" is already accent blue at rest
-gsap.fromTo('#hero-label .char, #hero-label .usf-logo-link', { x: 0, y: 0, rotation: 0, opacity: 1, color: '#2b4dff' }, heroFallTarget);
+gsap.fromTo('#hero-label .char, #hero-label .usf-logo-link', { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1, filter: 'blur(0px)', color: '#2b4dff' }, heroEvaporateTarget);
 // The subheading paragraph is dark ink at rest
-gsap.fromTo('#hero-subhead .char', { x: 0, y: 0, rotation: 0, opacity: 1, color: '#1c1812' }, heroFallTarget);
+gsap.fromTo('#hero-subhead .char', { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1, filter: 'blur(0px)', color: '#1c1812' }, heroEvaporateTarget);
 
 /* ---------- chapter scroll animations (entrance + hold + exit suction) ---------- */
 if (reduceMotion) {
@@ -3562,7 +3564,7 @@ function draw(time) {
       logoCtx.strokeText(text, 0, 0);
       logoCtx.restore();
     } else {
-      // Letters peel off and fall to either side of the page, letter by letter, as the user scrolls
+      // Letters evaporate into the daytime sky, letter by letter, as the user scrolls
       const t = state.logoTransition;
       logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
       logoCtx.textAlign = 'left';
@@ -3571,25 +3573,30 @@ function draw(time) {
       const charWidths = chars.map((c) => logoCtx.measureText(c).width);
       const totalTextWidth = charWidths.reduce((a, b) => a + b, 0);
       const charCount = chars.length;
-      const fallStagger = 0.06; // each letter starts falling slightly after the previous one
+      const evapStagger = 0.06; // each letter starts evaporating slightly after another
 
       let cursorX = textX - totalTextWidth / 2;
       chars.forEach((c, i) => {
         const w = charWidths[i];
         const charCenterX = cursorX + w / 2;
-        const localT = Math.min(Math.max((t - i * fallStagger) / (1 - (charCount - 1) * fallStagger), 0), 1);
-        const fallEase = localT * localT; // power1.in: gravity-like acceleration
-        const fallY = fallEase * height * 1.4;
-        const fallX = fallEase * (i % 2 === 0 ? -1 : 1) * (260 + i * 12); // alternate L/R so the split is balanced from the first letter
-        const rotation = fallEase * (i % 2 === 0 ? 1 : -1) * 80;
+        const releaseOrder = (i * 7) % charCount; // scrambled release order — molecules don't queue up
+        const localT = Math.min(Math.max((t - releaseOrder * evapStagger) / (1 - (charCount - 1) * evapStagger), 0), 1);
+        const rise = 1 - (1 - localT) * (1 - localT); // power1.out: quick release, then a weightless drift
+        const riseY = -rise * height * 0.55;
+        const sway = Math.sin(localT * Math.PI * 2 + i * 1.7) * (8 + (i % 3) * 5) * localT; // vapor curls as it climbs
+        const driftX = (((i * 37) % 21) - 10) * rise * 6 + sway;
+        const rotation = (((i * 13) % 9) - 4) * 4 * rise;
+        const growth = 1 + rise * 0.35; // vapor expands as it thins out
         const charAlpha = skyFade * (1 - Math.min(localT * 1.15, 1));
-        const charColor = gsap.utils.interpolate('#1c1812', '#2b4dff', fallEase);
+        const charColor = gsap.utils.interpolate('#1c1812', '#cfe2f7', rise);
 
         if (charAlpha > 0.01) {
           logoCtx.save();
           logoCtx.globalAlpha = charAlpha;
-          logoCtx.translate(charCenterX + fallX, textY + fallY);
+          logoCtx.translate(charCenterX + driftX, textY + riseY);
           logoCtx.rotate(rotation * Math.PI / 180);
+          logoCtx.scale(growth, growth);
+          if (rise > 0.05) logoCtx.filter = `blur(${(rise * 3).toFixed(1)}px)`; // no-op where ctx.filter is unsupported
           logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
           logoCtx.fillStyle = charColor;
           logoCtx.textAlign = 'center';
