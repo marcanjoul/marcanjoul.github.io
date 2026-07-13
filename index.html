@@ -3596,7 +3596,8 @@ function draw(time) {
           logoCtx.translate(charCenterX + driftX, textY + riseY);
           logoCtx.rotate(rotation * Math.PI / 180);
           logoCtx.scale(growth, growth);
-          if (rise > 0.05) logoCtx.filter = `blur(${(rise * 3).toFixed(1)}px)`; // no-op where ctx.filter is unsupported
+          // Blur tracks the letter from the moment it lifts, so it reads while the letter is still visible
+          if (localT > 0.02) logoCtx.filter = `blur(${(localT * 7).toFixed(1)}px)`; // no-op where ctx.filter is unsupported
           logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
           logoCtx.fillStyle = charColor;
           logoCtx.textAlign = 'center';
