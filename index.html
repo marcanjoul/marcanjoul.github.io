@@ -252,53 +252,6 @@ body.modern-cursor a, body.modern-cursor button, body.modern-cursor .project-car
   0% { transform: rotate(-1deg); }
   100% { transform: rotate(1deg); }
 }
-#lawn-text {
-  position: fixed;
-  left: 50%;
-  bottom: 15vh;
-  transform: translateX(-50%);
-  z-index: 2;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.6s ease;
-  color: #6f93ff;
-  text-align: center;
-  white-space: nowrap;
-}
-.lawn-text-name {
-  font-family: 'Cabin Sketch', cursive;
-  font-size: clamp(1.6rem, 3.9vw, 2.8rem);
-  font-weight: 700;
-}
-.lawn-text-label {
-  font-family: 'Cabin Sketch', cursive;
-  font-size: clamp(1rem, 2.1vw, 1.3rem);
-  font-weight: 700;
-  margin-top: 0.4rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-.lawn-usf-logo {
-  height: 1.05em;
-  width: auto;
-  mix-blend-mode: normal;
-  filter: url(#sketchy) drop-shadow(0 0 6px rgba(43, 77, 255, 0.55)) drop-shadow(0 0 12px rgba(43, 77, 255, 0.35));
-}
-#lawn-text .usf-logo-link,
-#lawn-text .tech-word,
-#lawn-text .lawn-text-name {
-  pointer-events: auto;
-}
-.lawn-text-tagline {
-  font-family: var(--font-display);
-  font-size: clamp(0.82rem, 1.65vw, 1.05rem);
-  margin-top: 0.3rem;
-  white-space: normal;
-  max-width: 70vw;
-  margin-left: auto;
-  margin-right: auto;
-}
 #laptop-illustration {
   position: fixed;
   left: 75%;
@@ -1471,11 +1424,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   <div class="ground-pebble" style="left:48%; width:8px; height:5px;"></div>
   <div class="ground-pebble" style="left:73%; width:12px; height:8px;"></div>
 </div>
-<div id="lawn-text">
-  <div class="lawn-text-name">Mark Anjoul</div>
-  <div class="lawn-text-label">Computer Science @ <a href="https://www.usf.edu" target="_blank" rel="noopener" class="usf-logo-link" aria-label="University of South Florida website"><img class="usf-logo lawn-usf-logo" src="assets/usf-logo.png" alt="University of South Florida" width="3840" height="2160"></a></div>
-  <div class="lawn-text-tagline split">Always designing and building</div>
-</div>
 <svg id="laptop-illustration" aria-hidden="true" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
   <g transform="rotate(-4 60 50)">
     <rect x="22" y="14" width="76" height="48" rx="4" fill="#2b2620"/>
@@ -2239,32 +2187,6 @@ document.querySelectorAll('.split').forEach((el) => {
     }
   );
 });
-
-/* ---------- lawn name gets the same hover-scramble as the hero name ---------- */
-const lawnNameEl = document.querySelector('.lawn-text-name');
-if (lawnNameEl) {
-  const lawnOriginalText = lawnNameEl.textContent;
-  let lawnGlitchFrame = 0;
-  let lawnGlitchRaf = null;
-  function lawnScrambleTick() {
-    lawnNameEl.textContent = getScrambledText('<mark_anjoul />', lawnGlitchFrame);
-    if (lawnGlitchFrame > 0) {
-      lawnGlitchFrame--;
-      lawnGlitchRaf = requestAnimationFrame(lawnScrambleTick);
-    }
-  }
-  lawnNameEl.addEventListener('mouseenter', () => {
-    lawnNameEl.classList.add('lawn-name-tech');
-    lawnGlitchFrame = 12;
-    cancelAnimationFrame(lawnGlitchRaf);
-    lawnScrambleTick();
-  });
-  lawnNameEl.addEventListener('mouseleave', () => {
-    cancelAnimationFrame(lawnGlitchRaf);
-    lawnNameEl.classList.remove('lawn-name-tech');
-    lawnNameEl.textContent = lawnOriginalText;
-  });
-}
 
 /* ---------- hero intro text evaporates letter by letter on scroll ---------- */
 const heroEvaporateTarget = {
@@ -3107,7 +3029,6 @@ const grassBackLayerEl = document.getElementById('grass-back-layer');
 const grassFrontLayerEl = document.getElementById('grass-front-layer');
 const bugLayerEl = document.getElementById('bug-layer');
 const laptopEl = document.getElementById('laptop-illustration');
-const lawnTextEl = document.getElementById('lawn-text');
 const lawnGadgetEls = document.querySelectorAll('.lawn-gadget');
 
 const grassBlades = []; // { wrap, delayFrac }
@@ -3437,9 +3358,6 @@ function draw(time) {
   const groundReveal = Math.min(Math.max((rawProgress - 0.9) / 0.1, 0), 1);
   const groundHeightPx = groundReveal * 0.4 * height;
   if (groundLayerEl) groundLayerEl.style.height = `${groundHeightPx}px`;
-
-  // The name, having fallen all the way down, turns up again in the lawn
-  if (lawnTextEl) lawnTextEl.style.opacity = groundReveal;
 
   // Bushes fade in along the horizon, held back until raw scroll position hits 90%
   if (bushLayerEl) {
