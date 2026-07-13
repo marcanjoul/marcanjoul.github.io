@@ -155,7 +155,7 @@ const projectData = {
       'Clean, detail-oriented UI built with UIKit',
       'Storyboard-based navigation flow',
     ],
-    links: [{ label: 'View on GitHub →', href: 'https://github.com/marcanjoul/Groov' }],
+    links: [{ label: 'View on GitHub →', href: 'https://github.com/marcanjoul/Groov-Codepath' }],
   },
   noteweb: {
     type: 'RAG / AI',
