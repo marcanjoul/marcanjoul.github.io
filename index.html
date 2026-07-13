@@ -1919,13 +1919,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
           <a href="https://github.com/marcanjoul/Groov" target="_blank" class="project-link">View on GitHub →</a>
         </article>
 
-        <article class="project-card" data-project="linkt">
-          <div class="project-type">iOS · Product Design</div>
-          <h3>Linkt</h3>
-          <p>A collaborative list and event app designed end-to-end in Figma — a five-screen design system, then built in SwiftUI with a guest-to-account upgrade flow.</p>
-          <ul class="tag-list"><li>Figma</li><li>SwiftUI</li><li>Firebase</li></ul>
-        </article>
-
         <article class="project-card" data-project="appnest">
           <div class="project-type">Mobile App</div>
           <h3>AppNest</h3>
@@ -1975,21 +1968,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
           </div>
           <div class="compressed-links">
             <a href="https://github.com/marcanjoul/Groov" target="_blank" class="project-link">GitHub</a>
-          </div>
-        </article>
-
-        <article class="compressed-project-row" data-project="linkt">
-          <div class="compressed-title-group">
-            <span class="compressed-type">iOS · Product Design</span>
-            <h4>Linkt</h4>
-          </div>
-          <p class="compressed-desc">Collaborative lists &amp; events — designed end-to-end in Figma, built in SwiftUI.</p>
-          <div class="compressed-tags">
-            <span>Figma</span>
-            <span>SwiftUI</span>
-            <span>Firebase</span>
-          </div>
-          <div class="compressed-links">
           </div>
         </article>
 
@@ -2061,7 +2039,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 
       <!-- Action button to toggle view -->
       <div class="projects-actions">
-        <button class="view-all-btn" id="view-all-projects-btn">View All Projects (6)</button>
+        <button class="view-all-btn" id="view-all-projects-btn">View All Projects (5)</button>
       </div>
     </div>
   </section>
@@ -2412,18 +2390,6 @@ const projectData = {
     ],
     links: [{ label: 'View on GitHub →', href: 'https://github.com/marcanjoul/Groov' }],
   },
-  linkt: {
-    type: 'iOS · Product Design',
-    title: 'Linkt',
-    desc: 'A collaborative list and event app designed end-to-end in Figma — a five-screen design system, then built in SwiftUI with a guest-to-account upgrade flow.',
-    features: [
-      'Five-screen design system designed end-to-end in Figma',
-      'Built in SwiftUI',
-      'Guest-to-account upgrade flow',
-      'Firebase-backed collaborative lists and events',
-    ],
-    links: [],
-  },
   noteweb: {
     type: 'RAG / AI',
     title: 'NoteWeb',
@@ -2607,7 +2573,7 @@ if (viewAllBtn && projectGrid && compressedList) {
     } else {
       projectGrid.classList.remove('hidden');
       compressedList.classList.add('hidden');
-      viewAllBtn.textContent = 'View All Projects (6)';
+      viewAllBtn.textContent = 'View All Projects (5)';
     }
     // Refresh scrolltrigger metrics since document height changed
     setTimeout(() => {
