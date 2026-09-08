@@ -82,7 +82,6 @@
   --project-radius: 20px 6px 20px 6px;
   --detail-radius:  14px 4px 14px 4px;
   --contact-radius: 16px 4px 16px 4px;
-  --timeline-style: dashed;
 
   --border-color: transparent;
   --doodle-border-color: var(--ink);
@@ -120,7 +119,7 @@ body {
   border: 0;
 }
 
-.logo-placeholder, .chapter-title, .project-modal-title, .cl-label, .proj h3, .timeline-item h3, .mobile-nav a {
+.logo-placeholder, .chapter-title, .project-modal-title, .cl-label, .proj h3, .mobile-nav a {
   font-variation-settings: 'wght' var(--wght), 'BNCE' var(--bnce);
 }
 
@@ -241,7 +240,8 @@ body.modern-cursor a, body.modern-cursor button, body.modern-cursor .proj, body.
   position: absolute;
   bottom: 0;
   border-radius: 50%;
-  filter: url(#sketchy);
+  /* ponytail: no sketchy filter — these sway forever, and an SVG filter on an animated
+     element re-rasterises every frame on the main thread */
   transform-origin: bottom center;
   animation-name: bush-sway;
   animation-timing-function: ease-in-out;
@@ -271,76 +271,6 @@ body.modern-cursor a, body.modern-cursor button, body.modern-cursor .proj, body.
 @keyframes laptop-glow {
   0%, 100% { opacity: 0.65; filter: drop-shadow(0 0 2px #2b4dff); }
   50% { opacity: 1; filter: drop-shadow(0 0 10px #2b4dff); }
-}
-/* Scattered tech gadgets sitting in the lawn around the laptop */
-.lawn-gadget {
-  position: fixed;
-  height: auto;
-  z-index: 2;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.6s ease;
-}
-#gadget-phone {
-  left: 12%;
-  bottom: 20vh;
-  width: clamp(34px, 4.5vw, 52px);
-  transform: translateX(-50%) rotate(-12deg);
-}
-.phone-screen {
-  fill: #2b4dff;
-  animation: laptop-glow 2.6s ease-in-out infinite;
-}
-#gadget-headphones {
-  left: 88%;
-  bottom: 14vh;
-  width: clamp(60px, 7vw, 92px);
-  transform: translateX(-50%) rotate(9deg);
-}
-#gadget-mouse {
-  left: 78%;
-  bottom: 17vh;
-  width: clamp(36px, 4.5vw, 54px);
-  transform: translateX(-50%) rotate(-6deg);
-}
-#gadget-earbuds-case {
-  left: 18%;
-  bottom: 12vh;
-  width: clamp(24px, 3vw, 36px);
-  transform: translateX(-50%) rotate(10deg);
-}
-#gadget-robot {
-  left: 30%;
-  bottom: 10vh;
-  width: clamp(38px, 5vw, 58px);
-  transform-origin: bottom center;
-  animation: robot-bob 2.4s ease-in-out infinite;
-}
-@keyframes robot-bob {
-  0%, 100% { transform: translateX(-50%) translateY(0) rotate(-3deg); }
-  50% { transform: translateX(-50%) translateY(-6px) rotate(3deg); }
-}
-.robot-eye {
-  fill: #5ad1ff;
-  animation: laptop-glow 2.2s ease-in-out infinite;
-}
-#gadget-chip {
-  left: 65%;
-  bottom: 11vh;
-  width: clamp(28px, 3.5vw, 42px);
-  transform: translateX(-50%) rotate(8deg);
-}
-#gadget-tablet-pen {
-  left: 8%;
-  bottom: 9vh;
-  width: clamp(48px, 6vw, 76px);
-  transform: translateX(-50%) rotate(-7deg);
-}
-#gadget-coffee {
-  left: 95%;
-  bottom: 10vh;
-  width: clamp(26px, 3.2vw, 38px);
-  transform: translateX(-50%) rotate(4deg);
 }
 #grass-back-layer, #grass-front-layer {
   position: fixed;
@@ -437,8 +367,8 @@ body.modern-cursor a, body.modern-cursor button, body.modern-cursor .proj, body.
     color-mix(in srgb, var(--paper) 20%, transparent) 70%,
     transparent 100%
   );
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  /* ponytail: no backdrop-filter here — a masked blur on a fixed strip re-rasterises
+     every scroll frame in Safari, and the cream gradient above already does the work */
   pointer-events: none;
   opacity: 0;
   will-change: opacity;
@@ -602,13 +532,11 @@ nav {
 
 .chapter:nth-of-type(even) .chapter-label,
 .chapter:nth-of-type(even) .chapter-num::before,
-.chapter:nth-of-type(even) .timeline-item::before,
 .chapter:nth-of-type(even) .pill-list li::before,
 .chapter:nth-of-type(even) .project-modal-features li::before {
   color: var(--yellow);
 }
-.chapter:nth-of-type(even) .proj-meta b,
-.chapter:nth-of-type(even) .timeline-item .org {
+.chapter:nth-of-type(even) .proj-meta b {
   color: color-mix(in srgb, var(--yellow) 70%, var(--ink) 30%);
 }
 
@@ -1150,20 +1078,6 @@ nav {
 .demo-browser-screen { width: 100%; display: block; }
 
 /* ========== EXPERIENCE ========== */
-.timeline { margin-top: 1.8rem; display: flex; flex-direction: column; gap: 1.8rem; position: relative; padding-left: 1.6rem; }
-.timeline::before { content: ''; position: absolute; left: 0; top: 0.4rem; bottom: 0.4rem; width: 2px; border-left: 1.5px var(--timeline-style, dashed) var(--rule); }
-.timeline-item { position: relative; }
-.timeline-item::before { content: '✦'; position: absolute; left: -1.65rem; top: -0.1rem; color: var(--accent); font-size: 0.9rem; }
-.timeline-item .date { font-size: 0.8rem; color: var(--ink-3); display: block; margin-bottom: 0.35rem; }
-.timeline-item h3 {
-  font-family: 'Cabin Sketch', var(--font-display);
-  font-weight: 700;
-  font-size: 1.45rem;
-  color: var(--ink);
-  line-height: 1.3;
-}
-.timeline-item .org { font-size: 0.85rem; color: var(--accent); margin-bottom: 0.35rem; }
-.timeline-item p { font-size: 0.92rem; margin: 0; }
 
 /* ========== CONTACT ========== */
 .contact-links {
@@ -1316,61 +1230,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
     <rect x="6" y="62" width="108" height="8" rx="3" fill="#3a342b"/>
   </g>
 </svg>
-<!-- Scattered tech gadgets in the grass around the laptop -->
-<svg id="gadget-phone" class="lawn-gadget" aria-hidden="true" viewBox="0 0 40 80" xmlns="http://www.w3.org/2000/svg">
-  <rect x="2" y="2" width="36" height="76" rx="7" fill="#2b2620"/>
-  <rect x="6" y="9" width="28" height="58" rx="2" class="phone-screen"/>
-</svg>
-<svg id="gadget-headphones" class="lawn-gadget" aria-hidden="true" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10 50 Q10 6 50 6 Q90 6 90 50" fill="none" stroke="#2b2620" stroke-width="8" stroke-linecap="round"/>
-  <rect x="2" y="42" width="18" height="26" rx="8" fill="#3a342b"/>
-  <rect x="80" y="42" width="18" height="26" rx="8" fill="#3a342b"/>
-</svg>
-<svg id="gadget-mouse" class="lawn-gadget" aria-hidden="true" viewBox="0 0 40 60" xmlns="http://www.w3.org/2000/svg">
-  <rect x="2" y="2" width="36" height="56" rx="18" fill="#2b2620"/>
-  <line x1="20" y1="2" x2="20" y2="24" stroke="#1c1812" stroke-width="1.4"/>
-</svg>
-<svg id="gadget-earbuds-case" class="lawn-gadget" aria-hidden="true" viewBox="0 0 30 22" xmlns="http://www.w3.org/2000/svg">
-  <rect x="1" y="6" width="28" height="15" rx="6" fill="#e7e2d8" stroke="#1c1812" stroke-width="1"/>
-  <line x1="1" y1="6" x2="29" y2="6" stroke="#1c1812" stroke-width="1"/>
-</svg>
-<!-- robotics -->
-<svg id="gadget-robot" class="lawn-gadget" aria-hidden="true" viewBox="0 0 50 60" xmlns="http://www.w3.org/2000/svg">
-  <line x1="25" y1="14" x2="25" y2="6" stroke="#1c1812" stroke-width="2"/>
-  <circle cx="25" cy="5" r="2.5" fill="#e8631c"/>
-  <rect x="10" y="14" width="30" height="28" rx="4" fill="#cfd6dd" stroke="#1c1812" stroke-width="1"/>
-  <rect x="16" y="20" width="18" height="10" rx="2" fill="#1c2733"/>
-  <circle class="robot-eye" cx="21" cy="25" r="2"/>
-  <circle class="robot-eye" cx="29" cy="25" r="2"/>
-  <rect x="6" y="42" width="10" height="14" rx="2" fill="#9aa4ad" stroke="#1c1812" stroke-width="1"/>
-  <rect x="34" y="42" width="10" height="14" rx="2" fill="#9aa4ad" stroke="#1c1812" stroke-width="1"/>
-</svg>
-<!-- ai chip -->
-<svg id="gadget-chip" class="lawn-gadget" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-  <rect x="7" y="7" width="10" height="10" rx="1.5" fill="#2b2620"/>
-  <rect x="9" y="9" width="6" height="6" rx="1" class="phone-screen"/>
-  <line x1="9" y1="2" x2="9" y2="7" stroke="#1c1812" stroke-width="1.4"/>
-  <line x1="15" y1="2" x2="15" y2="7" stroke="#1c1812" stroke-width="1.4"/>
-  <line x1="9" y1="17" x2="9" y2="22" stroke="#1c1812" stroke-width="1.4"/>
-  <line x1="15" y1="17" x2="15" y2="22" stroke="#1c1812" stroke-width="1.4"/>
-  <line x1="2" y1="9" x2="7" y2="9" stroke="#1c1812" stroke-width="1.4"/>
-  <line x1="2" y1="15" x2="7" y2="15" stroke="#1c1812" stroke-width="1.4"/>
-  <line x1="17" y1="9" x2="22" y2="9" stroke="#1c1812" stroke-width="1.4"/>
-  <line x1="17" y1="15" x2="22" y2="15" stroke="#1c1812" stroke-width="1.4"/>
-</svg>
-<!-- design tablet + pen -->
-<svg id="gadget-tablet-pen" class="lawn-gadget" aria-hidden="true" viewBox="0 0 50 40" xmlns="http://www.w3.org/2000/svg">
-  <rect x="2" y="4" width="46" height="30" rx="4" fill="#2b2620"/>
-  <rect x="6" y="8" width="38" height="22" rx="2" fill="#f3e9d2"/>
-  <line x1="14" y1="26" x2="34" y2="10" stroke="#e8631c" stroke-width="2.4" stroke-linecap="round"/>
-  <circle cx="35" cy="9" r="2" fill="#1c1812"/>
-</svg>
-<!-- coffee -->
-<svg id="gadget-coffee" class="lawn-gadget" aria-hidden="true" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
-  <path d="M8 8c0-2 2-2 2-4M14 8c0-2 2-2 2-4" stroke="#cbb9a3" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-  <path d="M4 10h16v10a8 8 0 01-16 0z" fill="#fdfdfb" stroke="#1c1812" stroke-width="1"/>
-  <path d="M20 13h3a3 3 0 010 6h-3" fill="none" stroke="#1c1812" stroke-width="1.5"/>
-</svg>
 <div id="grass-back-layer" aria-hidden="true"></div>
 <div id="bug-layer" aria-hidden="true">
   <svg class="bug bug-butterfly" viewBox="0 0 24 24" width="18" height="18">
@@ -1400,7 +1259,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
         <li><a href="#about">About</a></li>
         <li><a href="#skills">Skills</a></li>
         <li><a href="#projects">Projects</a></li>
-        <li><a href="#experience">Experience</a></li>
         <li><a href="#contact" class="nav-cta">Let's Talk</a></li>
       </ul>
       <button class="mobile-menu-btn" aria-label="Open menu">
@@ -1417,7 +1275,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
     <li><a href="#about">About</a></li>
     <li><a href="#skills">Skills</a></li>
     <li><a href="#projects">Projects</a></li>
-    <li><a href="#experience">Experience</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
 </nav>
@@ -1776,40 +1633,8 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
       </div>
   </section>
 
-  <!-- CHAPTER 04 — EXPERIENCE -->
-  <section class="chapter" id="experience" data-chapter="04">
-    <div class="chapter-inner">
-      <h2 class="chapter-title split">My journey so far</h2>
-
-      <div class="timeline">
-        <article class="timeline-item">
-          <time class="date">Summer 2018</time>
-          <h3>Introduced to Programming</h3>
-          <p>Started learning programming in Python</p>
-        </article>
-        <article class="timeline-item">
-          <time class="date">Jan 2026 – Present</time>
-          <h3>Undergraduate Researcher</h3>
-          <div class="org">RARE Lab · University of South Florida</div>
-          <p>Building LLM inference pipelines for real-time robot intent explanation, including the Blossom social robot platform.</p>
-        </article>
-        <article class="timeline-item">
-          <time class="date">June 2025 – Aug 2025</time>
-          <h3>iOS 101</h3>
-           <div class="org">CodePath</div>
-          <p>Enrolled in an iOS development course that taught me UIKit, Storyboard, APIs, and how to build an iOS app.</p>
-        </article>
-        <article class="timeline-item">
-          <time class="date">Jan 2025</time>
-          <h3>Transfer to USF</h3>
-          <p>Transferred into the CS program. Inducted into Tau Sigma Honor Society.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- CHAPTER 05 — CONTACT -->
-  <section class="chapter" id="contact" data-chapter="05">
+  <!-- CHAPTER 04 — CONTACT -->
+  <section class="chapter" id="contact" data-chapter="04">
     <div class="chapter-inner">
       <h2 class="chapter-title split">Let's connect!</h2>
       <p>I'm currently looking for internships and roles in <strong>frontend development and UI/UX design</strong> — and I'm always down to talk iOS, AI, or robots.</p>
@@ -1884,6 +1709,7 @@ const cachedHeroContent = document.getElementById('hero-content');
 const cachedTopBlur = document.getElementById('top-blur-header');
 const cachedNavInner = document.querySelector('.nav-inner');
 const cachedLogoLink = document.querySelector('.logo-link');
+let lastHeroFade = -1, lastBlurOpacity = -1, lastNavFade = -1, lastLogoDocked = null;
 
 /* ---------- smooth scroll (Lenis <-> GSAP ScrollTrigger) ---------- */
 let lenis;
@@ -2795,7 +2621,6 @@ const grassBackLayerEl = document.getElementById('grass-back-layer');
 const grassFrontLayerEl = document.getElementById('grass-front-layer');
 const bugLayerEl = document.getElementById('bug-layer');
 const laptopEl = document.getElementById('laptop-illustration');
-const lawnGadgetEls = document.querySelectorAll('.lawn-gadget');
 
 const grassBlades = []; // { wrap, delayFrac }
 function buildGrass() {
@@ -3155,7 +2980,6 @@ function draw(time) {
   // The laptop and scattered gadgets fade in after the grass has already risen, right at the very end
   const lawnOpacity = rawProgress > 0.96 ? Math.min((rawProgress - 0.96) / 0.04, 1) : 0;
   if (laptopEl) laptopEl.style.opacity = lawnOpacity;
-  lawnGadgetEls.forEach((el) => { el.style.opacity = lawnOpacity; });
 
   // 6. Compute name typography layout values
   const clientWidth = document.documentElement.clientWidth;
@@ -3316,7 +3140,11 @@ function draw(time) {
   // 7. Fade out hero elements on scroll
   if (cachedHeroContent) {
     const heroFade = Math.max(0, 1 - (scrollTop / (window.innerHeight * 0.5)));
-    cachedHeroContent.style.opacity = heroFade;
+    // ponytail: only touch the DOM when the value actually moved — this ran every frame
+    if (Math.abs(heroFade - lastHeroFade) > 0.002) {
+      cachedHeroContent.style.opacity = heroFade;
+      lastHeroFade = heroFade;
+    }
   }
 
 
@@ -3324,25 +3152,32 @@ function draw(time) {
   // Fade in the top blur header overlay on scroll to avoid text overlap
   if (cachedTopBlur) {
     const blurOpacity = Math.min(scrollTop / 60, 1);
-    cachedTopBlur.style.opacity = blurOpacity;
+    if (Math.abs(blurOpacity - lastBlurOpacity) > 0.002) {
+      cachedTopBlur.style.opacity = blurOpacity;
+      lastBlurOpacity = blurOpacity;
+    }
   }
 
   // Fade in and slide the navigation capsule quickly on scroll
   if (cachedNavInner) {
     const navFade = Math.min(scrollTop / (window.innerHeight * 0.4), 1);
+    if (Math.abs(navFade - lastNavFade) > 0.002) {
+    lastNavFade = navFade;
     gsap.set(cachedNavInner, {
       opacity: navFade,
       y: (1 - navFade) * -15,
       pointerEvents: navFade > 0.8 ? 'auto' : 'none'
     });
+    }
   }
 
   // Only enable logo link keyboard focus once the name-sun has docked
   if (cachedLogoLink) {
-    if (state.logoTransition > 0.85) {
-      cachedLogoLink.removeAttribute('tabindex');
-    } else {
-      cachedLogoLink.setAttribute('tabindex', '-1');
+    const docked = state.logoTransition > 0.85;
+    if (docked !== lastLogoDocked) {
+      if (docked) cachedLogoLink.removeAttribute('tabindex');
+      else cachedLogoLink.setAttribute('tabindex', '-1');
+      lastLogoDocked = docked;
     }
   }
 
