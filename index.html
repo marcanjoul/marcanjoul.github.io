@@ -252,26 +252,6 @@ body.modern-cursor a, body.modern-cursor button, body.modern-cursor .proj, body.
   0% { transform: rotate(-1deg); }
   100% { transform: rotate(1deg); }
 }
-#laptop-illustration {
-  position: fixed;
-  left: 75%;
-  bottom: 6vh;
-  width: clamp(120px, 18vw, 220px);
-  height: auto;
-  transform: translateX(-50%);
-  z-index: 2;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.6s ease;
-}
-.laptop-screen {
-  fill: #2b4dff;
-  animation: laptop-glow 3.2s ease-in-out infinite;
-}
-@keyframes laptop-glow {
-  0%, 100% { opacity: 0.65; filter: drop-shadow(0 0 2px #2b4dff); }
-  50% { opacity: 1; filter: drop-shadow(0 0 10px #2b4dff); }
-}
 #grass-back-layer, #grass-front-layer {
   position: fixed;
   left: 0; right: 0; bottom: 0;
@@ -539,6 +519,9 @@ nav {
 .chapter:nth-of-type(even) .proj-meta b {
   color: color-mix(in srgb, var(--yellow) 70%, var(--ink) 30%);
 }
+
+/* the lawn layers are fixed to the bottom 45vh — keep the last card above them */
+#contact { padding-bottom: 48vh; }
 
 .chapter-wide {
   align-items: flex-start;
@@ -1223,13 +1206,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   <div class="ground-pebble" style="left:48%; width:8px; height:5px;"></div>
   <div class="ground-pebble" style="left:73%; width:12px; height:8px;"></div>
 </div>
-<svg id="laptop-illustration" aria-hidden="true" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
-  <g transform="rotate(-4 60 50)">
-    <rect x="22" y="14" width="76" height="48" rx="4" fill="#2b2620"/>
-    <rect x="27" y="19" width="66" height="38" rx="2" class="laptop-screen"/>
-    <rect x="6" y="62" width="108" height="8" rx="3" fill="#3a342b"/>
-  </g>
-</svg>
 <div id="grass-back-layer" aria-hidden="true"></div>
 <div id="bug-layer" aria-hidden="true">
   <svg class="bug bug-butterfly" viewBox="0 0 24 24" width="18" height="18">
@@ -1798,28 +1774,16 @@ document.querySelectorAll('.split').forEach((el) => {
   );
 });
 
-/* ---------- hero intro text evaporates letter by letter on scroll ---------- */
-const heroEvaporateTarget = {
-  x: () => gsap.utils.random(-70, 70), // loose sideways drift — vapor wanders, it doesn't march
-  y: () => -window.innerHeight * gsap.utils.random(0.35, 0.6),
-  rotation: () => gsap.utils.random(-20, 20),
-  scale: () => gsap.utils.random(1.25, 1.6), // vapor expands as it thins out
-  opacity: 0,
-  filter: 'blur(5px)',
-  color: '#cfe2f7', // ink pales into the sky as it disperses
-  ease: 'sine.out', // quick release, then a weightless drift upward
-  stagger: { each: 0.02, from: 'random' }, // molecules don't queue up
-  scrollTrigger: {
-    trigger: document.documentElement,
-    start: 'top top',
-    end: 450,
-    scrub: 0.5
-  }
-};
-// "Computer Science @ USF" is already accent blue at rest
-gsap.fromTo('#hero-label .char, #hero-label .usf-logo-link', { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1, filter: 'blur(0px)', color: '#2b4dff' }, heroEvaporateTarget);
-// The subheading paragraph is dark ink at rest
-gsap.fromTo('#hero-subhead .char', { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1, filter: 'blur(0px)', color: '#1c1812' }, heroEvaporateTarget);
+/* ---------- hero intro text fades out on scroll ---------- */
+// ponytail: one tween over two elements. The old version animated blur + colour on ~97
+// per-character spans every scroll frame, which Safari cannot GPU-accelerate.
+gsap.fromTo('#hero-label, #hero-subhead',
+  { opacity: 1 },
+  {
+    opacity: 0,
+    ease: 'none',
+    scrollTrigger: { trigger: document.documentElement, start: 'top top', end: 450, scrub: 0.5 },
+  });
 
 /* ---------- chapter scroll animations (entrance + hold + exit suction) ---------- */
 if (reduceMotion) {
@@ -2620,7 +2584,6 @@ const bushLayerEl = document.getElementById('bush-layer');
 const grassBackLayerEl = document.getElementById('grass-back-layer');
 const grassFrontLayerEl = document.getElementById('grass-front-layer');
 const bugLayerEl = document.getElementById('bug-layer');
-const laptopEl = document.getElementById('laptop-illustration');
 
 const grassBlades = []; // { wrap, delayFrac }
 function buildGrass() {
@@ -2979,7 +2942,6 @@ function draw(time) {
 
   // The laptop and scattered gadgets fade in after the grass has already risen, right at the very end
   const lawnOpacity = rawProgress > 0.96 ? Math.min((rawProgress - 0.96) / 0.04, 1) : 0;
-  if (laptopEl) laptopEl.style.opacity = lawnOpacity;
 
   // 6. Compute name typography layout values
   const clientWidth = document.documentElement.clientWidth;
@@ -3072,55 +3034,27 @@ function draw(time) {
       logoCtx.strokeText(text, 0, 0);
       logoCtx.restore();
     } else {
-      // Letters evaporate into the daytime sky, letter by letter, as the user scrolls
-      const t = state.logoTransition;
-      logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
-      logoCtx.textAlign = 'left';
-
-      const chars = text.split('');
-      const charWidths = chars.map((c) => logoCtx.measureText(c).width);
-      const totalTextWidth = charWidths.reduce((a, b) => a + b, 0);
-      const charCount = chars.length;
-      const evapStagger = 0.06; // each letter starts evaporating slightly after another
-
-      let cursorX = textX - totalTextWidth / 2;
-      chars.forEach((c, i) => {
-        const w = charWidths[i];
-        const charCenterX = cursorX + w / 2;
-        const releaseOrder = (i * 7) % charCount; // scrambled release order — molecules don't queue up
-        const localT = Math.min(Math.max((t - releaseOrder * evapStagger) / (1 - (charCount - 1) * evapStagger), 0), 1);
-        const rise = 1 - (1 - localT) * (1 - localT); // power1.out: quick release, then a weightless drift
-        const riseY = -rise * height * 0.55;
-        const sway = Math.sin(localT * Math.PI * 2 + i * 1.7) * (8 + (i % 3) * 5) * localT; // vapor curls as it climbs
-        const driftX = (((i * 37) % 21) - 10) * rise * 6 + sway;
-        const rotation = (((i * 13) % 9) - 4) * 4 * rise;
-        const growth = 1 + rise * 0.35; // vapor expands as it thins out
-        const charAlpha = skyFade * (1 - Math.min(localT * 1.15, 1));
-        const charColor = gsap.utils.interpolate('#1c1812', '#cfe2f7', rise);
-
-        if (charAlpha > 0.01) {
-          logoCtx.save();
-          logoCtx.globalAlpha = charAlpha;
-          logoCtx.translate(charCenterX + driftX, textY + riseY);
-          logoCtx.rotate(rotation * Math.PI / 180);
-          logoCtx.scale(growth, growth);
-          // Blur tracks the letter from the moment it lifts, so it reads while the letter is still visible
-          if (localT > 0.02) logoCtx.filter = `blur(${(localT * 7).toFixed(1)}px)`; // no-op where ctx.filter is unsupported
-          logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
-          logoCtx.fillStyle = charColor;
-          logoCtx.textAlign = 'center';
-          logoCtx.textBaseline = 'middle';
-          logoCtx.fillText(c, 0, 0);
-          if (fontSize > 36) {
-            // Restores the bolder, more inked look the resting Cabin Sketch name originally had
-            logoCtx.strokeStyle = charColor;
-            logoCtx.lineWidth = Math.max(0.4, fontSize * 0.015);
-            logoCtx.strokeText(c, 0, 0);
-          }
-          logoCtx.restore();
+      // ponytail: the name simply fades as you scroll. The old per-letter version set
+      // logoCtx.filter = blur() for every character on every frame — very expensive.
+      const alpha = skyFade * (1 - state.logoTransition);
+      if (alpha > 0.01) {
+        logoCtx.save();
+        logoCtx.globalAlpha = alpha;
+        logoCtx.translate(textX, textY);
+        logoCtx.scale(logoHoverScale, logoHoverScale);
+        if (Math.abs(logoTilt) > 0.01) logoCtx.rotate(logoTilt * Math.PI / 180);
+        logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
+        logoCtx.textAlign = 'center';
+        logoCtx.textBaseline = 'middle';
+        logoCtx.fillStyle = '#1c1812';
+        logoCtx.fillText(text, 0, 0);
+        if (fontSize > 36) {
+          logoCtx.strokeStyle = '#1c1812';
+          logoCtx.lineWidth = Math.max(0.4, fontSize * 0.015);
+          logoCtx.strokeText(text, 0, 0);
         }
-        cursorX += w;
-      });
+        logoCtx.restore();
+      }
     }
 
     lastLogoX = textX;
