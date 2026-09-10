@@ -772,11 +772,8 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--paper-2);
-  border: 2px solid var(--ink);
+  background: transparent;
   border-radius: var(--wonky);
-  box-shadow: 2px 2px 0 var(--ink);
-  filter: url(#sketchy);
   margin-bottom: 0.5rem;
   color: var(--skill-color, var(--ink)); /* Apply dynamic brand colors to icons */
   transition: background-color 0.2s ease;
@@ -947,7 +944,7 @@ nav {
 }
 @media (hover: hover) and (pointer: fine) {
   .contact-link:hover { border-color: var(--accent) !important; background: var(--paper-2); transform: translate(-2px, -2px); }
-  .contact-link:hover .cl-icon-wrapper { box-shadow: 4px 4px 0 var(--ink); transform: translate(-2px, -2px); }
+  .contact-link:hover .cl-icon-wrapper { background: var(--yellow); }
 }
 .cl-icon-wrapper {
   width: 2.8rem;
@@ -955,14 +952,11 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--paper-2);
-  border: 2px solid var(--ink);
+  background: transparent;
   border-radius: var(--wonky);
-  box-shadow: 2px 2px 0 var(--ink);
-  filter: url(#sketchy);
   margin-bottom: 0.6rem;
   color: var(--cl-color, var(--accent));
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 .cl-icon { width: 1.4rem; height: 1.4rem; fill: currentColor; }
 .contact-link.cl-mail { --cl-color: var(--accent); }
