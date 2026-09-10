@@ -168,7 +168,7 @@ a { color: inherit; text-decoration: none; }
 
 
 /* ========== BACKGROUND CANVAS & NOISE OVERLAY ========== */
-#celestial-canvas, #logo-canvas {
+#celestial-canvas, #decor-canvas, #logo-canvas {
   position: fixed;
   inset: 0;
   width: 100vw;
@@ -177,6 +177,13 @@ a { color: inherit; text-decoration: none; }
 }
 #celestial-canvas {
   z-index: -2;
+}
+/* Sun, clouds and birds live here so a CSS filter can blur them. Canvas ctx.filter is
+   silently ignored by WebKit, so the blur has to be applied to the element instead. */
+#decor-canvas {
+  z-index: -1;
+  pointer-events: none;
+  will-change: filter;
 }
 #logo-canvas {
   z-index: 105;
@@ -950,6 +957,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 
 <!-- The interactive astronomical canvas background -->
 <canvas id="celestial-canvas"></canvas>
+<canvas id="decor-canvas" aria-hidden="true"></canvas>
 
 <!-- Scroll-driven sky-to-ground ground scene (sits in front of the sky canvas) -->
 <div id="bush-layer" aria-hidden="true">
@@ -2075,7 +2083,10 @@ document.addEventListener('keydown', (e) => {
 /* ---------- scroll progress bar & celestial canvas drawing logic ---------- */
 
 const canvas = document.getElementById('celestial-canvas');
-const ctx = canvas.getContext('2d');
+let ctx = canvas.getContext('2d');
+const decorCanvas = document.getElementById('decor-canvas');
+const decorCtx = decorCanvas.getContext('2d');
+let lastDecorBlur = -1;
 const logoCanvas = document.getElementById('logo-canvas');
 const logoCtx = logoCanvas.getContext('2d');
 
@@ -2515,6 +2526,11 @@ function resize() {
   width = window.innerWidth;
   height = window.innerHeight;
 
+  decorCanvas.width = width * dpr;
+  decorCanvas.height = height * dpr;
+  decorCtx.setTransform(1, 0, 0, 1, 0, 0);
+  decorCtx.scale(dpr, dpr);
+
   canvas.width = width * dpr;
   canvas.height = height * dpr;
   ctx.scale(dpr, dpr);
@@ -2615,16 +2631,29 @@ function draw(time) {
 
   // 1b, 2 & 3. Draw the ambient sun, clouds and birds, fading out as we descend below them
   const skyFade = 1 - Math.min(Math.max((sceneProgress - 0.3) / 0.2, 0), 1);
-  if (skyFade > 0.01) {
-    drawSun(ctx, sun.x, sun.y, 0.9 * skyFade, time);
-
+  // Clouds and birds stay for the whole page but soften as you descend, so they read as
+  // depth behind the content instead of competing with it. One number to tune:
+  const DECOR_MAX_BLUR_PX = 30;
+  const decorBlur = DECOR_MAX_BLUR_PX * Math.min(Math.max(rawProgress, 0), 1);
+  {
+    // Blur the element, not the context: WebKit ignores canvas ctx.filter entirely.
+    if (Math.abs(decorBlur - lastDecorBlur) > 0.05) {
+      decorCanvas.style.filter = decorBlur > 0.1 ? `blur(${decorBlur.toFixed(2)}px)` : 'none';
+      lastDecorBlur = decorBlur;
+    }
+    decorCtx.clearRect(0, 0, width, height);
+    // The decor helpers all draw to the module-level ctx, so point it at the decor canvas
+    // for this block rather than threading a target through four call layers.
+    const mainCtx = ctx;
+    ctx = decorCtx;
+    drawSun(decorCtx, sun.x, sun.y, 0.9, time);
     clouds.forEach((cloud, index) => {
       cloud.x += cloud.speed;
       if (cloud.x > width + 120) {
         cloud.x = -120 - Math.random() * 180;
         cloud.y = height * (0.08 + Math.random() * 0.18);
       }
-      drawSketchedCloudCached(index, cloud.x, cloud.y, 0.75 * skyFade);
+      drawSketchedCloudCached(index, cloud.x, cloud.y, 0.75);
     });
 
     birds.forEach(bird => {
@@ -2635,8 +2664,9 @@ function draw(time) {
       }
 
       const flap = Math.sin(time * bird.flapSpeed + bird.phase);
-      drawSketchedBird(bird.x, bird.y, bird.size, flap, birdColor, 0.75 * skyFade);
+      drawSketchedBird(bird.x, bird.y, bird.size, flap, birdColor, 0.75);
     });
+    ctx = mainCtx; // hand the sky canvas back before anything else draws
   }
 
   // Ground band stays hidden until raw scroll hits 90%, then rises to ~40vh by the very bottom
