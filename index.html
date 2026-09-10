@@ -1228,7 +1228,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 <nav>
   <div class="nav-container">
     <div class="logo-placeholder">
-      <a href="#" class="logo-link"><span class="sr-only">Mark Anjoul - Home</span></a>
+      <a href="#" class="logo-link" tabindex="-1" aria-hidden="true"></a>
     </div>
     <div class="nav-inner">
       <ul class="nav-links">
@@ -1685,7 +1685,7 @@ const cachedHeroContent = document.getElementById('hero-content');
 const cachedTopBlur = document.getElementById('top-blur-header');
 const cachedNavInner = document.querySelector('.nav-inner');
 const cachedLogoLink = document.querySelector('.logo-link');
-let lastHeroFade = -1, lastBlurOpacity = -1, lastNavFade = -1, lastLogoDocked = null;
+let lastHeroFade = -1, lastBlurOpacity = -1, lastNavFade = -1;
 
 /* ---------- smooth scroll (Lenis <-> GSAP ScrollTrigger) ---------- */
 let lenis;
@@ -1777,7 +1777,10 @@ document.querySelectorAll('.split').forEach((el) => {
 /* ---------- hero intro text fades out on scroll ---------- */
 // ponytail: one tween over two elements. The old version animated blur + colour on ~97
 // per-character spans every scroll frame, which Safari cannot GPU-accelerate.
-gsap.fromTo('#hero-label, #hero-subhead',
+// The canvas name reads this tween's own progress, so it fades on exactly the same curve
+// and scrub lag as the text under it. (logoTransition uses a different scrub and is left
+// alone — it still drives where the name travels, not how it fades.)
+const heroFadeTween = gsap.fromTo('#hero-label, #hero-subhead',
   { opacity: 1 },
   {
     opacity: 0,
@@ -2338,10 +2341,6 @@ let dpr = Math.min(window.devicePixelRatio || 1, 2);
 let width = window.innerWidth;
 let height = window.innerHeight;
 
-// Name logo docking layout positions (recalculated on resize)
-let moonTargetX = 80;
-let moonTargetY = 52;
-
 // Optimization caches to avoid DOM writes / layout thrashing
 let lastLogoX = -1;
 let lastLogoY = -1;
@@ -2783,15 +2782,6 @@ function resize() {
   logoCanvas.height = height * dpr;
   logoCtx.scale(dpr, dpr);
 
-  const placeholder = document.querySelector('.logo-placeholder');
-  if (placeholder) {
-    const rect = placeholder.getBoundingClientRect();
-    moonTargetX = rect.left + rect.width / 2;
-    moonTargetY = rect.top + rect.height / 2;
-  } else {
-    moonTargetX = document.documentElement.clientWidth / 2;
-    moonTargetY = 52;
-  }
   
   if (clouds && clouds.length >= 3) {
     clouds[0].x = width * 0.12; clouds[0].y = height * 0.18;
@@ -2945,12 +2935,12 @@ function draw(time) {
 
   // 6. Compute name typography layout values
   const clientWidth = document.documentElement.clientWidth;
-  const textX = gsap.utils.interpolate(clientWidth / 2, moonTargetX, state.logoTransition);
-  const textY = gsap.utils.interpolate(height / 2 - 30, moonTargetY + 6, state.logoTransition);
-
-  const baseFontSize = Math.max(48, Math.min(width * 0.09, height * 0.12, 105));
-  const nightFontSize = Math.max(22, Math.min(width * 0.055, 32));
-  const fontSize = gsap.utils.interpolate(baseFontSize, nightFontSize, state.logoTransition);
+  // The name is treated exactly like the hero text below it: it keeps its size, scrolls
+  // away with the page, and only fades. No travel to the navbar, no shrink.
+  // (the canvas is viewport-fixed, so subtract scrollTop to anchor it to the document)
+  const textX = clientWidth / 2;
+  const textY = height / 2 - 30 - scrollTop;
+  const fontSize = Math.max(48, Math.min(width * 0.09, height * 0.12, 105));
 
   // Measure text dimensions for hover bounding box
   logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
@@ -3036,7 +3026,7 @@ function draw(time) {
     } else {
       // ponytail: the name simply fades as you scroll. The old per-letter version set
       // logoCtx.filter = blur() for every character on every frame — very expensive.
-      const alpha = skyFade * (1 - state.logoTransition);
+      const alpha = skyFade * (1 - heroFadeTween.progress());
       if (alpha > 0.01) {
         logoCtx.save();
         logoCtx.globalAlpha = alpha;
@@ -3105,15 +3095,6 @@ function draw(time) {
     }
   }
 
-  // Only enable logo link keyboard focus once the name-sun has docked
-  if (cachedLogoLink) {
-    const docked = state.logoTransition > 0.85;
-    if (docked !== lastLogoDocked) {
-      if (docked) cachedLogoLink.removeAttribute('tabindex');
-      else cachedLogoLink.setAttribute('tabindex', '-1');
-      lastLogoDocked = docked;
-    }
-  }
 
   requestAnimationFrame(draw);
 }
