@@ -772,8 +772,11 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
+  background: var(--paper-2);
+  border: 2px solid var(--ink);
   border-radius: var(--wonky);
+  box-shadow: 2px 2px 0 var(--ink);
+  filter: url(#sketchy);
   margin-bottom: 0.5rem;
   color: var(--skill-color, var(--ink)); /* Apply dynamic brand colors to icons */
   transition: background-color 0.2s ease;
@@ -1326,8 +1329,8 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
           </div>
           <div class="skill-item">
             <div class="skill-icon-wrapper">
-              <svg viewBox="0 0 100 100" class="skill-icon" aria-hidden="true">
-                <path d="M27.276 50.003L0 76.549l67.877 22.844L100 87.067V12.933L67.877 0.607 0 23.451l27.276 26.552zm7.472-23.771l36.568 23.771-36.568 23.771V26.232z" fill="currentColor"/>
+              <svg viewBox="0 0 24 24" class="skill-icon" aria-hidden="true">
+                <path d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 8.63-4.12-3.128a.999.999 0 0 0-1.276.057L.327 7.261A1 1 0 0 0 .326 8.74L3.899 12 .326 15.26a1 1 0 0 0 .001 1.479L1.65 17.94a.999.999 0 0 0 1.276.057l4.12-3.128 9.46 8.63a1.492 1.492 0 0 0 1.704.29l4.942-2.377A1.5 1.5 0 0 0 24 20.06V3.939a1.5 1.5 0 0 0-.85-1.352zm-5.146 14.861L10.826 12l7.178-5.448v10.896z" fill="currentColor"/>
               </svg>
             </div>
             <span class="skill-label">VS Code</span>
