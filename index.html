@@ -66,6 +66,7 @@
   --rule:       rgba(134, 109, 71, 0.22);
   --accent:     #2b4dff;
   --yellow:     #ffd400;
+  --scribble:   #e0b000;  /* deeper yellow, used only by the title hover scribble */
 
   --font-display: 'Winky Rough', cursive;
   --font-body:    'Winky Rough', sans-serif;
@@ -81,7 +82,6 @@
   --chapter-radius: var(--wonky);
   --project-radius: 20px 6px 20px 6px;
   --detail-radius:  14px 4px 14px 4px;
-  --contact-radius: 16px 4px 16px 4px;
 
   --border-color: transparent;
   --doodle-border-color: var(--ink);
@@ -148,15 +148,14 @@ a { color: inherit; text-decoration: none; }
 /* ========== SKETCHED BORDERS ========== */
 .nav-inner,
 .project-modal-panel, .project-modal-close, .project-modal-links a,
-.media-tab, .demo-phone, .demo-browser, .contact-link {
+.media-tab, .demo-phone, .demo-browser {
   position: relative;
   border: 1.5px solid var(--border-color) !important;
 }
 .nav-inner::before,
 .project-modal-panel::before,
 .project-modal-close::before, .project-modal-links a::before,
-.media-tab::before, .demo-phone::before, .demo-browser::before,
-.contact-link::before {
+.media-tab::before, .demo-phone::before, .demo-browser::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -916,27 +915,26 @@ nav {
 .contact-link {
   position: relative;
   display: flex; flex-direction: column; align-items: center; text-align: center;
-  border: 1.5px solid transparent !important; /* reserves the 1.5px, paints nothing */
-  border-radius: var(--contact-radius, 16px 4px 16px 4px) !important;
-  padding: 1.2rem;
-  background: var(--paper);
-  transition: border-color 0.3s ease, background-color 0.2s, transform 0.2s var(--ease-expo), border-radius 0.5s ease;
+  padding: 0.6rem 0.4rem;
+  transition: transform 0.2s var(--ease-expo);
 }
 @media (hover: hover) and (pointer: fine) {
-  .contact-link:hover { border-color: var(--accent) !important; background: var(--paper-2); transform: translate(-2px, -2px); }
-  .contact-link:hover .cl-icon-wrapper { background: var(--yellow); }
+  .contact-link:hover { transform: translateY(-3px); }
+  .contact-link:hover .cl-icon-wrapper { border-color: var(--accent); }
 }
 .cl-icon-wrapper {
-  width: 2.8rem;
-  height: 2.8rem;
+  width: 3.2rem;
+  height: 3.2rem;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
-  border-radius: var(--wonky);
-  margin-bottom: 0.6rem;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  filter: url(#sketchy);
+  margin-bottom: 0.7rem;
   color: var(--cl-color, var(--accent));
-  transition: background-color 0.2s ease;
+  transition: border-color 0.2s ease;
 }
 .cl-icon { width: 1.4rem; height: 1.4rem; fill: currentColor; }
 .contact-link.cl-mail { --cl-color: var(--accent); }
@@ -2091,7 +2089,8 @@ class CanvasTextScribbler {
     
     const rootStyles = window.getComputedStyle(document.documentElement);
     const currentInk = rootStyles.getPropertyValue('--ink').trim() || '#1c1812';
-    const currentYellow = rootStyles.getPropertyValue('--yellow').trim() || '#ffd400';
+    const currentYellow = rootStyles.getPropertyValue('--scribble').trim()
+      || rootStyles.getPropertyValue('--yellow').trim() || '#e0b000';
     
     ctx.font = `${this.fontWeight} ${this.fontSize} ${this.fontFamily}`;
     ctx.textBaseline = 'top';
@@ -2173,7 +2172,11 @@ class CanvasTextScribbler {
   }
 }
 
-if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+// Skip the title scribble on phones. The hover query alone isn't enough: a desktop
+// window resized to phone width still reports hover:hover, so match the 760px
+// breakpoint the rest of the stylesheet uses.
+if (window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    && window.matchMedia('(min-width: 761px)').matches) {
   // Wait for webfonts: the scribbler paints its canvas once in the constructor, so building
   // it early bakes in a fallback face and it never repaints.
   document.fonts.ready.then(() => {
