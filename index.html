@@ -416,7 +416,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.8rem 1.5rem; /* Reduced padding for tighter visual connection */
+  padding: 1.4rem 1.5rem; /* Reduced padding for tighter visual connection */
   position: relative;
   z-index: 2; /* Sits in front of the connecting line */
 }
@@ -434,13 +434,13 @@ nav {
 
 .chapter-wide {
   align-items: flex-start;
-  padding: 1.8rem 1.5rem; /* Reduced padding for tighter visual connection */
+  padding: 1.4rem 1.5rem; /* Reduced padding for tighter visual connection */
 }
 
 .chapter-inner {
   max-width: 700px;
   width: 100%;
-  padding: clamp(2rem, 5vw, 3.5rem);
+  padding: clamp(1.75rem, 4vw, 2.75rem) clamp(2rem, 5vw, 3.5rem);
 }
 
 .chapter-inner-wide { max-width: 980px; }
@@ -451,26 +451,9 @@ nav {
 .proj-stage {
   position: relative;
   margin-top: 2.5rem;
-  padding-bottom: 6rem;
+  padding-bottom: 2rem;
 }
 
-/* giant wordmark sitting behind the tiles */
-.proj-wordmark {
-  position: absolute;
-  left: 50%;
-  top: 42%;
-  transform: translate(-50%, -50%);
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(7rem, 19vw, 17rem);
-  line-height: 0.8;
-  color: var(--yellow);
-  letter-spacing: -0.02em;
-  white-space: nowrap;
-  pointer-events: none;
-  user-select: none;
-  z-index: 0;
-}
 
 .proj-scatter {
   position: relative;
@@ -505,9 +488,9 @@ nav {
   display: grid;
   place-items: center;
 }
-.proj-lg .proj-frame { aspect-ratio: 4 / 3; }
-.proj-md .proj-frame { aspect-ratio: 1 / 1; }
-.proj-sm .proj-frame { aspect-ratio: 3 / 4; }
+.proj-lg .proj-frame { aspect-ratio: 4 / 3; max-width: 260px; }
+.proj-md .proj-frame { aspect-ratio: 1 / 1;  max-width: 210px; }
+.proj-sm .proj-frame { aspect-ratio: 3 / 4;  max-width: 155px; }
 
 .proj-frame img,
 .proj-frame video {
@@ -940,7 +923,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
     font-size: 0.75rem;
   }
   .proj-stage { margin-top: 1.4rem; padding-bottom: 2rem; }
-  .proj-wordmark { font-size: clamp(3.5rem, 24vw, 6rem); }
   .proj-scatter { grid-template-columns: 1fr; gap: 2rem; }
   .proj { grid-column: 1 !important; grid-row: auto !important; transform: none !important; }
   .proj-lg .proj-frame, .proj-md .proj-frame, .proj-sm .proj-frame { aspect-ratio: 3 / 2; }
@@ -1318,7 +1300,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
           </div>
         </div>
       </div>
-      </div>
     </div>
   </section>
 
@@ -1328,8 +1309,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
       <h2 class="chapter-title split">Things I've built.</h2>
 
       <div class="proj-stage">
-        <span class="proj-wordmark" aria-hidden="true">Built</span>
-
         <div class="proj-scatter">
           <article class="proj proj-lg" data-project="appnest" style="--c:1/6; --r:1; --dy:2rem;">
             <div class="proj-frame">
@@ -1382,6 +1361,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
           </article>
         </div>
       </div>
+    </div>
   </section>
 
   <!-- CHAPTER 04 — CONTACT -->
