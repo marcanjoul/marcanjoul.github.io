@@ -262,24 +262,6 @@ a { color: inherit; text-decoration: none; }
   0% { transform: rotate(-3deg); }
   100% { transform: rotate(3deg); }
 }
-#bug-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 4;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.6s ease;
-}
-.bug { position: absolute; }
-.bug-beetle {
-  left: 40%;
-  bottom: 7vh;
-  animation: bug-beetle-walk 11s ease-in-out infinite;
-}
-@keyframes bug-beetle-walk {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(70px); }
-}
 #top-blur-header {
   position: fixed;
   top: 0;
@@ -1086,12 +1068,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   <div class="ground-pebble" style="left:73%; width:12px; height:8px;"></div>
 </div>
 <div id="grass-back-layer" aria-hidden="true"></div>
-<div id="bug-layer" aria-hidden="true">
-  <svg class="bug bug-beetle" viewBox="0 0 24 24" width="14" height="14">
-    <ellipse cx="12" cy="12" rx="8" ry="6" fill="#2e4d2a"/>
-    <line x1="12" y1="6" x2="12" y2="18" stroke="#1c1812" stroke-width="1"/>
-  </svg>
-</div>
 <div id="grass-front-layer" aria-hidden="true"></div>
 <canvas id="logo-canvas"></canvas>
 <div id="top-blur-header" aria-hidden="true"></div>
@@ -2455,7 +2431,6 @@ const groundLayerEl = document.getElementById('ground-layer');
 const bushLayerEl = document.getElementById('bush-layer');
 const grassBackLayerEl = document.getElementById('grass-back-layer');
 const grassFrontLayerEl = document.getElementById('grass-front-layer');
-const bugLayerEl = document.getElementById('bug-layer');
 
 const grassBlades = []; // { wrap, delayFrac }
 function buildGrass() {
@@ -2797,11 +2772,6 @@ function draw(time) {
   // Grass stays hidden until raw scroll position hits 90% (Let's Connect card), then pops up
   const grassT = Math.min(Math.max((rawProgress - 0.9) / 0.1, 0), 1);
   updateGrass(grassT);
-
-  // Bugs drift in once the grass is visible
-  if (bugLayerEl) {
-    bugLayerEl.style.opacity = sceneProgress > 0.8 ? Math.min((sceneProgress - 0.8) / 0.1, 1) : 0;
-  }
 
   // 6. Compute name typography layout values
   const clientWidth = document.documentElement.clientWidth;
