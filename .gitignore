@@ -4,3 +4,4 @@
 # Playwright CLI debug artifacts
 .playwright-cli/
 PRODUCT.md
+projects.json

@@ -1379,55 +1379,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5 L16 12 L9 19"/></svg>
         </button>
         <div class="proj-rail" data-lenis-prevent tabindex="0" role="group" aria-label="Projects, scroll horizontally">
-          <article class="proj proj-lg" data-project="appnest">
-            <div class="proj-frame">
-              <video class="proj-video" src="assets/appnest/parse-email.mp4" poster="assets/appnest/poster.jpg"
-                     muted loop playsinline preload="none" aria-hidden="true"></video>
-            </div>
-            <div class="proj-caption">
-              <span class="proj-meta"><b>01</b> Mobile App <i>SwiftUI · SwiftData · NLP</i></span>
-              <h3>AppNest</h3>
-              <p>On-device AI email parsing. No server, no accounts.</p>
-            </div>
-          </article>
-
-          <article class="proj proj-md" data-project="ois">
-            <div class="proj-frame">
-              <img src="assets/hco-ois/screen-leaderboard.png" alt="" loading="lazy" decoding="async">
-            </div>
-            <div class="proj-caption">
-              <span class="proj-meta"><b>02</b> Web App <i>JavaScript · Firebase</i></span>
-              <h3>OIS Tracker</h3>
-              <p>Retail competition app with a live leaderboard.</p>
-            </div>
-          </article>
-
-          <article class="proj proj-sm proj-field field-yellow" data-project="groov">
-            <div class="proj-frame"><span class="proj-glyph" aria-hidden="true">♪</span></div>
-            <div class="proj-caption">
-              <span class="proj-meta"><b>03</b> Mobile App <i>UIKit · Spotify API</i></span>
-              <h3>Groov</h3>
-              <p>Rate and log the albums you listen to.</p>
-            </div>
-          </article>
-
-          <article class="proj proj-md proj-field field-ink" data-project="noteweb">
-            <div class="proj-frame"><span class="proj-glyph" aria-hidden="true">◫</span></div>
-            <div class="proj-caption">
-              <span class="proj-meta"><b>04</b> RAG / AI <i>LLaMA 3 · Embeddings</i></span>
-              <h3>NoteWeb</h3>
-              <p>Local-first semantic search. Nothing leaves your machine.</p>
-            </div>
-          </article>
-
-          <article class="proj proj-sm proj-field field-blue" data-project="spotify">
-            <div class="proj-frame"><span class="proj-glyph" aria-hidden="true">▚</span></div>
-            <div class="proj-caption">
-              <span class="proj-meta"><b>05</b> Data Science <i>Python · scikit-learn</i></span>
-              <h3>Hit Song Predictor</h3>
-              <p>Can audio features predict a hit?</p>
-            </div>
-          </article>
         </div>
         <div class="rail-bar" aria-hidden="true"><div class="rail-bar-thumb"></div></div>
       </div>
@@ -1656,7 +1607,8 @@ if (reduceMotion) {
 
 }
 
-gsap.utils.toArray('.proj').forEach((el) => {
+function revealProjects() {
+  gsap.utils.toArray('.proj').forEach((el) => {
   gsap.from(el, {
     opacity: 0,
     y: 24,
@@ -1664,96 +1616,12 @@ gsap.utils.toArray('.proj').forEach((el) => {
     ease: 'power3.out',
     scrollTrigger: { trigger: el, start: 'top 95%' },
   });
-});
+  });
+}
 
 /* ---------- project detail modal data ---------- */
-const projectData = {
-  appnest: {
-    type: 'Mobile App',
-    title: 'AppNest',
-    desc: "A job application tracker that parses pasted confirmation emails using Apple's on-device NaturalLanguage framework (no APIs), with SwiftData persistence, a centralized design system, search/sort/filter options, CSV export, and a profile stats dashboard.",
-    features: [
-      'On-device AI email parsing with NaturalLanguage framework',
-      'SwiftData persistence: no server, no accounts',
-      'Centralized design system for consistent UI',
-      'Search, sort, and filter applications',
-      'CSV export for spreadsheet tracking',
-      'Profile stats dashboard with application analytics',
-    ],
-    links: [{ label: 'View on GitHub →', href: 'https://github.com/marcanjoul/AppNest' }],
-    media: {
-      type: 'video',
-      poster: 'assets/appnest/poster.jpg',
-      items: [
-        { label: 'Parse email', src: 'assets/appnest/parse-email.mp4' },
-        { label: 'Parse link', src: 'assets/appnest/parse-link.mp4' },
-        { label: 'Import CSV', src: 'assets/appnest/import-csv.mp4' },
-        { label: 'Manual entry', src: 'assets/appnest/manual-entry.mp4' },
-      ],
-    },
-  },
-  spotify: {
-    type: 'Data Science / ML',
-    title: 'Spotify Hit Song Predictor',
-    desc: 'Logistic regression model exploring whether audio features can predict hit songs. Key insight: individual features have weak predictive power, and feature engineering is essential.',
-    features: [
-      'Audio features alone are weak predictors of commercial success',
-      'Feature engineering and combination significantly improve accuracy',
-      'Explored danceability, energy, valence, tempo, and more',
-      'Built full data pipeline from Spotify API to model evaluation',
-    ],
-    links: [{ label: 'View on GitHub →', href: 'https://github.com/marcanjoul/hit-song-predictor' }],
-  },
-  groov: {
-    type: 'Mobile App',
-    title: 'Groov',
-    desc: 'A social music tracker for rating and logging the albums you listen to, capstone project for CodePath\'s iOS101 class.',
-    features: [
-      'Album search powered by the Spotify API',
-      'Personal library with listened & want-to-listen lists',
-      'Star rating system for albums',
-      'Built with UIKit',
-    ],
-    links: [{ label: 'View on GitHub →', href: 'https://github.com/marcanjoul/Groov-Codepath' }],
-  },
-  noteweb: {
-    type: 'RAG / AI',
-    title: 'NoteWeb',
-    desc: 'A local-first RAG tool that semantically indexes and searches your documents using LLaMA 3 and vector embeddings. Everything runs locally: no cloud, and no data leaves your machine.',
-    features: [
-      'Semantic search across local documents',
-      'LLaMA 3 for local LLM inference',
-      'Vector embeddings for document indexing',
-      'Fully offline, no cloud dependencies',
-      'RAG pipeline from ingestion to query',
-    ],
-    links: [{ label: 'View on GitHub →', href: 'https://github.com/marcanjoul/NoteWeb' }],
-  },
-  ois: {
-    type: 'Web App',
-    title: 'OIS Competition Tracker',
-    desc: 'A fast, game-like retail competition web app built for my retail job. Associates log daily OIS (orders in store) performance, the app computes sales-per-hour automatically, and everyone can see where they stand on a live leaderboard. Managers get a PIN-protected admin view to oversee the competition.',
-    features: [
-      'Daily order logging with automatic sales-per-hour calculation',
-      'Live, real-time leaderboard visible to the whole team',
-      'Competition countdown timer with automatic winner reveal',
-      'PIN-protected manager admin view',
-      'Mobile-first UI built for quick use on the sales floor',
-    ],
-    links: [
-      { label: 'View Live Site →', href: 'https://hco-ois.vercel.app/' },
-      { label: 'View on GitHub →', href: 'https://github.com/marcanjoul/hco-ois-competition' },
-    ],
-    media: {
-      type: 'images',
-      items: [
-        { label: 'Home', src: 'assets/hco-ois/screen-home.png' },
-        { label: 'Leaderboard', src: 'assets/hco-ois/screen-leaderboard.png' },
-        { label: 'Manager', src: 'assets/hco-ois/screen-login.png' },
-      ],
-    },
-  },
-};
+/* Modal content is loaded from projects.json — see initProjects() at the end of this script. */
+let projectData = {};
 
 const modal = document.getElementById('project-modal');
 const modalType = modal.querySelector('.project-modal-type');
@@ -1867,7 +1735,7 @@ function closeProjectModal() {
 }
 
 // Rail arrows: step by one card, and grey out at the ends
-(() => {
+function wireRail() {
   const rail = document.querySelector('.proj-rail');
   if (!rail) return;
   const prev = document.querySelector('.rail-arrow-prev');
@@ -1902,10 +1770,11 @@ function closeProjectModal() {
   syncBar();
   window.addEventListener('resize', sync);
   sync();
-})();
+}
 
 // Each tile is one target: it opens the case study. Repo/live links live in the modal.
-document.querySelectorAll('.proj').forEach((tile) => {
+function wireTiles() {
+  document.querySelectorAll('.proj').forEach((tile) => {
   const name = tile.querySelector('h3').textContent.trim();
   tile.setAttribute('tabindex', '0');
   tile.setAttribute('role', 'button');
@@ -1926,7 +1795,64 @@ document.querySelectorAll('.proj').forEach((tile) => {
     tile.addEventListener('focus', play);
     tile.addEventListener('blur', stop);
   }
-});
+  });
+}
+
+/* ---------- projects come from projects.json ----------
+   Edit projects.json and commit; nothing else to run. The cards and the modal
+   content both read from it, so the two can't drift apart. */
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function projectThumb(t) {
+  if (t.video) {
+    return `<div class="proj-frame"><video class="proj-video" src="${esc(t.video)}"` +
+           ` poster="${esc(t.poster)}" muted loop playsinline preload="none" aria-hidden="true"></video></div>`;
+  }
+  if (t.image) {
+    return `<div class="proj-frame"><img src="${esc(t.image)}" alt="" loading="lazy" decoding="async"></div>`;
+  }
+  return `<div class="proj-frame"><span class="proj-glyph" aria-hidden="true">${esc(t.glyph)}</span></div>`;
+}
+
+function projectCard(p, i) {
+  // shortTitle / shortType are card-only overrides; everything else is shared with the modal
+  const cls = `proj proj-${p.size}` + (p.thumbnail.color ? ` proj-field field-${p.thumbnail.color}` : '');
+  return `<article class="${cls}" data-project="${esc(p.id)}">` +
+    projectThumb(p.thumbnail) +
+    `<div class="proj-caption">` +
+      `<span class="proj-meta"><b>${String(i + 1).padStart(2, '0')}</b> ${esc(p.shortType || p.type)}` +
+      ` <i>${esc(p.stack)}</i></span>` +
+      `<h3>${esc(p.shortTitle || p.title)}</h3>` +
+      `<p>${esc(p.tagline)}</p>` +
+    `</div></article>`;
+}
+
+// the modal reads its own field names, so map once here
+function projectModal(p) {
+  return { type: p.type, title: p.title, desc: p.about,
+           features: p.features, links: p.links, media: p.gallery };
+}
+
+async function initProjects() {
+  const rail = document.querySelector('.proj-rail');
+  if (!rail) return;
+  try {
+    const res = await fetch('projects.json', { cache: 'no-cache' });
+    if (!res.ok) throw new Error(`projects.json ${res.status}`);
+    const { projects } = await res.json();
+    projectData = Object.fromEntries(projects.map((p) => [p.id, projectModal(p)]));
+    rail.innerHTML = projects.map(projectCard).join('');
+    wireTiles();
+    wireRail();
+    revealProjects();
+    ScrollTrigger.refresh();
+  } catch (err) {
+    // Leave the rail empty rather than half-built, and say why in the console.
+    console.error('Could not load projects.json —', err.message);
+  }
+}
+initProjects();
 
 // Dynamically assign brand class names to skill items based on their label text
 document.querySelectorAll('.skill-item').forEach(item => {
