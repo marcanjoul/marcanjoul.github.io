@@ -471,22 +471,43 @@ nav {
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x proximity;
-  padding-bottom: 1rem;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(var(--ink-rgb), 0.35) transparent;
+  padding-bottom: 0.5rem;
+  scrollbar-width: none;          /* native bar hidden — .rail-bar below replaces it */
 }
-.proj-rail::-webkit-scrollbar { height: 6px; }
-.proj-rail::-webkit-scrollbar-track { background: transparent; }
-.proj-rail::-webkit-scrollbar-thumb {
-  background: rgba(var(--ink-rgb), 0.28);
+.proj-rail::-webkit-scrollbar { display: none; }
+
+/* hand-drawn scrollbar: dashed rule for the track, inked bar for the thumb */
+.rail-bar {
+  position: relative;
+  margin: 1.4rem auto 0;
+  width: min(320px, 60%);
+  height: 14px;
+}
+.rail-bar::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  border-top: 2px dashed var(--ink);
+  opacity: 0.28;
+  filter: url(#sketchy);
+}
+.rail-bar-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 8px;
+  transform: translateY(-50%);
+  background: var(--ink);
   border-radius: 999px;
+  filter: url(#sketchy);
+  transition: opacity 0.2s ease;
 }
 .proj-rail:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
 
 /* sketched circular arrows, centred on the thumbnail row */
 .rail-arrow {
   position: absolute;
-  top: calc(var(--proj-card-w) * 0.375);
+  top: calc(var(--frame-h, 190px) / 2);
   transform: translateY(-50%);
   z-index: 3;
   width: 2.6rem;
@@ -511,7 +532,7 @@ nav {
 .rail-arrow[disabled] { opacity: 0.25; cursor: default; pointer-events: none; }
 
 .proj {
-  flex: 0 0 var(--proj-card-w);
+  flex: 0 0 calc((100% - 2 * 1.5rem) / 3);
   scroll-snap-align: start;
   cursor: pointer;
   display: flex;
@@ -968,7 +989,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   }
   .proj-stage { margin-top: 1.4rem; padding-bottom: 2rem; }
   .proj-rail { gap: 1rem; }
-  .proj { flex-basis: 76vw; }
+  .proj { flex-basis: 100%; }
   .proj-frame::after { opacity: 1; transform: none; }
   .proj p { font-size: 0.82rem; }
   .chapter { padding: 1.2rem 1rem; } /* Reduced padding for tighter mobile layout */
@@ -1410,6 +1431,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
             </div>
           </article>
         </div>
+        <div class="rail-bar" aria-hidden="true"><div class="rail-bar-thumb"></div></div>
       </div>
     </div>
   </section>
@@ -1853,6 +1875,13 @@ function closeProjectModal() {
   const prev = document.querySelector('.rail-arrow-prev');
   const next = document.querySelector('.rail-arrow-next');
   const step = () => (rail.firstElementChild?.getBoundingClientRect().width || 260) + 24;
+  // arrows sit on the thumbnail row, so publish the real frame height for the CSS
+  const syncFrameH = () => {
+    const f = rail.querySelector('.proj-frame');
+    if (f) rail.closest('.proj-stage').style.setProperty('--frame-h', `${f.getBoundingClientRect().height}px`);
+  };
+  syncFrameH();
+  window.addEventListener('resize', syncFrameH);
   const sync = () => {
     const maxLeft = rail.scrollWidth - rail.clientWidth - 1;
     prev.disabled = rail.scrollLeft <= 0;
@@ -1860,7 +1889,19 @@ function closeProjectModal() {
   };
   prev.addEventListener('click', () => rail.scrollBy({ left: -step(), behavior: 'smooth' }));
   next.addEventListener('click', () => rail.scrollBy({ left: step(), behavior: 'smooth' }));
-  rail.addEventListener('scroll', sync, { passive: true });
+  const bar = document.querySelector('.rail-bar');
+  const thumb = document.querySelector('.rail-bar-thumb');
+  const syncBar = () => {
+    const ratio = rail.clientWidth / rail.scrollWidth;
+    const maxLeft = rail.scrollWidth - rail.clientWidth;
+    thumb.style.width = `${Math.max(12, bar.clientWidth * ratio)}px`;
+    const travel = bar.clientWidth - thumb.offsetWidth;
+    thumb.style.left = `${maxLeft > 0 ? (rail.scrollLeft / maxLeft) * travel : 0}px`;
+    bar.style.opacity = ratio >= 1 ? 0 : 1;
+  };
+  rail.addEventListener('scroll', () => { sync(); syncBar(); }, { passive: true });
+  window.addEventListener('resize', syncBar);
+  syncBar();
   window.addEventListener('resize', sync);
   sync();
 })();
@@ -1933,11 +1974,29 @@ class CanvasTextScribbler {
   init() {
     const rect = this.heading.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    
-    this.canvas.width = rect.width * dpr;
-    this.canvas.height = rect.height * dpr;
-    this.canvas.style.width = `${rect.width}px`;
+
+    // Headroom matters: the canvas is sized from the heading's advance width, and
+    // canvas.width truncates to a whole pixel. Without slack the usable width can land a
+    // fraction under the real text width, which makes getWrappedLines() push the final
+    // word onto a second line that falls outside the one-line-tall canvas and disappears.
+    const st = window.getComputedStyle(this.heading);
+    this.padX = Math.max(8, parseFloat(st.fontSize) * 0.2);
+
+    // Size from the metrics of the text we are about to draw, not from the element box.
+    // Those are two separate measurements that have to agree, and when they disagree by a
+    // fraction the wrap logic drops the final word onto an invisible second line.
+    const probe = document.createElement('canvas').getContext('2d');
+    probe.font = `${st.fontWeight} ${st.fontSize} ${st.fontFamily}`;
+    const textW = probe.measureText(this.text).width;
+    // A heading that occupies one line in the DOM must stay one line on the canvas.
+    this.singleLine = rect.height < parseFloat(st.fontSize) * 2;
+    const w = Math.ceil(Math.max(rect.width, textW)) + this.padX * 2;
+
+    this.canvas.width = Math.ceil(w * dpr);
+    this.canvas.height = Math.ceil(rect.height * dpr);
+    this.canvas.style.width = `${w}px`;
     this.canvas.style.height = `${rect.height}px`;
+    this.canvas.style.left = `${-this.padX}px`;
     this.ctx.resetTransform();
     this.ctx.scale(dpr, dpr);
     
@@ -2038,13 +2097,30 @@ class CanvasTextScribbler {
     ctx.textBaseline = 'top';
     ctx.textAlign = this.textAlign;
     
-    const lines = this.getWrappedLines(width);
+    const pad = this.padX || 0;
+    const lines = this.singleLine ? [this.text] : this.getWrappedLines(width - pad * 2);
+
+    // Belt and braces: if wrapping ever produces more lines than the canvas is tall, grow
+    // it and redraw. Without this a wrapped line is painted below the canvas and vanishes,
+    // which reads as the heading losing its last word.
+    const needed = lines.length * this.lineHeight;
+    if (needed > height + 1 && !this._grew) {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      this._grew = true;
+      this.canvas.height = Math.ceil(needed * dpr);
+      this.canvas.style.height = `${needed}px`;
+      this.ctx.resetTransform();
+      this.ctx.scale(dpr, dpr);
+      this.draw();
+      this._grew = false;
+      return;
+    }
     
     ctx.fillStyle = currentInk;
     lines.forEach((line, index) => {
-      let x = 0;
+      let x = pad;
       if (this.textAlign === 'center') x = width / 2;
-      else if (this.textAlign === 'right') x = width;
+      else if (this.textAlign === 'right') x = width - pad;
       ctx.fillText(line, x, index * this.lineHeight);
     });
     
@@ -2098,8 +2174,12 @@ class CanvasTextScribbler {
 }
 
 if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-  document.querySelectorAll('.proj h3').forEach(heading => {
-    new CanvasTextScribbler(heading);
+  // Wait for webfonts: the scribbler paints its canvas once in the constructor, so building
+  // it early bakes in a fallback face and it never repaints.
+  document.fonts.ready.then(() => {
+    document.querySelectorAll('.chapter-title').forEach(heading => {
+      new CanvasTextScribbler(heading);
+    });
   });
 }
 
