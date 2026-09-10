@@ -764,7 +764,6 @@ nav {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: color 0.2s ease;
 }
 .skill-icon-wrapper {
   width: 3.8rem;
@@ -778,7 +777,6 @@ nav {
   filter: url(#sketchy);
   margin-bottom: 0.5rem;
   color: var(--skill-color, var(--ink)); /* Apply dynamic brand colors to icons */
-  transition: background-color 0.2s ease;
 }
 .skill-icon {
   width: 2rem;
@@ -786,7 +784,6 @@ nav {
   fill: currentColor;
 }
 .skill-label {
-  transition: color 0.2s ease;
   font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 600;
@@ -825,12 +822,6 @@ nav {
 .skill-item.css3 { --skill-color: #1572B6; }
 .skill-item.jupyter { --skill-color: #F37626; }
 .skill-item.raspberry-pi { --skill-color: #C51A4A; }
-@media (hover: hover) and (pointer: fine) {
-  /* these tiles aren't clickable, so hover tints them instead of lifting them */
-  .skill-item:hover .skill-icon-wrapper { background: var(--yellow); }
-  .skill-item:hover .skill-label { color: var(--ink); }
-}
-
 /* ========== PROJECTS ========== */
 
 /* ========== PROJECT DETAIL MODAL ========== */
