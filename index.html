@@ -147,13 +147,13 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ========== SKETCHED BORDERS ========== */
-.nav-inner, .chapter-inner,
+.nav-inner,
 .project-modal-panel, .project-modal-close, .project-modal-links a,
 .media-tab, .demo-phone, .demo-browser, .contact-link {
   position: relative;
   border: 1.5px solid var(--border-color) !important;
 }
-.nav-inner::before, .chapter-inner::before,
+.nav-inner::before,
 .project-modal-panel::before,
 .project-modal-close::before, .project-modal-links a::before,
 .media-tab::before, .demo-phone::before, .demo-browser::before,
@@ -412,20 +412,6 @@ nav {
 .scroll-wrapper {
   position: relative;
 }
-.scroll-wrapper::before {
-  content: '';
-  position: absolute;
-  top: 95vh; /* Starts below the hero content */
-  bottom: calc(12vh + 55vh); /* Ends above the footer, doesn't trail down into the lawn scene */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 2px;
-  border-left: 2px dashed var(--ink);
-  opacity: 0.22;
-  z-index: 1; /* Sits behind the cards */
-  pointer-events: none;
-  filter: url(#sketchy); /* Jitters the dashed thread */
-}
 .chapter {
   min-height: auto;
   display: flex;
@@ -455,58 +441,12 @@ nav {
 .chapter-inner {
   max-width: 700px;
   width: 100%;
-  background: var(--paper);
-  border: 1.5px solid transparent !important; /* reserves the 1.5px, paints nothing */
-  border-radius: var(--chapter-radius, var(--wonky)) !important;
   padding: clamp(2rem, 5vw, 3.5rem);
-  box-shadow: var(--chapter-shadow) !important;
-  transition: background-color 0.8s ease, border-color 0.3s ease, box-shadow 0.3s ease, border-radius 0.5s ease;
 }
 
 .chapter-inner-wide { max-width: 980px; }
 
 /* ========== VISUAL CARD CONNECTORS (GROMMETS) ========== */
-.grommet {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 18px;
-  height: 18px;
-  background: var(--paper);
-  border-radius: 50%;
-  z-index: 10;
-  pointer-events: none;
-  transition: background-color 0.8s ease;
-}
-.grommet::before {
-  content: '';
-  position: absolute;
-  inset: -1.5px;
-  border: 1.5px solid var(--doodle-border-color) !important;
-  border-radius: 50%;
-  filter: url(#sketchy);
-  pointer-events: none;
-}
-.grommet::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 5px;
-  height: 5px;
-  background: var(--ink);
-  border-radius: 50%;
-  opacity: 0.85;
-  filter: url(#sketchy);
-  transition: background-color 0.8s ease;
-}
-.grommet-top {
-  top: -9px;
-}
-.grommet-bottom {
-  bottom: -9px;
-}
 
 /* ========== PROJECTS — scattered archive ========== */
 .proj-stage {
@@ -1899,19 +1839,6 @@ document.querySelectorAll('.proj').forEach((tile) => {
     tile.addEventListener('focus', play);
     tile.addEventListener('blur', stop);
   }
-});
-
-// Dynamically insert grommet rings to connect cards visually via the dashed thread
-document.querySelectorAll('.chapter:not(.chapter-hero) .chapter-inner').forEach(card => {
-  const topGrommet = document.createElement('div');
-  topGrommet.className = 'grommet grommet-top';
-  topGrommet.setAttribute('aria-hidden', 'true');
-  card.appendChild(topGrommet);
-
-  const bottomGrommet = document.createElement('div');
-  bottomGrommet.className = 'grommet grommet-bottom';
-  bottomGrommet.setAttribute('aria-hidden', 'true');
-  card.appendChild(bottomGrommet);
 });
 
 // Dynamically assign brand class names to skill items based on their label text
