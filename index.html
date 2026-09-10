@@ -772,10 +772,9 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--paper-2);
-  border: 2px solid var(--ink);
+  background: transparent;
   border-radius: var(--wonky);
-  box-shadow: 2px 2px 0 var(--ink);
+  /* the sketchy filter wobbles the icon art itself — doodle look, no box around it */
   filter: url(#sketchy);
   margin-bottom: 0.5rem;
   color: var(--skill-color, var(--ink)); /* Apply dynamic brand colors to icons */
