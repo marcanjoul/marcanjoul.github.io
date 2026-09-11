@@ -531,30 +531,79 @@ nav {
 .rail-arrow[disabled] { opacity: 0.25; cursor: default; pointer-events: none; }
 
 .proj {
-  flex: 0 0 calc((100% - 2 * 1.5rem) / 3);
+  flex: 0 0 calc((100% - 1.5rem) / 2);
   scroll-snap-align: start;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 0.9rem;
+  padding-top: 1.1rem;              /* room for the tape */
   transition: transform 0.45s var(--ease-expo);
 }
-@media (hover: hover) and (pointer: fine) {
-  .proj:hover { transform: translateY(-6px); }
-}
-.proj:focus-visible { outline: 2px solid var(--accent); outline-offset: 8px; }
 
-/* media / colour field */
+/* --- each screenshot sits in the frame its platform actually has --- */
+.device-bay {
+  display: flex;
+  align-items: flex-end;     /* phone and browser stand on the same floor */
+  height: 400px;             /* fixed, so every caption starts at the same line */
+}
+.device {
+  position: relative;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  filter: url(#sketchy);
+  transition: transform 0.45s var(--ease-expo);
+}
+.device-chrome {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-bottom: 2px solid var(--ink);
+  padding: 0.4rem 0.6rem;
+}
+.device-dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--ink); }
+.device-bar {
+  flex: 1;
+  height: 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  margin-left: 0.4rem;
+}
+
+/* phone: rounded slab, speaker slot, home bar */
+.device-phone { width: 200px; border-radius: 26px; padding: 0.55rem 0.5rem 1.1rem; }
+.device-phone .proj-frame { border-radius: 16px; aspect-ratio: 9 / 17; }
+.device-phone::before {
+  content: '';
+  position: absolute; top: 0.62rem; left: 50%; transform: translateX(-50%);
+  width: 46px; height: 5px; border: 1.5px solid var(--ink); border-radius: 999px;
+}
+.device-phone::after {
+  content: '';
+  position: absolute; bottom: 0.4rem; left: 50%; transform: translateX(-50%);
+  width: 62px; height: 4px; background: var(--ink); border-radius: 999px; opacity: 0.6;
+}
+.device-phone .proj-frame { margin-top: 0.85rem; }
+
+/* browser + terminal: window chrome over a wide body */
+.device-browser, .device-terminal { width: 360px; border-radius: 10px; overflow: hidden; }
+.device-browser .proj-frame, .device-terminal .proj-frame { aspect-ratio: 16 / 10; }
+.device-terminal .device-chrome { background: var(--ink); }
+.device-terminal .device-dot { border-color: var(--paper); }
+.device-terminal .device-bar { border-color: var(--paper); opacity: 0.6; }
+
+@media (hover: hover) and (pointer: fine) {
+  .proj:hover .device { transform: translateY(-8px); }
+}
+
 .proj-frame {
   position: relative;
   overflow: hidden;
-  background: var(--paper-2);
-  aspect-ratio: 4 / 3;
+  background: #2a2620;
   display: grid;
   place-items: center;
 }
-/* one shape for every card while the rail is the layout — real thumbnails to come */
-.proj-lg .proj-frame, .proj-md .proj-frame, .proj-sm .proj-frame { aspect-ratio: 4 / 3; }
+
 
 .proj-frame img,
 .proj-frame video {
@@ -562,6 +611,11 @@ nav {
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.55s var(--ease-expo);
+}
+@media (hover: hover) and (pointer: fine) {
+  .proj:hover .proj-frame img,
+  .proj:hover .proj-frame video { transform: scale(1.04); }
 }
 
 /* flat colour fields for projects without media yet */
@@ -580,6 +634,8 @@ nav {
 
 /* "view" affordance — the tiles open the case study */
 .proj-frame::after {
+  content: '';
+  display: none;
   content: 'View ↗';
   position: absolute;
   right: 0.65rem;
@@ -601,7 +657,20 @@ nav {
 .proj:focus-visible .proj-frame::after { opacity: 1; transform: translateY(0); }
 
 /* caption */
-.proj-caption { display: flex; flex-direction: column; gap: 0.15rem; }
+.proj-caption { display: flex; flex-direction: column; gap: 0.15rem; max-width: 360px; }
+/* a standing invitation rather than a hover-only hint */
+.proj-cta {
+  margin-top: 0.55rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.proj-cta i { font-style: normal; display: inline-block; margin-left: 0.35rem; transition: transform 0.25s var(--ease-expo); }
+@media (hover: hover) and (pointer: fine) {
+  .proj:hover .proj-cta i { transform: translateX(4px); }
+}
 .proj-meta {
   font-family: 'Share Tech Mono', monospace;
   font-size: 0.68rem;
@@ -1809,22 +1878,27 @@ function projectThumb(t) {
     return `<div class="proj-frame"><video class="proj-video" src="${esc(t.video)}"` +
            ` poster="${esc(t.poster)}" muted loop playsinline preload="none" aria-hidden="true"></video></div>`;
   }
-  if (t.image) {
-    return `<div class="proj-frame"><img src="${esc(t.image)}" alt="" loading="lazy" decoding="async"></div>`;
-  }
-  return `<div class="proj-frame"><span class="proj-glyph" aria-hidden="true">${esc(t.glyph)}</span></div>`;
+  return `<div class="proj-frame"><img src="${esc(t.image)}" alt="" loading="lazy" decoding="async"></div>`;
+}
+
+// browser and terminal get window chrome; the phone's slot and home bar are drawn in CSS
+function deviceChrome(frame) {
+  if (frame === 'phone') return '';
+  return `<div class="device-chrome">` +
+    `<span class="device-dot"></span><span class="device-dot"></span><span class="device-dot"></span>` +
+    `<span class="device-bar"></span></div>`;
 }
 
 function projectCard(p, i) {
   // shortTitle / shortType are card-only overrides; everything else is shared with the modal
-  const cls = `proj proj-${p.size}` + (p.thumbnail.color ? ` proj-field field-${p.thumbnail.color}` : '');
-  return `<article class="${cls}" data-project="${esc(p.id)}">` +
-    projectThumb(p.thumbnail) +
+  return `<article class="proj" data-project="${esc(p.id)}">` +
+    `<div class="device-bay"><div class="device device-${esc(p.frame)}">` + deviceChrome(p.frame) + projectThumb(p.thumbnail) + `</div></div>` +
     `<div class="proj-caption">` +
       `<span class="proj-meta"><b>${String(i + 1).padStart(2, '0')}</b> ${esc(p.shortType || p.type)}` +
       ` <i>${esc(p.stack)}</i></span>` +
       `<h3>${esc(p.shortTitle || p.title)}</h3>` +
       `<p>${esc(p.tagline)}</p>` +
+      `<span class="proj-cta">View case study<i>&rarr;</i></span>` +
     `</div></article>`;
 }
 
