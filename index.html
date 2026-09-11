@@ -2498,6 +2498,7 @@ let ctx = canvas.getContext('2d');
 const decorCanvas = document.getElementById('decor-canvas');
 const decorCtx = decorCanvas.getContext('2d');
 let lastDecorBlur = -1;
+let cloudLabelFade = 1;   // words leave the sky long before the clouds do
 const logoCanvas = document.getElementById('logo-canvas');
 const logoCtx = logoCanvas.getContext('2d');
 
@@ -2838,9 +2839,13 @@ function drawSketchedCloudCached(cloudIndex, cx, cy, opacity) {
     // knock the outlines back with a paper halo, then lay the word on solid
     ctx.lineJoin = 'round';
     ctx.lineWidth = 7 * cachedCloud.scale;
-    ctx.strokeStyle = `rgba(243, 237, 224, ${(opacity * 0.95).toFixed(3)})`;
+    // The word leaves ahead of the cloud it sits on: squaring the cloud's own fade makes
+    // it drop away early instead of lingering as a smudge once the shape has thinned out.
+    const fade = cloudLabelFade * Math.min(opacity / 0.75, 1);
+    if (fade <= 0.004) { ctx.restore(); return; }
+    ctx.strokeStyle = `rgba(243, 237, 224, ${(fade * 0.95).toFixed(3)})`;
     ctx.strokeText(spec.label, lx, ly);
-    ctx.fillStyle = `rgba(28, 24, 18, ${Math.min(opacity * 1.25, 1).toFixed(3)})`;
+    ctx.fillStyle = `rgba(28, 24, 18, ${(fade * 0.96).toFixed(3)})`;
     ctx.fillText(spec.label, lx, ly);
     ctx.restore();
   }
@@ -3011,7 +3016,7 @@ function draw(time) {
   const skyFade = 1 - Math.min(Math.max((sceneProgress - 0.3) / 0.2, 0), 1);
   // Clouds and birds stay for the whole page but soften as you descend, so they read as
   // depth behind the content instead of competing with it. One number to tune:
-  const DECOR_MAX_BLUR_PX = 30;
+  const DECOR_MAX_BLUR_PX = 14;
   const decorBlur = DECOR_MAX_BLUR_PX * Math.min(Math.max(rawProgress, 0), 1);
   {
     // Blur the element, not the context: WebKit ignores canvas ctx.filter entirely.
@@ -3024,15 +3029,34 @@ function draw(time) {
     // for this block rather than threading a target through four call layers.
     const mainCtx = ctx;
     ctx = decorCtx;
-    drawSun(decorCtx, sun.x, sun.y, 0.9, time);
-    clouds.forEach((cloud, index) => {
-      cloud.x += cloud.speed;
-      if (cloud.x > width + 120) {
-        cloud.x = -120 - Math.random() * 180;
-        cloud.y = height * (0.08 + Math.random() * 0.18);
-      }
-      drawSketchedCloudCached(index, cloud.x, cloud.y, 0.75);
-    });
+    // Scroll opens the sky: the clouds draw apart and thin out, while the sun climbs to
+    // the top centre. The blur ramp above is untouched — this is position and opacity only.
+    // The words are tied to actual scroll distance, not to the cloud fade — they should be
+    // gone within half a screen, while the clouds themselves drift for most of the page.
+    cloudLabelFade = 1 - Math.min(Math.max(scrollTop / (height * 0.4), 0), 1);
+
+    const skyT = Math.min(Math.max(rawProgress / 0.85, 0), 1);
+    const ease = skyT * skyT * (3 - 2 * skyT);          // smoothstep, so it starts gently
+
+    const sunX = sun.x + (width * 0.5 - sun.x) * ease;
+    const sunY = sun.y + (height * 0.11 - sun.y) * ease;
+    drawSun(decorCtx, sunX, sunY, 0.9, time);
+
+    const cloudAlpha = 0.75 * (1 - ease);
+    if (cloudAlpha > 0.004) {
+      clouds.forEach((cloud, index) => {
+        cloud.x += cloud.speed;
+        if (cloud.x > width + 120) {
+          cloud.x = -120 - Math.random() * 180;
+          cloud.y = height * (0.08 + Math.random() * 0.18);
+        }
+        // each cloud is shoved toward whichever edge it already favours
+        const side = cloud.bx < 0.5 ? -1 : 1;
+        const bias = 0.45 + Math.abs(cloud.bx - 0.5);    // outer clouds leave faster
+        const part = side * width * bias * ease;
+        drawSketchedCloudCached(index, cloud.x + part, cloud.y, cloudAlpha);
+      });
+    }
 
     birds.forEach(bird => {
       bird.x += bird.speedX;
