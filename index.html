@@ -780,7 +780,7 @@ nav {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;   /* keeps the bull tight to the @ — symmetric, so the text stays centred */
+  gap: 0;   /* keeps the bull tight to the @ — symmetric, so the text stays centred */
   font-size: 1.85rem;
   font-family: 'Cabin Sketch', var(--font-display);
   font-weight: 700;
@@ -795,10 +795,12 @@ nav {
   content: '';
   flex: 0 0 auto;
   width: 3.3rem;
+  margin-right: -0.32rem;   /* mirrors the bull pull-in so the text stays centred */
 }
 .usf-logo-link {
   display: inline-block;
   vertical-align: middle;
+  margin-left: -0.32rem;
 }
 .usf-logo {
   height: 2.1rem;
@@ -2721,11 +2723,20 @@ function drawSketchedBird(bx, by, size, flap, color, opacity) {
 }
 
 // Drifting Clouds Config
-const clouds = [
-  { x: width * 0.12, y: height * 0.18, scale: 0.95, speed: 0.24 },
-  { x: width * 0.48, y: height * 0.14, scale: 1.15, speed: 0.16 },
-  { x: width * 0.78, y: height * 0.24, scale: 0.8, speed: 0.32 }
+// bx/by are resting positions as fractions of the viewport, so resize can restore them
+const cloudSpec = [
+  { bx: 0.33, by: 0.13, scale: 1.32, speed: 0.19, label: 'UI/UX' },
+  { bx: 0.05, by: 0.07, scale: 0.92, speed: 0.15 },
+  { bx: 0.56, by: 0.23, scale: 1.46, speed: 0.11, label: 'AI' },
+  { bx: 0.44, by: 0.07, scale: 0.86, speed: 0.27 },
+  { bx: 0.80, by: 0.15, scale: 1.34, speed: 0.17, label: 'ML' },
+  { bx: 0.66, by: 0.36, scale: 1.30, speed: 0.13, label: 'SWE' },
+  { bx: 0.95, by: 0.30, scale: 0.90, speed: 0.24 },
+  { bx: 0.24, by: 0.39, scale: 0.84, speed: 0.29 },
+  { bx: 0.88, by: 0.06, scale: 1.00, speed: 0.21 },
+  { bx: 0.42, by: 0.40, scale: 0.78, speed: 0.31 },
 ];
+const clouds = cloudSpec.map((c) => ({ ...c, x: width * c.bx, y: height * c.by }));
 
 // Hand-drawn sketched sun, parked in the upper sky
 const sun = { x: width * 0.15, y: height * 0.24, radius: 46 };
@@ -2755,11 +2766,14 @@ function updateCachedPaths() {
   // Clouds pre-rendering (local coordinates)
   pathCache.clouds = clouds.map(cloud => {
     const circles = [
-      { dx: -35, dy: 5, r: 24 },
-      { dx: -12, dy: -14, r: 32 },
-      { dx: 16, dy: -8, r: 28 },
-      { dx: 38, dy: 10, r: 20 },
-      { dx: 0, dy: 12, r: 25 }
+      { dx: -58, dy: 10, r: 27 },
+      { dx: -34, dy: -8, r: 35 },
+      { dx: -8,  dy: -20, r: 40 },
+      { dx: 20,  dy: -11, r: 35 },
+      { dx: 46,  dy: 4,  r: 29 },
+      { dx: 66,  dy: 14, r: 22 },
+      { dx: 12,  dy: 16, r: 31 },
+      { dx: -22, dy: 18, r: 29 }
     ];
     
     const isMobile = width < 760;
@@ -2768,21 +2782,8 @@ function updateCachedPaths() {
     return {
       scale: finalScale,
       circles: circles.map(c => {
-        const points = [];
-        const r = c.r * finalScale;
-        const tcx = c.dx * finalScale;
-        const tcy = c.dy * finalScale;
-        const steps = Math.max(8, Math.floor(2 * Math.PI * r / 36));
-        for (let i = 0; i <= steps; i++) {
-          const angle = (i / steps) * Math.PI * 2;
-          points.push({ x: tcx + Math.cos(angle) * r, y: tcy + Math.sin(angle) * r });
-        }
-        return {
-          dx: c.dx,
-          dy: c.dy,
-          r: c.r,
-          strokes: generateSketchedPath(points, 1.2, 1, true)
-        };
+        // no outline any more, so no sketched path to generate
+        return { dx: c.dx, dy: c.dy, r: c.r };
       })
     };
   });
@@ -2811,26 +2812,38 @@ function updateCachedPaths() {
 
 function drawSketchedCloudCached(cloudIndex, cx, cy, opacity) {
   const fillParsed = cloudFillColor;
-  ctx.fillStyle = `rgba(${fillParsed.r}, ${fillParsed.g}, ${fillParsed.b}, ${opacity * 0.88})`;
-  const strokeColor = `rgba(${cloudStrokeColor.r}, ${cloudStrokeColor.g}, ${cloudStrokeColor.b}, ${opacity})`;
+  const solid = clouds[cloudIndex] && clouds[cloudIndex].label ? 1 : 0.97;
+  ctx.fillStyle = `rgba(${fillParsed.r}, ${fillParsed.g}, ${fillParsed.b}, ${Math.min(opacity * 1.2, 1) * solid})`;
 
   const cachedCloud = pathCache.clouds[cloudIndex];
   if (!cachedCloud) return;
 
-  // Draw fills
+  // Clean silhouettes — no outlines at all, so there is no interior lattice to see.
   ctx.beginPath();
   cachedCloud.circles.forEach(c => {
     ctx.arc(cx + c.dx * cachedCloud.scale, cy + c.dy * cachedCloud.scale, c.r * cachedCloud.scale, 0, Math.PI * 2);
   });
   ctx.fill();
 
-  // Draw sketchy outlines
-  ctx.save();
-  ctx.translate(cx, cy);
-  cachedCloud.circles.forEach(c => {
-    drawCachedStrokes(c.strokes, strokeColor, 1.2, ctx, true);
-  });
-  ctx.restore();
+  // a few clouds carry a label — drawn on the same layer so it blurs with them
+  const spec = clouds[cloudIndex];
+  if (spec && spec.label) {
+    const size = 30 * cachedCloud.scale;
+    const lx = cx + 4 * cachedCloud.scale;
+    const ly = cy - 2 * cachedCloud.scale;
+    ctx.save();
+    ctx.font = `700 ${size}px 'Cabin Sketch', cursive`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    // knock the outlines back with a paper halo, then lay the word on solid
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 7 * cachedCloud.scale;
+    ctx.strokeStyle = `rgba(243, 237, 224, ${(opacity * 0.95).toFixed(3)})`;
+    ctx.strokeText(spec.label, lx, ly);
+    ctx.fillStyle = `rgba(28, 24, 18, ${Math.min(opacity * 1.25, 1).toFixed(3)})`;
+    ctx.fillText(spec.label, lx, ly);
+    ctx.restore();
+  }
 }
 
 function drawSun(targetCtx, cx, cy, opacity, time, scale = 1) {
@@ -2910,11 +2923,7 @@ function resize() {
   logoCtx.scale(dpr, dpr);
 
   
-  if (clouds && clouds.length >= 3) {
-    clouds[0].x = width * 0.12; clouds[0].y = height * 0.18;
-    clouds[1].x = width * 0.48; clouds[1].y = height * 0.14;
-    clouds[2].x = width * 0.78; clouds[2].y = height * 0.24;
-  }
+  clouds.forEach((c) => { c.x = width * c.bx; c.y = height * c.by; });
   sun.x = width * 0.15;
   sun.y = height * 0.24;
   if (birds && birds.length >= 3) {
