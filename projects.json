@@ -1,0 +1,257 @@
+{
+  "_readme": [
+    "Single source of truth for the Projects section. Edit this file and commit — there is no build step.",
+    "Order here is the order on the page; the 01-05 numbers on the cards are generated from it.",
+    "title / type show in the case-study modal. Add shortTitle / shortType only when the card should say something briefer.",
+    "thumbnail is one of:  { video, poster }  |  { image }  |  { color, glyph }   (color: yellow | ink | blue)",
+    "size sets the card width: lg | md | sm",
+    "about / features / links / gallery fill the case-study modal. gallery is optional.",
+    "notes are the hand-drawn callouts on each screenshot: text (\\n for a line break), x/y are % positions of the label, from = which side the arrow reaches in."
+  ],
+  "projects": [
+    {
+      "id": "appnest",
+      "title": "AppNest",
+      "type": "Mobile App",
+      "stack": "SwiftUI · SwiftData · NLP",
+      "tagline": "On-device AI email parsing. No server, no accounts.",
+      "thumbnail": {
+        "video": "assets/appnest/parse-email.mp4",
+        "poster": "assets/appnest/poster.jpg"
+      },
+      "size": "lg",
+      "about": "A job application tracker that parses pasted confirmation emails using Apple's on-device NaturalLanguage framework (no APIs), with SwiftData persistence, a centralized design system, search/sort/filter options, CSV export, and a profile stats dashboard.",
+      "features": [
+        "On-device AI email parsing with NaturalLanguage framework",
+        "SwiftData persistence: no server, no accounts",
+        "Centralized design system for consistent UI",
+        "Search, sort, and filter applications",
+        "CSV export for spreadsheet tracking",
+        "Profile stats dashboard with application analytics"
+      ],
+      "links": [
+        {
+          "label": "View on GitHub →",
+          "href": "https://github.com/marcanjoul/AppNest"
+        }
+      ],
+      "gallery": {
+        "type": "video",
+        "poster": "assets/appnest/poster.jpg",
+        "items": [
+          {
+            "label": "Parse email",
+            "src": "assets/appnest/parse-email.mp4"
+          },
+          {
+            "label": "Parse link",
+            "src": "assets/appnest/parse-link.mp4"
+          },
+          {
+            "label": "Import CSV",
+            "src": "assets/appnest/import-csv.mp4"
+          },
+          {
+            "label": "Manual entry",
+            "src": "assets/appnest/manual-entry.mp4"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "text": "parses a pasted email\nwith zero API calls",
+          "x": 58,
+          "y": 16,
+          "from": "right"
+        },
+        {
+          "text": "stored on-device —\nno server, no account",
+          "x": 14,
+          "y": 80,
+          "from": "left"
+        }
+      ]
+    },
+    {
+      "id": "ois",
+      "title": "OIS Competition Tracker",
+      "shortTitle": "OIS Tracker",
+      "type": "Web App",
+      "stack": "JavaScript · Firebase",
+      "tagline": "Retail competition app with a live leaderboard.",
+      "thumbnail": {
+        "image": "assets/hco-ois/screen-leaderboard.png"
+      },
+      "size": "md",
+      "about": "A fast, game-like retail competition web app built for my retail job. Associates log daily OIS (orders in store) performance, the app computes sales-per-hour automatically, and everyone can see where they stand on a live leaderboard. Managers get a PIN-protected admin view to oversee the competition.",
+      "features": [
+        "Daily order logging with automatic sales-per-hour calculation",
+        "Live, real-time leaderboard visible to the whole team",
+        "Competition countdown timer with automatic winner reveal",
+        "PIN-protected manager admin view",
+        "Mobile-first UI built for quick use on the sales floor"
+      ],
+      "links": [
+        {
+          "label": "View Live Site →",
+          "href": "https://hco-ois.vercel.app/"
+        },
+        {
+          "label": "View on GitHub →",
+          "href": "https://github.com/marcanjoul/hco-ois-competition"
+        }
+      ],
+      "gallery": {
+        "type": "images",
+        "items": [
+          {
+            "label": "Home",
+            "src": "assets/hco-ois/screen-home.png"
+          },
+          {
+            "label": "Leaderboard",
+            "src": "assets/hco-ois/screen-leaderboard.png"
+          },
+          {
+            "label": "Manager",
+            "src": "assets/hco-ois/screen-login.png"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "text": "leaderboard updates\nfor everyone, live",
+          "x": 60,
+          "y": 22,
+          "from": "right"
+        },
+        {
+          "text": "managers get a\nPIN-gated view",
+          "x": 16,
+          "y": 78,
+          "from": "left"
+        }
+      ]
+    },
+    {
+      "id": "groov",
+      "title": "Groov",
+      "type": "Mobile App",
+      "stack": "UIKit · Spotify API",
+      "tagline": "Rate and log the albums you listen to.",
+      "thumbnail": {
+        "image": "assets/placeholder/groov.svg",
+        "placeholder": true
+      },
+      "size": "sm",
+      "about": "A social music tracker for rating and logging the albums you listen to, capstone project for CodePath's iOS101 class.",
+      "features": [
+        "Album search powered by the Spotify API",
+        "Personal library with listened & want-to-listen lists",
+        "Star rating system for albums",
+        "Built with UIKit"
+      ],
+      "links": [
+        {
+          "label": "View on GitHub →",
+          "href": "https://github.com/marcanjoul/Groov-Codepath"
+        }
+      ],
+      "notes": [
+        {
+          "text": "album search via\nthe Spotify API",
+          "x": 58,
+          "y": 18,
+          "from": "right"
+        },
+        {
+          "text": "rate and shelve\nwhat you've heard",
+          "x": 15,
+          "y": 76,
+          "from": "left"
+        }
+      ]
+    },
+    {
+      "id": "noteweb",
+      "title": "NoteWeb",
+      "type": "RAG / AI",
+      "stack": "LLaMA 3 · Embeddings",
+      "tagline": "Local-first semantic search. Nothing leaves your machine.",
+      "thumbnail": {
+        "image": "assets/placeholder/noteweb.svg",
+        "placeholder": true
+      },
+      "size": "md",
+      "about": "A local-first RAG tool that semantically indexes and searches your documents using LLaMA 3 and vector embeddings. Everything runs locally: no cloud, and no data leaves your machine.",
+      "features": [
+        "Semantic search across local documents",
+        "LLaMA 3 for local LLM inference",
+        "Vector embeddings for document indexing",
+        "Fully offline, no cloud dependencies",
+        "RAG pipeline from ingestion to query"
+      ],
+      "links": [
+        {
+          "label": "View on GitHub →",
+          "href": "https://github.com/marcanjoul/NoteWeb"
+        }
+      ],
+      "notes": [
+        {
+          "text": "ranked by meaning,\nnot keywords",
+          "x": 58,
+          "y": 20,
+          "from": "right"
+        },
+        {
+          "text": "runs fully offline —\nLLaMA 3, local",
+          "x": 14,
+          "y": 78,
+          "from": "left"
+        }
+      ]
+    },
+    {
+      "id": "spotify",
+      "title": "Spotify Hit Song Predictor",
+      "shortTitle": "Hit Song Predictor",
+      "type": "Data Science / ML",
+      "shortType": "Data Science",
+      "stack": "Python · scikit-learn",
+      "tagline": "Can audio features predict a hit?",
+      "thumbnail": {
+        "image": "assets/placeholder/spotify.svg",
+        "placeholder": true
+      },
+      "size": "sm",
+      "about": "Logistic regression model exploring whether audio features can predict hit songs. Key insight: individual features have weak predictive power, and feature engineering is essential.",
+      "features": [
+        "Audio features alone are weak predictors of commercial success",
+        "Feature engineering and combination significantly improve accuracy",
+        "Explored danceability, energy, valence, tempo, and more",
+        "Built full data pipeline from Spotify API to model evaluation"
+      ],
+      "links": [
+        {
+          "label": "View on GitHub →",
+          "href": "https://github.com/marcanjoul/hit-song-predictor"
+        }
+      ],
+      "notes": [
+        {
+          "text": "audio features alone\nbarely predict a hit",
+          "x": 56,
+          "y": 18,
+          "from": "right"
+        },
+        {
+          "text": "feature engineering\nis what moved it",
+          "x": 15,
+          "y": 78,
+          "from": "left"
+        }
+      ]
+    }
+  ]
+}
