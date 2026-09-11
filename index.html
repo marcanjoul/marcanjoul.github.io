@@ -541,38 +541,86 @@ nav {
   transition: transform 0.45s var(--ease-expo);
 }
 
-/* --- each screenshot sits in the frame its platform actually has --- */
-.device-bay {
-  display: flex;
-  align-items: flex-end;     /* phone and browser stand on the same floor */
-  height: 400px;             /* fixed, so every caption starts at the same line */
-}
-.device {
-  position: relative;
-  border: 2px solid var(--ink);
-  background: var(--paper);
-  filter: url(#sketchy);
-  transition: transform 0.45s var(--ease-expo);
-}
-.device-chrome {
+/* --- stacked case-study panels: each pins, the next slides over it --- */
+.proj-stack { position: relative; }
+.proj-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
   display: flex;
   align-items: center;
-  gap: 0.3rem;
-  border-bottom: 2px solid var(--ink);
-  padding: 0.4rem 0.6rem;
+  justify-content: center;
 }
-.device-dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--ink); }
-.device-bar {
-  flex: 1;
-  height: 10px;
-  border: 1.5px solid var(--ink);
+.proj-panel {
+  position: relative;
+  /* the panel is not a rail card — reset what .proj set for the old layout */
+  flex: 0 0 auto;
+  width: min(94%, 1060px);
+  display: flex;
+  flex-direction: row;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+  padding: clamp(1.6rem, 3.5vw, 2.6rem);
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 26px 8px 26px 8px;
+  box-shadow: 0 18px 50px rgba(28, 24, 18, 0.22);
+  cursor: pointer;
+  transform-origin: 50% 0%;
+  will-change: transform;
+}
+.proj-panel::before {          /* the sketchy second outline, as everywhere else */
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border: 2px solid var(--ink);
+  border-radius: inherit;
+  filter: url(#sketchy);
+  pointer-events: none;
+}
+.proj-info { flex: 0 0 34%; display: flex; flex-direction: column; gap: 0.5rem; }
+.proj-info h3 {
+  font-family: 'Cabin Sketch', var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 4.4vw, 3.2rem);
+  line-height: 1.02;
+  color: var(--ink);
+}
+.proj-info p { font-size: 0.95rem; line-height: 1.5; color: var(--ink-2); }
+.proj-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.9rem; }
+.proj-btn {
+  position: relative;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.45rem 1rem;
+  border: 2px solid var(--ink);
   border-radius: 999px;
-  margin-left: 0.4rem;
+  color: var(--ink);
+  background: var(--paper);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.proj-btn-primary { background: var(--yellow); }
+@media (hover: hover) and (pointer: fine) {
+  .proj-btn:hover { background: var(--ink); color: var(--paper); }
+}
+.proj-shot {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  background: #2a2620;
+  aspect-ratio: 16 / 10;
+}
+.proj-shot img, .proj-shot video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+@media (max-width: 860px) {
+  .proj-panel { flex-direction: column; align-items: stretch; }
+  .proj-info { flex: 0 0 auto; }
 }
 
-/* phone: rounded slab, speaker slot, home bar */
-.device-phone { width: 200px; border-radius: 26px; padding: 0.55rem 0.5rem 1.1rem; }
-.device-phone .proj-frame { border-radius: 16px; aspect-ratio: 9 / 17; }
+.proj-frame { border-radius: 16px; aspect-ratio: 9 / 17; }
 .device-phone::before {
   content: '';
   position: absolute; top: 0.62rem; left: 50%; transform: translateX(-50%);
@@ -602,6 +650,7 @@ nav {
   background: #2a2620;
   display: grid;
   place-items: center;
+  aspect-ratio: 4 / 3;
 }
 
 
@@ -1441,15 +1490,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
       <h2 class="chapter-title split">Things I've built.</h2>
 
       <div class="proj-stage">
-        <button class="rail-arrow rail-arrow-prev" type="button" aria-label="Previous projects">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 L8 12 L15 19"/></svg>
-        </button>
-        <button class="rail-arrow rail-arrow-next" type="button" aria-label="Next projects">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5 L16 12 L9 19"/></svg>
-        </button>
-        <div class="proj-rail" data-lenis-prevent tabindex="0" role="group" aria-label="Projects, scroll horizontally">
-        </div>
-        <div class="rail-bar" aria-hidden="true"><div class="rail-bar-thumb"></div></div>
+        <div class="proj-stack"></div>
       </div>
     </div>
   </section>
@@ -1875,31 +1916,30 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
 
 function projectThumb(t) {
   if (t.video) {
-    return `<div class="proj-frame"><video class="proj-video" src="${esc(t.video)}"` +
-           ` poster="${esc(t.poster)}" muted loop playsinline preload="none" aria-hidden="true"></video></div>`;
+    return `<video src="${esc(t.video)}" poster="${esc(t.poster)}" muted loop playsinline` +
+           ` preload="none" aria-hidden="true"></video>`;
   }
-  return `<div class="proj-frame"><img src="${esc(t.image)}" alt="" loading="lazy" decoding="async"></div>`;
-}
-
-// browser and terminal get window chrome; the phone's slot and home bar are drawn in CSS
-function deviceChrome(frame) {
-  if (frame === 'phone') return '';
-  return `<div class="device-chrome">` +
-    `<span class="device-dot"></span><span class="device-dot"></span><span class="device-dot"></span>` +
-    `<span class="device-bar"></span></div>`;
+  return `<img src="${esc(t.image)}" alt="" loading="lazy" decoding="async">`;
 }
 
 function projectCard(p, i) {
   // shortTitle / shortType are card-only overrides; everything else is shared with the modal
-  return `<article class="proj" data-project="${esc(p.id)}">` +
-    `<div class="device-bay"><div class="device device-${esc(p.frame)}">` + deviceChrome(p.frame) + projectThumb(p.thumbnail) + `</div></div>` +
-    `<div class="proj-caption">` +
+  const links = (p.links || []).map((l) => {
+    const label = l.label.replace(/\s*[→↗]\s*$/, '');
+    return `<a class="proj-btn" href="${esc(l.href)}" target="_blank" rel="noopener">${esc(label)}</a>`;
+  }).join('');
+  return `<div class="proj-sticky"><article class="proj proj-panel" data-project="${esc(p.id)}">` +
+    `<div class="proj-info">` +
       `<span class="proj-meta"><b>${String(i + 1).padStart(2, '0')}</b> ${esc(p.shortType || p.type)}` +
       ` <i>${esc(p.stack)}</i></span>` +
       `<h3>${esc(p.shortTitle || p.title)}</h3>` +
       `<p>${esc(p.tagline)}</p>` +
-      `<span class="proj-cta">View case study<i>&rarr;</i></span>` +
-    `</div></article>`;
+      `<div class="proj-actions">` +
+        `<button class="proj-btn proj-btn-primary" type="button">Case study</button>${links}` +
+      `</div>` +
+    `</div>` +
+    `<div class="proj-shot">` + projectThumb(p.thumbnail) + `</div>` +
+  `</article></div>`;
 }
 
 // the modal reads its own field names, so map once here
@@ -1908,8 +1948,27 @@ function projectModal(p) {
            features: p.features, links: p.links, media: p.gallery };
 }
 
+// Each panel pins, then shrinks back as the following one slides over it.
+function stackPanels() {
+  const panels = gsap.utils.toArray('.proj-panel');
+  panels.forEach((panel, i) => {
+    if (i === panels.length - 1) return;      // the last one has nothing on top of it
+    gsap.to(panel, {
+      scale: 0.92,
+      opacity: 0.55,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: panel.closest('.proj-sticky'),
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true,
+      },
+    });
+  });
+}
+
 async function initProjects() {
-  const rail = document.querySelector('.proj-rail');
+  const rail = document.querySelector('.proj-stack');
   if (!rail) return;
   try {
     const res = await fetch('projects.json', { cache: 'no-cache' });
@@ -1919,7 +1978,7 @@ async function initProjects() {
     rail.innerHTML = projects.map(projectCard).join('');
     wireTiles();
     wireRail();
-    revealProjects();
+    stackPanels();
     ScrollTrigger.refresh();
   } catch (err) {
     // Leave the rail empty rather than half-built, and say why in the console.
