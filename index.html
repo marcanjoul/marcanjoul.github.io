@@ -191,22 +191,6 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ========== SKY-TO-GROUND SCROLL SCENE ========== */
-#ground-layer {
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  height: 0;
-  z-index: 1;
-  background: linear-gradient(to bottom, #6f4f32, #4a3320);
-  pointer-events: none;
-  /* Irregular torn-earth top edge instead of a flat line */
-  clip-path: polygon(0% 4%, 6% 0%, 13% 5%, 20% 1%, 28% 6%, 36% 2%, 44% 7%, 52% 1%, 60% 5%, 68% 0%, 76% 6%, 84% 2%, 92% 5%, 100% 0%, 100% 100%, 0% 100%);
-}
-.ground-pebble {
-  position: absolute;
-  bottom: 3%;
-  border-radius: 50%;
-  background: linear-gradient(160deg, #7a6a5a, #6a5a4a);
-}
 @keyframes sway {
   0% { transform: rotate(-3deg); }
   100% { transform: rotate(3deg); }
@@ -1237,12 +1221,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 <canvas id="celestial-canvas"></canvas>
 <canvas id="decor-canvas" aria-hidden="true"></canvas>
 
-<!-- Scroll-driven sky-to-ground ground scene (sits in front of the sky canvas) -->
-<div id="ground-layer" aria-hidden="true">
-  <div class="ground-pebble" style="left:14%; width:11px; height:7px;"></div>
-  <div class="ground-pebble" style="left:48%; width:8px; height:5px;"></div>
-  <div class="ground-pebble" style="left:73%; width:12px; height:8px;"></div>
-</div>
 <canvas id="logo-canvas"></canvas>
 <div id="top-blur-header" aria-hidden="true"></div>
 <div class="paper-grain" aria-hidden="true"></div>
@@ -2547,6 +2525,14 @@ function seededRandom() {
 
 // Static watercolor sky gradient stops
 const skyStops = ['#8cb5e1', '#b9d5f3', '#f3ede0'];
+// Late-afternoon Mediterranean: pink into peach into warm sand. Deliberately light —
+// this is Anfeh at golden hour, not night.
+const sunsetStops = ['#eda3b0', '#f9c6a4', '#ffe8d2'];
+const seaStops = ['#7fb3bd', '#3f8aa6', '#256781'];
+const mix = (a, b, k) => {
+  const A = parseColor(a), B = parseColor(b);
+  return `rgb(${Math.round(A.r + (B.r - A.r) * k)}, ${Math.round(A.g + (B.g - A.g) * k)}, ${Math.round(A.b + (B.b - A.b) * k)})`;
+};
 
 function parseColor(color) {
   if (color.startsWith('#')) {
@@ -2763,7 +2749,6 @@ const birds = [
 /* ---------- sky-to-ground scroll scene ---------- */
 const easeInOutQuad = (t) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
 
-const groundLayerEl = document.getElementById('ground-layer');
 
 
 
@@ -3008,9 +2993,13 @@ function draw(time) {
   // 1. Draw watercolor sky background; gradient's middle stop migrates downward as we descend
   const grad = ctx.createLinearGradient(0, 0, 0, height);
   const skyMidStop = Math.min(0.6 + sceneProgress * 0.35, 0.95);
-  grad.addColorStop(0, skyStops[0]);
-  grad.addColorStop(skyMidStop, skyStops[1]);
-  grad.addColorStop(1, skyStops[2]);
+  // how far into the sunset we are — eased so the turn is gradual, capped short of full
+  // saturation so the page never gets dark
+  const duskT = Math.min(Math.max((rawProgress - 0.12) / 0.62, 0), 1);
+  const dusk = duskT * duskT * (3 - 2 * duskT) * 0.92;
+  grad.addColorStop(0, mix(skyStops[0], sunsetStops[0], dusk));
+  grad.addColorStop(skyMidStop, mix(skyStops[1], sunsetStops[1], dusk));
+  grad.addColorStop(1, mix(skyStops[2], sunsetStops[2], dusk));
 
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, width, height);
@@ -3054,8 +3043,9 @@ function draw(time) {
     const sunT = Math.min(Math.max(rawProgress / 0.85, 0), 1);
     const sunEase = sunT * sunT * (3 - 2 * sunT);
 
+    // the sun slides to centre and sinks to meet the sea
     const sunX = sun.x + (width * 0.5 - sun.x) * sunEase;
-    const sunY = sun.y + (height * 0.11 - sun.y) * sunEase;
+    const sunY = sun.y + (height * 0.60 - sun.y) * sunEase;
     drawSun(decorCtx, sunX, sunY, 0.9, time);
 
     const ease = cloudEase;
@@ -3089,9 +3079,47 @@ function draw(time) {
   }
 
   // Ground band stays hidden until raw scroll hits 90%, then rises to ~40vh by the very bottom
-  const groundReveal = Math.min(Math.max((rawProgress - 0.9) / 0.1, 0), 1);
-  const groundHeightPx = groundReveal * 0.4 * height;
-  if (groundLayerEl) groundLayerEl.style.height = `${groundHeightPx}px`;
+  // The sea rises into the lower third as you descend, and the horizon is where the sun
+  // will eventually sit. Drawn on the sky canvas so the glitter can sit on top of it.
+  const seaReveal = Math.min(Math.max((rawProgress - 0.45) / 0.4, 0), 1);
+  const seaEase = seaReveal * seaReveal * (3 - 2 * seaReveal);
+  const seaHeight = seaEase * 0.38 * height;
+  const horizonY = height - seaHeight;
+
+  if (seaHeight > 1) {
+    const seaGrad = ctx.createLinearGradient(0, horizonY, 0, height);
+    seaGrad.addColorStop(0, mix(seaStops[0], '#e8b391', dusk * 0.55));   // warm at the horizon
+    seaGrad.addColorStop(0.45, seaStops[1]);
+    seaGrad.addColorStop(1, seaStops[2]);
+    ctx.fillStyle = seaGrad;
+    ctx.fillRect(0, horizonY, width, seaHeight);
+
+    // the sun's path on the water — broken dashes, widest near the horizon
+    const glowX = width * 0.5;
+    const rows = Math.floor(seaHeight / 13);
+    for (let i = 0; i < rows; i++) {
+      const y = horizonY + i * 13 + 6;
+      const depth = i / Math.max(rows - 1, 1);
+      const spread = 18 + depth * 150;
+      const alpha = (1 - depth) * 0.5 * (0.35 + dusk * 0.65);
+      if (alpha < 0.01) continue;
+      ctx.strokeStyle = `rgba(255, 226, 189, ${alpha.toFixed(3)})`;
+      ctx.lineWidth = 2 + depth * 1.5;
+      ctx.lineCap = 'round';
+      const dashes = 2 + Math.floor(depth * 4);
+      for (let d = 0; d < dashes; d++) {
+        const t0 = (d / dashes - 0.5) * 2;
+        const cx = glowX + t0 * spread + Math.sin(time * 0.0006 + i * 1.7 + d) * 9;
+        const len = (14 + depth * 26) * (0.5 + Math.random() * 0.5);
+        ctx.beginPath();
+        ctx.moveTo(cx - len / 2, y);
+        ctx.lineTo(cx + len / 2, y);
+        ctx.stroke();
+      }
+    }
+  }
+  const groundReveal = seaEase;
+  const groundHeightPx = seaHeight;
 
 
   // Horizon line emerges alongside the ground band, sketched at the sky/ground boundary
