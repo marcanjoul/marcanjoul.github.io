@@ -509,7 +509,7 @@ nav {
   display: flex;
   flex-direction: row;
   gap: clamp(1.5rem, 0.167rem + 4.444vw, 3.5rem);
-  align-items: center;
+  align-items: stretch;
   padding: clamp(1.6rem, 1.067rem + 1.778vw, 2.4rem);
   background: var(--paper);
   border: 2px solid var(--ink);
@@ -525,16 +525,47 @@ nav {
   filter: url(#sketchy);
   pointer-events: none;
 }
-.proj-info { flex: 0 0 34%; display: flex; flex-direction: column; gap: 0.5rem; }
-.proj-info h3 {
-  font-family: 'Cabin Sketch', var(--font-display);
-  font-weight: 700;
-  font-size: 2.9rem;
-  line-height: 1.02;
-  color: var(--ink);
+/* Fixed rows, not a flex column: a one-line tagline and a two-line tagline have to leave
+   the title and the button in exactly the same place.
+
+   Row 4 is the only flexible one. Everything above it is anchored to the top of the column,
+   everything below it to the bottom, and the slack collects in the middle — so the panel
+   reads as two groups (what it is / what it's made of and where to go) rather than one
+   centred clump, and every slot still lands on the same pixel in all five projects. */
+.proj-info {
+  flex: 0 0 38%;
+  display: grid;
+  grid-template-rows: 1.15rem 2.45rem 3rem 1fr 3.3rem;
+  row-gap: 0;
+  min-width: 0;
 }
-.proj-info p { font-size: 0.95rem; line-height: 1.5; color: var(--ink-2); }
-.proj-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.8rem; }
+.proj-actions { grid-row: 5; }
+.proj-actions { display: flex; align-items: center; gap: 0.75rem; }
+
+/* Big sketched discs, same construction as the contact circles so they read as one system. */
+.proj-badge {
+  flex: 0 0 auto;
+  width: 3.1rem;
+  height: 3.1rem;
+  display: grid;
+  place-items: center;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  filter: url(#sketchy);
+  color: var(--ink);
+  transition: background-color 0.2s ease, color 0.2s ease,
+              border-color 0.2s ease, transform 160ms var(--ease-expo);
+}
+.proj-badge svg { width: 1.5rem; height: 1.5rem; }
+/* the deployed site is the rarer, more valuable click, so it carries the accent */
+.proj-badge-site { color: var(--accent); }
+@media (hover: hover) and (pointer: fine) {
+  .proj-badge-github:hover { background: var(--ink); color: var(--paper); }
+  .proj-badge-site:hover { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+}
+.proj-badge:active { transform: scale(0.94); }
+.proj-badge:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .proj-btn {
   font-family: var(--font-body);
   font-weight: 600;
@@ -561,6 +592,8 @@ nav {
 }
 .proj-shot img, .proj-shot video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+.proj-single { position: relative; }
+
 /* the outgoing project sits on top and is wiped away to reveal the next one under it */
 .proj-holder { position: relative; }
 .proj-layer-out {
@@ -573,15 +606,21 @@ nav {
 /* each horizontal band of the outgoing project, cleared one eraser pass at a time */
 .erase-band { position: absolute; inset: 0; }
 
-/* the swept band: what you have already erased should read clearly, not as a soft haze */
+/* The swept band. It used to be solid paper, which defeated the point — once the eraser
+   has passed there is nothing behind the board but sky, so the smear has to let it through. */
 .eraser-smudge {
   position: absolute;
   z-index: 5;
   opacity: 0;
   pointer-events: none;
-  background: var(--paper);
-  filter: url(#sketchy) blur(1px);
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.30) 45%,
+    rgba(255, 255, 255, 0.55) 100%);
+  filter: url(#sketchy) blur(2px);
 }
+/* the sweep edge gets the same pencil wobble as the erase edge, but only while it moves */
+.proj-panel.is-drawing { filter: url(#sketchy); }
 
 /* pager */
 .proj-pager { display: flex; align-items: center; gap: 0.6rem; margin-top: 1.2rem; justify-content: center; }
@@ -618,7 +657,9 @@ nav {
 }
 @media (max-width: 860px) {
   .proj-panel { flex-direction: column; align-items: stretch; }
-  .proj-info { flex: 0 0 auto; }
+  /* stacked, there is no shot height to spread against — the flexible row becomes a fixed
+     gap so the two groups stay grouped instead of collapsing together */
+  .proj-info { flex: 0 0 auto; grid-template-rows: auto auto auto 0.85rem auto; }
 }
 
 .proj-frame { border-radius: 16px; aspect-ratio: 9 / 17; }
@@ -733,18 +774,44 @@ nav {
 }
 .proj-meta b { color: var(--accent); font-weight: 400; }
 .proj-meta i { font-style: normal; opacity: 0.75; }
+/* One rule per slot now. The old pair (.proj-info h3 / .proj h3) had equal specificity, so
+   the second silently won and the declared title size never rendered. */
+.proj-kicker {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  align-self: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.proj-kicker { color: var(--ink-3); }
+/* the same face the name is drawn in on the hero canvas */
 .proj h3 {
-  font-family: var(--font-display);
+  font-family: 'Cabin Sketch', var(--font-display);
   font-weight: 700;
   font-size: 1.9rem;
   line-height: 1.1;
   color: var(--ink);
+  align-self: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.proj p {
+.proj-tagline {
   font-size: 0.86rem;
   line-height: 1.45;
   color: var(--ink-2);
-  max-width: 34ch;
+  /* start, not center: a one-line tagline has to share its first baseline with a two-line one */
+  align-self: start;
+  padding-top: 0.4rem;
+  /* exactly two lines, whatever the copy does */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Dedicated Hero Spacer & Hero Content styles */
@@ -2083,6 +2150,10 @@ function wireTiles() {
   tile.setAttribute('aria-label', `${name} — open case study`);
   const open = () => openProjectModal(tile.dataset.project, tile);
   tile.addEventListener('click', open);
+  // the badges are their own destinations — clicking one must not also open the case study
+  tile.querySelectorAll('.proj-badge').forEach((b) => {
+    b.addEventListener('click', (e) => e.stopPropagation());
+  });
   tile.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
   });
@@ -2114,21 +2185,34 @@ function projectThumb(t) {
   return `<img src="${esc(t.image)}" alt="" loading="lazy" decoding="async">`;
 }
 
+const BADGE_ICON = {
+  github: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" fill="currentColor"/></svg>',
+  site: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.6" y="4.6" width="18.8" height="14.8" rx="2.6" stroke="currentColor" stroke-width="1.9"/><path d="M2.6 9.6H21.4" stroke="currentColor" stroke-width="1.9"/><circle cx="5.9" cy="7.1" r="0.85" fill="currentColor"/><circle cx="8.5" cy="7.1" r="0.85" fill="currentColor"/><circle cx="11.1" cy="7.1" r="0.85" fill="currentColor"/></svg>'
+};
+
+// The repo and the deployed site are worth reaching without opening the case study first,
+// so they come back as badges rather than as more pills in the action row.
+function projectBadges(links) {
+  return (links || []).map((l) => {
+    const isRepo = /github\.com/i.test(l.href);
+    const kind = isRepo ? 'github' : 'site';
+    const label = isRepo ? 'Open the repository on GitHub' : 'Open the live site';
+    return `<a class="proj-badge proj-badge-${kind}" href="${esc(l.href)}" target="_blank"` +
+      ` rel="noopener" aria-label="${label}" title="${label}">${BADGE_ICON[kind]}</a>`;
+  }).join('');
+}
+
 function projectCard(p, i) {
   // shortTitle / shortType are card-only overrides; everything else is shared with the modal
-  const links = (p.links || []).map((l) => {
-    const label = l.label.replace(/\s*[→↗]\s*$/, '');
-    return `<a class="proj-btn" href="${esc(l.href)}" target="_blank" rel="noopener">${esc(label)}</a>`;
-  }).join('');
+  // Five slots, always the same five, always in the same place. The repo and live links
+  // live in the case study, which is one click away and where someone goes to act on them;
+  // keeping them here made the action row wrap and shoved the whole column around.
   return `<article class="proj proj-panel" data-project="${esc(p.id)}">` +
     `<div class="proj-info">` +
-      `<span class="proj-meta"><b>${String(i + 1).padStart(2, '0')}</b> ${esc(p.shortType || p.type)}` +
-      ` <i>${esc(p.stack)}</i></span>` +
+      `<span class="proj-kicker">${esc(p.shortType || p.type)}</span>` +
       `<h3>${esc(p.shortTitle || p.title)}</h3>` +
-      `<p>${esc(p.tagline)}</p>` +
-      `<div class="proj-actions">` +
-        `<button class="proj-btn proj-btn-primary" type="button">Case study</button>${links}` +
-      `</div>` +
+      `<p class="proj-tagline">${esc(p.tagline)}</p>` +
+      `<div class="proj-actions">` + projectBadges(p.links) + `</div>` +
     `</div>` +
     `<div class="proj-shot">` + projectThumb(p.thumbnail) + `</div>` +
   `</article>`;
@@ -2149,7 +2233,8 @@ let projectList = [];
 let projectIndex = -1;
 let outgoingIndex = -1;
 
-const WIPE_ZONE = 0.28;   // share of each project's scroll segment spent wiping
+const WIPE_ZONE = 0.28;    // share of each project's scroll segment spent wiping
+const ERASE_SHARE = 0.55;  // ...of which this much is erasing; the rest draws the next one on
 
 function layerHTML(i) {
   return projectCard(projectList[i], i);
@@ -2188,6 +2273,25 @@ function setOutgoing(i) {
     outgoingIndex = i;
   }
   return out;
+}
+
+// The board is the only opaque thing on the page, so once the eraser has passed there is
+// nothing behind it but the live sky. r: 0 = not yet drawn, 1 = fully on the board.
+function setBaseReveal(r) {
+  const panel = document.querySelector('.proj-holder > .proj-panel');
+  if (!panel) return;
+  if (r >= 0.999) {
+    panel.style.visibility = '';
+    panel.style.clipPath = '';
+  } else if (r <= 0.001) {
+    // hidden, not removed — the base still has to give the holder its height
+    panel.style.visibility = 'hidden';
+    panel.style.clipPath = '';
+  } else {
+    panel.style.visibility = '';
+    panel.style.clipPath = `inset(0 ${((1 - r) * 100).toFixed(2)}% 0 0)`;
+  }
+  panel.classList.toggle('is-drawing', r > 0.001 && r < 0.999);
 }
 
 // g: 0 = board untouched, 1 = wiped clean
@@ -2259,15 +2363,27 @@ function wireProjectScroll() {
       const p = Math.min(self.progress, 0.9999) * n;
       const i = Math.floor(p);
       const frac = p - i;
-      if (frac > 1 - WIPE_ZONE && i < n - 1) {
-        // wiping project i off to reveal project i + 1 underneath
+      const wipeStart = 1 - WIPE_ZONE;
+      if (frac > wipeStart && i < n - 1) {
+        const w = (frac - wipeStart) / WIPE_ZONE;
         renderBase(i + 1);
-        setOutgoing(i);
-        setWipe((frac - (1 - WIPE_ZONE)) / WIPE_ZONE);
+        if (w < ERASE_SHARE) {
+          // erasing project i away — what it uncovers is bare sky, not the next panel
+          setOutgoing(i);
+          setWipe(w / ERASE_SHARE);
+          setBaseReveal(0);
+        } else {
+          // board is clear; project i + 1 sweeps on across it
+          const d = (w - ERASE_SHARE) / (1 - ERASE_SHARE);
+          setOutgoing(-1);
+          setWipe(0);
+          setBaseReveal(d);
+        }
       } else {
         renderBase(i);
         setOutgoing(-1);
         setWipe(0);
+        setBaseReveal(1);
       }
     },
   });

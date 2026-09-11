@@ -6,6 +6,7 @@
     "thumbnail is one of:  { video, poster }  |  { image }  |  { color, glyph }   (color: yellow | ink | blue)",
     "size sets the card width: lg | md | sm",
     "about / features / links / gallery fill the case-study modal. gallery is optional.",
+    "tags are the domain labels that drift in on clouds beside the panel — keep to 1-2, they share the hero's vocabulary (UI/UX, AI, ML, SWE).",
     "notes are the hand-drawn callouts on each screenshot: text (\\n for a line break), x/y are % positions of the label, from = which side the arrow reaches in."
   ],
   "projects": [
@@ -14,6 +15,7 @@
       "title": "AppNest",
       "type": "Mobile App",
       "stack": "SwiftUI · SwiftData · NLP",
+      "tags": ["UI/UX", "ML"],
       "tagline": "On-device AI email parsing. No server, no accounts.",
       "thumbnail": {
         "video": "assets/appnest/parse-email.mp4",
@@ -78,6 +80,7 @@
       "shortTitle": "OIS Tracker",
       "type": "Web App",
       "stack": "JavaScript · Firebase",
+      "tags": ["SWE", "UI/UX"],
       "tagline": "Retail competition app with a live leaderboard.",
       "thumbnail": {
         "image": "assets/hco-ois/screen-leaderboard.png"
@@ -138,6 +141,7 @@
       "title": "Groov",
       "type": "Mobile App",
       "stack": "UIKit · Spotify API",
+      "tags": ["UI/UX"],
       "tagline": "Rate and log the albums you listen to.",
       "thumbnail": {
         "image": "assets/placeholder/groov.svg",
@@ -177,6 +181,7 @@
       "title": "NoteWeb",
       "type": "RAG / AI",
       "stack": "LLaMA 3 · Embeddings",
+      "tags": ["AI", "SWE"],
       "tagline": "Local-first semantic search. Nothing leaves your machine.",
       "thumbnail": {
         "image": "assets/placeholder/noteweb.svg",
@@ -219,6 +224,7 @@
       "type": "Data Science / ML",
       "shortType": "Data Science",
       "stack": "Python · scikit-learn",
+      "tags": ["ML"],
       "tagline": "Can audio features predict a hit?",
       "thumbnail": {
         "image": "assets/placeholder/spotify.svg",
