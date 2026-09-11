@@ -541,9 +541,10 @@ nav {
   transition: transform 0.45s var(--ease-expo);
 }
 
-/* --- stacked case-study panels: each pins, the next slides over it --- */
-.proj-stack { position: relative; }
-.proj-sticky {
+/* --- one project at a time; swiping erases it and scribbles in the next --- */
+/* the section is tall; the block inside pins while you scroll through it */
+.proj-scroll { position: relative; }
+.proj-pin {
   position: sticky;
   top: 0;
   height: 100vh;
@@ -551,25 +552,22 @@ nav {
   align-items: center;
   justify-content: center;
 }
+.proj-single { position: relative; width: 100%; }
 .proj-panel {
   position: relative;
-  /* the panel is not a rail card — reset what .proj set for the old layout */
   flex: 0 0 auto;
-  width: min(94%, 1060px);
+  width: 100%;
   display: flex;
   flex-direction: row;
   gap: clamp(1.5rem, 4vw, 3.5rem);
   align-items: center;
-  padding: clamp(1.6rem, 3.5vw, 2.6rem);
+  padding: clamp(1.6rem, 3.5vw, 2.4rem);
   background: var(--paper);
   border: 2px solid var(--ink);
   border-radius: 26px 8px 26px 8px;
-  box-shadow: 0 18px 50px rgba(28, 24, 18, 0.22);
   cursor: pointer;
-  transform-origin: 50% 0%;
-  will-change: transform;
 }
-.proj-panel::before {          /* the sketchy second outline, as everywhere else */
+.proj-panel::before {
   content: '';
   position: absolute;
   inset: -3px;
@@ -582,14 +580,13 @@ nav {
 .proj-info h3 {
   font-family: 'Cabin Sketch', var(--font-display);
   font-weight: 700;
-  font-size: clamp(2rem, 4.4vw, 3.2rem);
+  font-size: clamp(1.9rem, 4vw, 2.9rem);
   line-height: 1.02;
   color: var(--ink);
 }
 .proj-info p { font-size: 0.95rem; line-height: 1.5; color: var(--ink-2); }
-.proj-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.9rem; }
+.proj-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.8rem; }
 .proj-btn {
-  position: relative;
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 0.85rem;
@@ -615,6 +612,84 @@ nav {
 }
 .proj-shot img, .proj-shot video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+/* the outgoing project sits on top and is wiped away to reveal the next one under it */
+.proj-holder { position: relative; }
+.proj-layer-out {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  filter: url(#sketchy);        /* the wipe edge wobbles like a pencil line */
+  will-change: clip-path;
+}
+/* each horizontal band of the outgoing project, cleared one eraser pass at a time */
+.erase-band { position: absolute; inset: 0; }
+
+/* the eraser itself */
+.eraser {
+  position: absolute;
+  width: 104px;
+  z-index: 6;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(-3deg);
+  filter: url(#sketchy);
+}
+.eraser-body {
+  height: 34px;
+  background: var(--paper-2);
+  border: 2px solid var(--ink);
+  border-radius: 7px 5px 7px 5px;
+}
+.eraser-felt {
+  height: 13px;
+  margin: -2px 5px 0;
+  background: var(--ink);
+  opacity: 0.72;
+  border-radius: 0 0 5px 5px;
+}
+/* the smear the felt leaves behind */
+.eraser-smudge {
+  position: absolute;
+  z-index: 5;
+  opacity: 0;
+  pointer-events: none;
+  background: var(--paper);
+  filter: blur(6px);
+}
+
+/* pager */
+.proj-pager { display: flex; align-items: center; gap: 0.6rem; margin-top: 1.2rem; justify-content: center; }
+.proj-ticks { display: flex; gap: 0.4rem; }
+.proj-tick {
+  width: 26px; height: 3px;
+  background: var(--ink);
+  opacity: 0.2;
+  border-radius: 999px;
+  transition: opacity 0.25s ease;
+}
+.proj-tick.on { opacity: 0.85; }
+.proj-step {
+  width: 2.6rem; height: 2.6rem;
+  display: grid; place-items: center;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  filter: url(#sketchy);
+  cursor: pointer;
+  color: var(--ink);
+  transition: background-color 0.2s ease;
+}
+.proj-step svg { width: 1.05rem; height: 1.05rem; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+@media (hover: hover) and (pointer: fine) { .proj-step:hover { background: var(--yellow); } }
+.proj-step:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.proj-count {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+  min-width: 4.5rem;
+  text-align: center;
+}
 @media (max-width: 860px) {
   .proj-panel { flex-direction: column; align-items: stretch; }
   .proj-info { flex: 0 0 auto; }
@@ -1490,7 +1565,19 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
       <h2 class="chapter-title split">Things I've built.</h2>
 
       <div class="proj-stage">
-        <div class="proj-stack"></div>
+        <div class="proj-scroll">
+          <div class="proj-pin">
+            <div class="proj-single">
+              <div class="proj-holder"></div>
+              <div class="eraser-smudge" aria-hidden="true"></div>
+              <div class="eraser" aria-hidden="true"><div class="eraser-body"></div><div class="eraser-felt"></div></div>
+              <div class="proj-pager">
+                <span class="proj-count" aria-live="polite"></span>
+                <span class="proj-ticks"></span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -1928,7 +2015,7 @@ function projectCard(p, i) {
     const label = l.label.replace(/\s*[→↗]\s*$/, '');
     return `<a class="proj-btn" href="${esc(l.href)}" target="_blank" rel="noopener">${esc(label)}</a>`;
   }).join('');
-  return `<div class="proj-sticky"><article class="proj proj-panel" data-project="${esc(p.id)}">` +
+  return `<article class="proj proj-panel" data-project="${esc(p.id)}">` +
     `<div class="proj-info">` +
       `<span class="proj-meta"><b>${String(i + 1).padStart(2, '0')}</b> ${esc(p.shortType || p.type)}` +
       ` <i>${esc(p.stack)}</i></span>` +
@@ -1939,7 +2026,7 @@ function projectCard(p, i) {
       `</div>` +
     `</div>` +
     `<div class="proj-shot">` + projectThumb(p.thumbnail) + `</div>` +
-  `</article></div>`;
+  `</article>`;
 }
 
 // the modal reads its own field names, so map once here
@@ -1948,37 +2035,156 @@ function projectModal(p) {
            features: p.features, links: p.links, media: p.gallery };
 }
 
-// Each panel pins, then shrinks back as the following one slides over it.
-function stackPanels() {
-  const panels = gsap.utils.toArray('.proj-panel');
-  panels.forEach((panel, i) => {
-    if (i === panels.length - 1) return;      // the last one has nothing on top of it
-    gsap.to(panel, {
-      scale: 0.92,
-      opacity: 0.55,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: panel.closest('.proj-sticky'),
-        start: 'top top',
-        end: 'bottom top',
-        scrub: true,
-      },
-    });
+/* ---------- scroll-scrubbed wipe ----------
+   The section is N screens tall with the block sticky inside it, so the block holds
+   still while you scroll through. Near each boundary the outgoing project is wiped
+   off the top, left to right, revealing the next one already drawn underneath. A
+   pencil line rides the wipe edge, and the sketchy filter gives that edge its wobble. */
+let projectList = [];
+let projectIndex = -1;
+let outgoingIndex = -1;
+
+const WIPE_ZONE = 0.28;   // share of each project's scroll segment spent wiping
+
+function layerHTML(i) {
+  return projectCard(projectList[i], i);
+}
+
+// the project you are reading, drawn in normal flow so it sets the block's height
+function renderBase(i) {
+  if (i === projectIndex) return;
+  projectIndex = i;
+  const holder = document.querySelector('.proj-holder');
+  const out = holder.querySelector('.proj-layer-out');
+  holder.innerHTML = layerHTML(i);
+  if (out) holder.appendChild(out);
+  const count = document.querySelector('.proj-count');
+  if (count) count.textContent = `${String(i + 1).padStart(2, '0')} / ${String(projectList.length).padStart(2, '0')}`;
+  document.querySelectorAll('.proj-tick').forEach((t, k) => t.classList.toggle('on', k === i));
+  wireTiles();
+}
+
+// The outgoing project, stacked on top and split into horizontal bands. The eraser
+// clears one band per pass, snaking left-to-right then right-to-left like a real one.
+const ERASER_PASSES = 4;
+
+function setOutgoing(i) {
+  const holder = document.querySelector('.proj-holder');
+  let out = holder.querySelector('.proj-layer-out');
+  if (i === -1) { if (out) out.remove(); outgoingIndex = -1; return null; }
+  if (i !== outgoingIndex) {
+    if (out) out.remove();
+    out = document.createElement('div');
+    out.className = 'proj-layer-out';
+    // one full copy per band; each is clipped to its own horizontal strip
+    out.innerHTML = Array.from({ length: ERASER_PASSES }, () =>
+      `<div class="erase-band">${layerHTML(i)}</div>`).join('');
+    holder.appendChild(out);
+    outgoingIndex = i;
+  }
+  return out;
+}
+
+// g: 0 = board untouched, 1 = wiped clean
+function setWipe(g) {
+  const holder = document.querySelector('.proj-holder');
+  const out = holder.querySelector('.proj-layer-out');
+  const eraser = document.querySelector('.eraser');
+  const smudge = document.querySelector('.eraser-smudge');
+  if (!out) {
+    if (eraser) eraser.style.opacity = 0;
+    if (smudge) smudge.style.opacity = 0;
+    return;
+  }
+  const bands = out.querySelectorAll('.erase-band');
+  const n = ERASER_PASSES;
+  const p = Math.min(Math.max(g, 0), 1) * n;
+  const active = Math.min(Math.floor(p), n - 1);
+  const local = p - active;
+
+  bands.forEach((band, i) => {
+    const top = (i / n) * 100;
+    const bottom = 100 - ((i + 1) / n) * 100;
+    let left = 0, right = 0;
+    if (i < active) { left = 100; }                       // already cleared
+    else if (i === active) {
+      if (i % 2 === 0) left = local * 100;                // pass runs left to right
+      else right = local * 100;                           // and back the other way
+    }
+    band.style.clipPath =
+      `inset(${top.toFixed(2)}% ${right.toFixed(2)}% ${bottom.toFixed(2)}% ${left.toFixed(2)}%)`;
+  });
+
+  // park the eraser on the band it is clearing, travelling in that band's direction
+  const h = holder.getBoundingClientRect().height;
+  const bandH = h / n;
+  const y = bandH * (active + 0.5);
+  const x = (active % 2 === 0 ? local : 1 - local) * 100;
+  const live = g > 0.001 && g < 0.999;
+  if (eraser) {
+    eraser.style.opacity = live ? 1 : 0;
+    eraser.style.left = `${x.toFixed(2)}%`;
+    eraser.style.top = `${y.toFixed(1)}px`;
+  }
+  if (smudge) {
+    smudge.style.opacity = live ? 0.55 : 0;
+    smudge.style.top = `${(y - bandH / 2).toFixed(1)}px`;
+    smudge.style.height = `${bandH.toFixed(1)}px`;
+    // the smear sits on the side the eraser has already swept
+    if (active % 2 === 0) { smudge.style.left = '0'; smudge.style.right = `${(100 - x).toFixed(2)}%`; }
+    else { smudge.style.right = '0'; smudge.style.left = `${x.toFixed(2)}%`; }
+  }
+}
+
+function wireProjectScroll() {
+  const track = document.querySelector('.proj-scroll');
+  const ticks = document.querySelector('.proj-ticks');
+  if (!track) return;
+  const n = projectList.length;
+
+  track.style.height = `${n * 100}vh`;
+  if (ticks) ticks.innerHTML = projectList.map(() => '<span class="proj-tick"></span>').join('');
+  renderBase(0);
+
+  if (reduceMotion) {
+    ScrollTrigger.create({ trigger: track, start: 'top top', end: 'bottom bottom', scrub: true,
+      onUpdate: (s) => renderBase(Math.min(Math.floor(s.progress * n), n - 1)) });
+    return;
+  }
+
+  ScrollTrigger.create({
+    trigger: track,
+    start: 'top top',
+    end: 'bottom bottom',
+    scrub: true,
+    onUpdate: (self) => {
+      const p = Math.min(self.progress, 0.9999) * n;
+      const i = Math.floor(p);
+      const frac = p - i;
+      if (frac > 1 - WIPE_ZONE && i < n - 1) {
+        // wiping project i off to reveal project i + 1 underneath
+        renderBase(i + 1);
+        setOutgoing(i);
+        setWipe((frac - (1 - WIPE_ZONE)) / WIPE_ZONE);
+      } else {
+        renderBase(i);
+        setOutgoing(-1);
+        setWipe(0);
+      }
+    },
   });
 }
 
 async function initProjects() {
-  const rail = document.querySelector('.proj-stack');
-  if (!rail) return;
+  const holder = document.querySelector('.proj-holder');
+  if (!holder) return;
   try {
     const res = await fetch('projects.json', { cache: 'no-cache' });
     if (!res.ok) throw new Error(`projects.json ${res.status}`);
     const { projects } = await res.json();
     projectData = Object.fromEntries(projects.map((p) => [p.id, projectModal(p)]));
-    rail.innerHTML = projects.map(projectCard).join('');
-    wireTiles();
-    wireRail();
-    stackPanels();
+    projectList = projects;
+    wireProjectScroll();
     ScrollTrigger.refresh();
   } catch (err) {
     // Leave the rail empty rather than half-built, and say why in the console.
