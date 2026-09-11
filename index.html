@@ -836,6 +836,7 @@ nav {
 }
 
 .chapter p { color: var(--ink-2); font-size: 1.05rem; margin-bottom: 1rem; max-width: 56ch; }
+#about p { margin-inline: auto; }
 .chapter p strong { color: var(--ink); }
 
 /* Splitting.js char reveal */
@@ -1119,21 +1120,41 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 }
 
 .site-footer {
-  position: relative;
+  position: fixed;
+  left: 50%;
+  bottom: 4.5vh;
+  transform: translateX(-50%);
   z-index: 6;
-  margin-top: 2rem;
-  padding: 1.2rem 1.5rem 1.6rem;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1.2rem;
-  align-items: baseline;
-  justify-content: center;
-  text-align: center;
-  font-family: 'Cabin Sketch', var(--font-display);   /* same face as the headings */
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  pointer-events: none;      /* it floats over the page, never blocks it */
+  opacity: 0;                /* the draw loop raises this as the sea comes in */
+  transition: opacity 0.4s ease;
+  font-family: 'Cabin Sketch', var(--font-display);
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: clamp(0.85rem, 1.1vw, 1rem);
   letter-spacing: 0.01em;
   color: var(--ink-2);
+  text-align: center;
+}
+.site-footer .boat {
+  width: clamp(76px, 8vw, 104px);
+  height: auto;
+  filter: url(#sketchy);
+  animation: boat-bob 5.2s ease-in-out infinite alternate;
+}
+.boat-hull { fill: var(--paper); stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
+.boat-sail { fill: var(--paper); stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
+.boat-sail-b { fill: var(--yellow); }
+.boat-mast { stroke: var(--ink); stroke-width: 2.5; stroke-linecap: round; }
+@keyframes boat-bob {
+  from { transform: translateY(0) rotate(-2.2deg); }
+  to   { transform: translateY(-7px) rotate(2.2deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-footer .boat { animation: none; }
 }
 
 /* ---------- contact ---------- */
@@ -1314,7 +1335,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   <section class="chapter chapter-wide" id="skills" data-chapter="03">
     <div class="chapter-inner chapter-inner-wide">
       <h2 class="chapter-title split">What I work with</h2>
-      <p>Languages, frameworks, and tools I reach for &mdash; frontend, iOS, AI/ML, and the tooling around them.</p>
       <div class="skills-stack">
         <div class="stack-row">
           <div class="skill-item">
@@ -1576,7 +1596,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
       <h2 class="chapter-title split">Let's connect!</h2>
       <p class="contact-lead">I'm looking for internships in <strong>frontend, iOS, and AI/ML</strong> &mdash; and I'm always up for talking robots, design systems, or whatever you're building. If you're hiring, or just curious, say hi.</p>
       <div class="contact-cta">
-        <a class="contact-primary" href="https://www.linkedin.com/in/markanjoul/" target="_blank" rel="noopener"><svg class="contact-primary-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" fill="currentColor"/></svg>Hire me<span aria-hidden="true">&rarr;</span></a>
+        <a class="contact-primary" href="https://www.linkedin.com/in/markanjoul/" target="_blank" rel="noopener"><svg class="contact-primary-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" fill="currentColor"/></svg>Hire me</a>
       </div>
       <div class="contact-links">
         <a href="https://github.com/marcanjoul" target="_blank" class="contact-link cl-github">
@@ -1600,8 +1620,14 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
       </div>
     </div>
   </section>
-  <footer class="site-footer">
-    <span>&copy; <span id="footer-year">2026</span> Mark Anjoul &mdash; All rights reserved.</span>
+  <footer class="site-footer" aria-label="Copyright">
+    <svg class="boat" viewBox="0 0 120 62" aria-hidden="true">
+      <path class="boat-sail" d="M60 6 L60 34 L92 34 Z"/>
+      <path class="boat-sail boat-sail-b" d="M56 9 L56 34 L32 34 Z"/>
+      <line class="boat-mast" x1="60" y1="4" x2="60" y2="36"/>
+      <path class="boat-hull" d="M16 36 L104 36 Q98 52 60 53 Q22 52 16 36 Z"/>
+    </svg>
+    <span class="site-footer-text">&copy; <span id="footer-year">2026</span> Mark Anjoul &mdash; All rights reserved.</span>
   </footer>
 </div>
 
@@ -1648,6 +1674,9 @@ const cachedHeroContent = document.getElementById('hero-content');
 const cachedTopBlur = document.getElementById('top-blur-header');
 const cachedNavInner = document.querySelector('.nav-inner');
 const cachedLogoLink = document.querySelector('.logo-link');
+const cachedFooter = document.querySelector('.site-footer');
+const cachedContact = document.querySelector('#contact');
+let lastFooterOn = -1;
 let lastHeroFade = -1, lastBlurOpacity = -1, lastNavFade = -1;
 
 /* ---------- smooth scroll (Lenis <-> GSAP ScrollTrigger) ---------- */
@@ -2516,6 +2545,41 @@ let lastBlinkState = false;
 // Pseudo-random seeded generator for organic, 12fps sketch jitter
 let seed = 1;
 let jitterSeed = 0;
+// The horizon is generated once per viewport size with a fixed seed, so it never
+// joins the 12fps sketch boil the rest of the scene runs on.
+let horizonStrokeCache = null;
+let horizonStrokeKey = '';
+
+// The sun's path on the water is a fixed constellation of marker strokes, laid out once
+// per viewport. Re-rolling it every frame is what made it strobe; now each glint only
+// sways on its own slow phase, the way light actually sits on a swell.
+let glintCache = null;
+let glintKey = '';
+function buildGlints(width, seaHeight) {
+  const glints = [];
+  seed = 90210;                                  // repeatable layout, not frame noise
+  const rows = Math.max(6, Math.floor(seaHeight / 12));
+  for (let i = 0; i < rows; i++) {
+    // rows drift off a perfect ladder — an even grid is what reads as machine-made
+    const depth = Math.min(1, Math.max(0, i / (rows - 1) + (seededRandom() - 0.5) * 0.09));
+    const spread = 20 + depth * 200;             // narrow at the horizon, fanning toward you
+    const count = 2 + Math.floor(seededRandom() * (2 + depth * 6));
+    for (let d = 0; d < count; d++) {
+      const bias = (seededRandom() + seededRandom() - 1);   // clusters near the centre line
+      glints.push({
+        depth,
+        x: bias * spread,
+        len: (12 + depth * 42) * (0.45 + seededRandom() * 0.85),
+        tilt: (seededRandom() - 0.5) * 0.13,     // no two marker dashes sit perfectly level
+        kink: (seededRandom() - 0.5) * 3.4,      // the stroke bends, it isn't a ruled line
+        phase: seededRandom() * 6.283,
+        speed: 0.00035 + seededRandom() * 0.0007,
+        sway: 4 + seededRandom() * 13
+      });
+    }
+  }
+  return glints;
+}
 let lastJitterUpdate = 0;
 
 function seededRandom() {
@@ -3078,61 +3142,86 @@ function draw(time) {
     ctx = mainCtx; // hand the sky canvas back before anything else draws
   }
 
-  // Ground band stays hidden until raw scroll hits 90%, then rises to ~40vh by the very bottom
-  // The sea rises into the lower third as you descend, and the horizon is where the sun
-  // will eventually sit. Drawn on the sky canvas so the glitter can sit on top of it.
+  // The sea occupies the lower third, fading in as you descend. Drawn on the sky canvas
+  // so the sun's glitter can sit on top of it.
   const seaReveal = Math.min(Math.max((rawProgress - 0.45) / 0.4, 0), 1);
   const seaEase = seaReveal * seaReveal * (3 - 2 * seaReveal);
-  const seaHeight = seaEase * 0.38 * height;
+  // A real horizon doesn't slide. The sea sits at a fixed waterline and fades in
+  // instead of rising, so the line never travels up the screen.
+  const seaHeight = 0.38 * height;
   const horizonY = height - seaHeight;
 
-  if (seaHeight > 1) {
+  if (seaEase > 0.01) {
+    ctx.save();
+    ctx.globalAlpha = seaEase;
     const seaGrad = ctx.createLinearGradient(0, horizonY, 0, height);
-    seaGrad.addColorStop(0, mix(seaStops[0], '#e8b391', dusk * 0.55));   // warm at the horizon
+    const seaTop = parseColor(mix(seaStops[0], '#e8b391', dusk * 0.55));  // warm at the horizon
+    // feather the top ~5% so sky meets water in a soft band, not a hard cut
+    seaGrad.addColorStop(0, `rgba(${seaTop.r}, ${seaTop.g}, ${seaTop.b}, 0)`);
+    seaGrad.addColorStop(0.05, `rgb(${seaTop.r}, ${seaTop.g}, ${seaTop.b})`);
     seaGrad.addColorStop(0.45, seaStops[1]);
     seaGrad.addColorStop(1, seaStops[2]);
     ctx.fillStyle = seaGrad;
     ctx.fillRect(0, horizonY, width, seaHeight);
 
-    // the sun's path on the water — broken dashes, widest near the horizon
-    const glowX = width * 0.5;
-    const rows = Math.floor(seaHeight / 13);
-    for (let i = 0; i < rows; i++) {
-      const y = horizonY + i * 13 + 6;
-      const depth = i / Math.max(rows - 1, 1);
-      const spread = 18 + depth * 150;
-      const alpha = (1 - depth) * 0.5 * (0.35 + dusk * 0.65);
-      if (alpha < 0.01) continue;
-      ctx.strokeStyle = `rgba(255, 226, 189, ${alpha.toFixed(3)})`;
-      ctx.lineWidth = 2 + depth * 1.5;
-      ctx.lineCap = 'round';
-      const dashes = 2 + Math.floor(depth * 4);
-      for (let d = 0; d < dashes; d++) {
-        const t0 = (d / dashes - 0.5) * 2;
-        const cx = glowX + t0 * spread + Math.sin(time * 0.0006 + i * 1.7 + d) * 9;
-        const len = (14 + depth * 26) * (0.5 + Math.random() * 0.5);
-        ctx.beginPath();
-        ctx.moveTo(cx - len / 2, y);
-        ctx.lineTo(cx + len / 2, y);
-        ctx.stroke();
-      }
+    // the sun's path on the water
+    const seaKey = width + 'x' + height;
+    if (glintKey !== seaKey) {
+      glintCache = buildGlints(width, seaHeight);
+      glintKey = seaKey;
     }
+    const glowX = width * 0.5;
+    ctx.lineCap = 'round';
+    for (const g of glintCache) {
+      const alpha = (1 - g.depth * 0.75) * 0.6 * (0.35 + dusk * 0.65);
+      if (alpha < 0.012) continue;
+      const y = horizonY + g.depth * seaHeight;
+      const cx = glowX + g.x + Math.sin(time * g.speed + g.phase) * g.sway;
+      const half = g.len * 0.5 * (0.85 + Math.sin(time * g.speed * 1.7 + g.phase) * 0.15);
+      const dy = half * g.tilt;
+      ctx.beginPath();
+      ctx.moveTo(cx - half, y - dy);
+      ctx.quadraticCurveTo(cx, y + g.kink, cx + half, y + dy);
+      // one wide soft pass under a tighter core — canvas has no blur in WebKit
+      ctx.strokeStyle = `rgba(255, 228, 186, ${(alpha * 0.26).toFixed(3)})`;
+      ctx.lineWidth = 7 + g.depth * 7;
+      ctx.stroke();
+      ctx.strokeStyle = `rgba(255, 240, 214, ${(alpha * 0.42).toFixed(3)})`;
+      ctx.lineWidth = 2.5 + g.depth * 2.5;
+      ctx.stroke();
+    }
+    ctx.restore();
   }
-  const groundReveal = seaEase;
-  const groundHeightPx = seaHeight;
+  if (cachedFooter) {
+    // The boat sails in only once the whole contact section has cleared the space it
+    // occupies — measured against the boat's own box, so it can never overlap the text.
+    const contactRect = cachedContact && cachedContact.getBoundingClientRect();
+    const wanted = contactRect && contactRect.bottom < cachedFooter.getBoundingClientRect().top - 32 ? 1 : 0;
+    if (wanted !== lastFooterOn) { cachedFooter.style.opacity = wanted; lastFooterOn = wanted; }
+  }
 
-
-  // Horizon line emerges alongside the ground band, sketched at the sky/ground boundary
-  const horizonAlpha = groundReveal;
+  // Horizon line fades in with the sea, at the same fixed waterline.
+  const horizonAlpha = seaEase;
   if (horizonAlpha > 0.01) {
-    const horizonY = height - groundHeightPx;
-    const horizonStrokes = generateSketchedPath([
-      { x: -20, y: horizonY },
-      { x: width * 0.3, y: horizonY - 4 },
-      { x: width * 0.6, y: horizonY + 3 },
-      { x: width + 20, y: horizonY }
-    ], 2.5, 2);
-    drawCachedStrokes(horizonStrokes, `rgba(28, 24, 18, ${horizonAlpha * 0.6})`, 2, ctx);
+    const key = width + 'x' + height;
+    if (horizonStrokeKey !== key) {
+      const prevSeed = jitterSeed;
+      jitterSeed = 1337;
+      horizonStrokeCache = generateSketchedPath([
+        { x: -20, y: horizonY },
+        { x: width * 0.3, y: horizonY - 4 },
+        { x: width * 0.6, y: horizonY + 3 },
+        { x: width + 20, y: horizonY }
+      ], 2.5, 2);
+      jitterSeed = prevSeed;
+      horizonStrokeKey = key;
+    }
+    const horizonStrokes = horizonStrokeCache;
+    // ctx.filter is a no-op in WebKit, so the blur is faked: wide faint passes
+    // underneath a narrow one. Reads soft instead of inked.
+    const ink = horizonAlpha * 0.6;
+    for (const [w, k] of [[26, 0.045], [19, 0.05], [13, 0.06], [8, 0.07], [4, 0.08]])
+      drawCachedStrokes(horizonStrokes, `rgba(28, 24, 18, ${(ink * k).toFixed(3)})`, w, ctx);
   }
 
 
