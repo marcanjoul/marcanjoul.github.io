@@ -103,7 +103,7 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
-  transition: background-color 0.8s ease, color 0.8s ease;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* Screen-reader-only helper for semantic content (logo, hidden headings) */
@@ -292,11 +292,11 @@ nav {
   pointer-events: auto;
   opacity: 0;
   transform: translateY(-15px);
-  transition: background-color 0.8s ease, border-color 0.3s ease, box-shadow 0.3s ease, border-radius 0.5s ease;
+  transition: background-color 0.25s ease, border-color 0.3s ease, box-shadow 0.3s ease, border-radius 0.5s ease;
   margin-left: auto;
 }
 .nav-links { list-style: none; display: flex; align-items: center; gap: 1.6rem; }
-.nav-links a { font-size: 0.92rem; color: var(--ink-2); transition: color 0.2s; }
+.nav-links a { font-size: 0.92rem; color: var(--ink-2); transition: color 0.2s, transform 160ms var(--ease-expo); }
 .nav-links a:hover { color: var(--accent); }
 .nav-cta {
   background: var(--yellow);
@@ -305,7 +305,9 @@ nav {
   border-radius: 999px;
   font-weight: 600;
   border: 1.5px solid transparent !important; /* reserves the 1.5px, paints nothing */
+  transition: color 0.2s, transform 160ms var(--ease-expo);
 }
+.nav-cta:active { transform: scale(0.96); }
 
 .mobile-menu-btn { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: none; border: none; cursor: pointer; min-width: 44px; min-height: 44px; }
 .mobile-menu-btn span { width: 20px; height: 2px; background: var(--ink); border-radius: 2px; }
@@ -321,11 +323,23 @@ nav {
   justify-content: center;
   gap: 2rem;
   transform: translateY(-100%);
-  transition: transform 0.45s var(--ease-expo), background-color 0.8s ease;
+  transition: transform 0.45s var(--ease-expo), background-color 0.25s ease;
   pointer-events: auto;
 }
 .mobile-nav.active { transform: translateY(0); }
 .mobile-nav ul { list-style: none; display: flex; flex-direction: column; align-items: center; gap: 1.6rem; }
+/* The panel slides in over 450ms; the links ride in just behind it rather than arriving
+   pre-placed. Delays are offsets from the panel's own travel, not from zero. */
+.mobile-nav li {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 260ms var(--ease-expo), transform 260ms var(--ease-expo);
+}
+.mobile-nav.active li { opacity: 1; transform: none; }
+.mobile-nav.active li:nth-child(1) { transition-delay: 130ms; }
+.mobile-nav.active li:nth-child(2) { transition-delay: 175ms; }
+.mobile-nav.active li:nth-child(3) { transition-delay: 220ms; }
+.mobile-nav.active li:nth-child(4) { transition-delay: 265ms; }
 .mobile-nav a { font-family: var(--font-display); font-size: 2.2rem; }
 .mobile-nav-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: var(--ink); font-size: 1.5rem; cursor: pointer; }
 
@@ -334,7 +348,7 @@ nav {
   position: relative;
   z-index: 6;
   width: 100%;
-  padding-bottom: 44vh; /* just clears the 40vh lawn, with a little air above it */
+  padding-bottom: 55vh; /* just enough for the contact content to rise clear of the boat */
   pointer-events: none; /* the empty padding area shouldn't block hover/clicks on the lawn scene beneath it */
 }
 .scroll-wrapper > * {
@@ -452,7 +466,8 @@ nav {
   border-radius: 50%;
   filter: url(#sketchy);
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease, opacity 0.25s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, opacity 0.25s ease,
+              transform 160ms var(--ease-expo);
 }
 .rail-arrow svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .rail-arrow-prev { left: -1.1rem; }
@@ -460,6 +475,7 @@ nav {
 @media (hover: hover) and (pointer: fine) {
   .rail-arrow:hover { background: var(--yellow); }
 }
+.rail-arrow:active { transform: translateY(-50%) scale(0.94); }
 .rail-arrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .rail-arrow[disabled] { opacity: 0.25; cursor: default; pointer-events: none; }
 
@@ -528,7 +544,7 @@ nav {
   border-radius: 999px;
   color: var(--ink);
   background: var(--paper);
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 160ms var(--ease-expo);
 }
 .proj-btn-primary { background: var(--yellow); }
 @media (hover: hover) and (pointer: fine) {
@@ -587,7 +603,7 @@ nav {
   filter: url(#sketchy);
   cursor: pointer;
   color: var(--ink);
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 160ms var(--ease-expo);
 }
 .proj-step svg { width: 1.05rem; height: 1.05rem; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 @media (hover: hover) and (pointer: fine) { .proj-step:hover { background: var(--yellow); } }
@@ -956,9 +972,12 @@ nav {
   padding: clamp(1.8rem, 1.133rem + 2.222vw, 2.8rem);
   box-shadow: 6px 6px 0 var(--ink);
   transform: translateY(16px) scale(0.98);
-  transition: transform 0.3s var(--ease-expo), background-color 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
+  transition: transform 0.3s var(--ease-expo), background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 .project-modal.active .project-modal-panel { transform: translateY(0) scale(1); }
+/* Leaving is the system responding, not the reader deciding — so it goes quicker. */
+.project-modal:not(.active) { transition-duration: 0.18s; }
+.project-modal:not(.active) .project-modal-panel { transition-duration: 0.18s; }
 .project-modal-close {
   position: absolute;
   top: 1.2rem; right: 1.2rem;
@@ -967,7 +986,11 @@ nav {
   display: flex; align-items: center; justify-content: center;
   color: var(--ink); font-size: 1rem; cursor: pointer; line-height: 1;
 }
-.project-modal-close:hover { color: var(--accent); border-color: var(--accent); }
+.project-modal-close { transition: color 0.2s ease, border-color 0.2s ease, transform 160ms var(--ease-expo); }
+@media (hover: hover) and (pointer: fine) {
+  .project-modal-close:hover { color: var(--accent); border-color: var(--accent); }
+}
+.project-modal-close:active { transform: scale(0.94); }
 .project-modal-type { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); font-weight: 600; margin-bottom: 0.5rem; }
 .project-modal-title { font-family: 'Cabin Sketch', var(--font-display); font-size: 2.4rem; font-weight: 700; color: var(--ink); margin-bottom: 0.9rem; }
 .project-modal-desc { font-size: 0.98rem; color: var(--ink-2); margin-bottom: 1.2rem; }
@@ -978,19 +1001,33 @@ nav {
 .project-modal-links a {
   font-size: 0.88rem; font-weight: 600; color: var(--ink);
   border: 1.5px solid var(--ink); border-radius: 999px; padding: 0.6rem 1.2rem;
-  transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+  transition: border-color 0.2s, color 0.2s, background-color 0.2s, transform 160ms var(--ease-expo);
 }
-.project-modal-links a:hover { border-color: var(--accent); color: var(--paper); background: var(--accent); }
+@media (hover: hover) and (pointer: fine) {
+  .project-modal-links a:hover { border-color: var(--accent); color: var(--paper); background: var(--accent); }
+}
+.project-modal-links a:active { transform: scale(0.97); }
 
 .project-modal-media { margin-bottom: 1.4rem; }
+/* Switching a media tab used to hard-cut to the new frame. Blur carries the eye across the
+   gap so it reads as one surface changing rather than two images swapping. */
+.demo-browser-screen, .demo-phone-screen {
+  transition: opacity 180ms ease, filter 180ms ease;
+}
+.media-swapping { opacity: 0; filter: blur(6px); }
 .media-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.7rem; }
 .media-tab {
   font-size: 0.78rem; color: var(--ink-3); background: var(--paper);
   border: 1.5px solid var(--ink); border-radius: 999px; padding: 0.4rem 0.9rem;
   min-height: 44px; display: inline-flex; align-items: center;
-  cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background-color 0.2s, transform 160ms var(--ease-expo);
 }
-.media-tab.active, .media-tab:hover { border-color: var(--yellow); color: var(--ink); background: var(--yellow); }
+.media-tab.active { border-color: var(--yellow); color: var(--ink); background: var(--yellow); }
+@media (hover: hover) and (pointer: fine) {
+  .media-tab:hover { border-color: var(--yellow); color: var(--ink); background: var(--yellow); }
+}
+.media-tab:active { transform: scale(0.97); }
 
 /* phone-mockup frame */
 .demo-phone {
@@ -1048,13 +1085,13 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
+  background: var(--paper);   /* filled, so the icons read against the water */
   border: 2px solid var(--ink);
   border-radius: 50%;
   filter: url(#sketchy);
   margin-bottom: 0.7rem;
   color: var(--cl-color, var(--accent));
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.25s ease;
 }
 .cl-icon { width: 1.4rem; height: 1.4rem; fill: currentColor; }
 .contact-link.cl-mail { --cl-color: var(--accent); }
@@ -1131,7 +1168,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   gap: 0.35rem;
   pointer-events: none;      /* it floats over the page, never blocks it */
   opacity: 0;                /* the draw loop raises this as the sea comes in */
-  transition: opacity 0.4s ease;
+  transition: opacity 0.4s var(--ease-expo);
   font-family: 'Cabin Sketch', var(--font-display);
   font-weight: 700;
   font-size: clamp(0.85rem, 1.1vw, 1rem);
@@ -1142,9 +1179,13 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 .site-footer .boat {
   width: clamp(76px, 8vw, 104px);
   height: auto;
-  filter: url(#sketchy);
   animation: boat-bob 5.2s ease-in-out infinite alternate;
+  animation-play-state: paused;   /* nothing runs until the boat is actually on screen */
 }
+/* The displacement filter sits on a group that never moves, so the browser rasterizes it
+   once instead of re-running feTurbulence on every frame of the bob. */
+.boat-ink { filter: url(#sketchy); }
+.site-footer.is-sailing .boat { animation-play-state: running; }
 .boat-hull { fill: var(--paper); stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
 .boat-sail { fill: var(--paper); stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
 .boat-sail-b { fill: var(--yellow); }
@@ -1188,17 +1229,25 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   transition: transform 160ms var(--ease-expo), background-color 200ms ease;
 }
 .contact-primary-icon { width: 1.25em; height: 1.25em; flex: 0 0 auto; }
-.contact-primary span { transition: transform 200ms var(--ease-expo); }
-@media (hover: hover) and (pointer: fine) {
-  .contact-primary:hover span { transform: translateX(4px); }
-}
 .contact-primary:active { transform: scale(0.97); }
 .contact-inner .contact-links {
   grid-template-columns: repeat(3, minmax(0, 9rem));
   justify-content: center;
   margin-top: 2.2rem;
 }
-.contact-link:active .cl-icon-wrapper { transform: scale(0.94); }
+.contact-link:active .cl-icon-wrapper { transform: scale(0.96); }
+
+/* Press feedback for the rest of the pressable surfaces — the contact CTAs already had
+   it, and the inconsistency is what you feel. */
+.logo-link, .proj-cta, .usf-logo-link {
+  transition: transform 160ms var(--ease-expo);
+}
+.nav-links a:active,
+.proj-cta:active,
+.proj-btn:active,
+.usf-logo-link:active { transform: scale(0.97); }
+.logo-link:active,
+.proj-step:active { transform: scale(0.94); }
 .cl-icon-wrapper { transition: border-color 0.2s ease, transform 160ms var(--ease-expo); }
 
 /* Type steps in rem only — no vw — so it grows with the reader's font-size setting */
@@ -1622,10 +1671,12 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   </section>
   <footer class="site-footer" aria-label="Copyright">
     <svg class="boat" viewBox="0 0 120 62" aria-hidden="true">
-      <path class="boat-sail" d="M60 6 L60 34 L92 34 Z"/>
-      <path class="boat-sail boat-sail-b" d="M56 9 L56 34 L32 34 Z"/>
-      <line class="boat-mast" x1="60" y1="4" x2="60" y2="36"/>
-      <path class="boat-hull" d="M16 36 L104 36 Q98 52 60 53 Q22 52 16 36 Z"/>
+      <g class="boat-ink">
+        <path class="boat-sail" d="M60 6 L60 34 L92 34 Z"/>
+        <path class="boat-sail boat-sail-b" d="M56 9 L56 34 L32 34 Z"/>
+        <line class="boat-mast" x1="60" y1="4" x2="60" y2="36"/>
+        <path class="boat-hull" d="M16 36 L104 36 Q98 52 60 53 Q22 52 16 36 Z"/>
+      </g>
     </svg>
     <span class="site-footer-text">&copy; <span id="footer-year">2026</span> Mark Anjoul &mdash; All rights reserved.</span>
   </footer>
@@ -1675,7 +1726,7 @@ const cachedTopBlur = document.getElementById('top-blur-header');
 const cachedNavInner = document.querySelector('.nav-inner');
 const cachedLogoLink = document.querySelector('.logo-link');
 const cachedFooter = document.querySelector('.site-footer');
-const cachedContact = document.querySelector('#contact');
+const cachedContactLinks = document.querySelector('#contact .contact-links');
 let lastFooterOn = -1;
 let lastHeroFade = -1, lastBlurOpacity = -1, lastNavFade = -1;
 
@@ -1760,7 +1811,7 @@ document.querySelectorAll('.split').forEach((el) => {
       '--char-ital': 0,
       duration: 0.5,
       stagger: 0.012,
-      ease: 'back.out(2)',
+      ease: 'back.out(1.2)',
       scrollTrigger: { trigger: el, start: 'top 98%' },
     }
   );
@@ -1823,6 +1874,24 @@ if (reduceMotion) {
 
 }
 
+/* The skills grid is 30 icons that currently all land on the same frame, which reads as a
+   render flash rather than an entrance. Staggering them is the whole fix. The transform is
+   on .skill-item — its child carries the sketchy filter, so the filtered layer gets
+   transformed rather than re-rasterized 30 times. */
+if (!reduceMotion) {
+  const skillItems = gsap.utils.toArray('.skill-item');
+  if (skillItems.length) {
+    gsap.from(skillItems, {
+      opacity: 0,
+      y: 12,
+      duration: 0.32,
+      ease: 'power2.out',
+      stagger: 0.022,            // ~0.65s for the whole cascade
+      scrollTrigger: { trigger: '#skills', start: 'top 80%', toggleActions: 'play none none none' },
+    });
+  }
+}
+
 function revealProjects() {
   gsap.utils.toArray('.proj').forEach((el) => {
   gsap.from(el, {
@@ -1846,6 +1915,17 @@ const modalDesc = modal.querySelector('.project-modal-desc');
 const modalFeatures = modal.querySelector('.project-modal-features');
 const modalLinks = modal.querySelector('.project-modal-links');
 const modalMedia = modal.querySelector('.project-modal-media');
+
+// Fade the current frame out, swap the source, fade back in only once the new frame is
+// actually decoded — otherwise the fade-in lands on the old picture and the cut still shows.
+function fadeSwapMedia(el, apply, ready) {
+  el.classList.add('media-swapping');
+  const show = () => el.classList.remove('media-swapping');
+  setTimeout(() => {
+    apply();
+    ready(show);
+  }, 180);
+}
 
 function renderMedia(media) {
   if (!media) {
@@ -1872,9 +1952,11 @@ function renderMedia(media) {
       btn.addEventListener('click', () => {
         modalMedia.querySelectorAll('.media-tab').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
-        video.src = btn.dataset.src;
-        video.load();
-        video.play().catch(() => {});
+        fadeSwapMedia(video, () => {
+          video.src = btn.dataset.src;
+          video.load();
+          video.play().catch(() => {});
+        }, (show) => video.addEventListener('loadeddata', show, { once: true }));
       });
     });
   } else if (media.type === 'images') {
@@ -1890,8 +1972,11 @@ function renderMedia(media) {
       btn.addEventListener('click', () => {
         modalMedia.querySelectorAll('.media-tab').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
-        img.src = btn.dataset.src;
-        img.alt = btn.textContent + ' screenshot';
+        const label = btn.textContent;
+        fadeSwapMedia(img, () => {
+          img.src = btn.dataset.src;
+          img.alt = label + ' screenshot';
+        }, (show) => (img.decode ? img.decode().then(show, show) : img.addEventListener('load', show, { once: true })));
       });
     });
   }
@@ -1928,6 +2013,7 @@ function openProjectModal(id, triggerEl) {
   modalLinks.innerHTML = data.links
     .map((l) => `<a href="${l.href}" target="_blank">${l.label}</a>`)
     .join('');
+  modalPanel.scrollTop = 0;   // otherwise project B opens at wherever project A was left
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
   if (lenis) lenis.stop();
@@ -2500,6 +2586,26 @@ function closeMobileNav() {
   if (scrollWrapperEl) scrollWrapperEl.inert = false;
   menuBtn.focus();
 }
+/* Anchor links were doing a native jump — measured 0 -> 5701px in a single frame. That
+   skips the whole scroll choreography and leaves Lenis's internal position out of sync with
+   the real scrollY, so the next wheel event lurches. Route them through Lenis instead.
+   Page travel is spatial explanation, not UI chrome, so it gets a longer curve than 300ms. */
+document.querySelectorAll('a[href^="#"]').forEach((link) => {
+  link.addEventListener('click', (e) => {
+    const id = link.getAttribute('href');
+    if (!id || id.length < 2) return;
+    const target = document.querySelector(id);
+    if (!target) return;
+    e.preventDefault();
+    if (lenis && !reduceMotion) {
+      lenis.scrollTo(target, { offset: -24, duration: 1.1 });
+    } else {
+      target.scrollIntoView();
+    }
+    history.replaceState(null, '', id);   // keep the URL honest without a second jump
+  });
+});
+
 menuBtn.addEventListener('click', openMobileNav);
 mobileNavClose.addEventListener('click', closeMobileNav);
 mobileNav.querySelectorAll('a').forEach((link) => {
@@ -3044,7 +3150,11 @@ function getScrambledText(targetText, frameCount, totalFrames = 12) {
 }
 
 // Main Draw Loop
-function draw(time) {
+function draw(rafTime) {
+  // Every ambient motion in the scene reads `time`; the scroll choreography reads scrollTop.
+  // Freezing the clock under prefers-reduced-motion stops the drift, flapping, shimmer and
+  // sketch boil while leaving the scroll-driven sunset fully intact.
+  const time = reduceMotion ? 0 : rafTime;
   state.time = time;
   ctx.clearRect(0, 0, width, height);
   const scrollTop = window.scrollY;
@@ -3116,7 +3226,7 @@ function draw(time) {
     const cloudAlpha = 0.75 * (1 - ease);
     if (cloudAlpha > 0.004) {
       clouds.forEach((cloud, index) => {
-        cloud.x += cloud.speed;
+        if (!reduceMotion) cloud.x += cloud.speed;
         if (cloud.x > width + 120) {
           cloud.x = -120 - Math.random() * 180;
           cloud.y = height * (0.05 + Math.random() * 0.20);
@@ -3130,7 +3240,7 @@ function draw(time) {
     }
 
     birds.forEach(bird => {
-      bird.x += bird.speedX;
+      if (!reduceMotion) bird.x += bird.speedX;
       if (bird.x > width + 50) {
         bird.x = -50;
         bird.y = height * (0.12 + Math.random() * 0.35);
@@ -3193,11 +3303,17 @@ function draw(time) {
     ctx.restore();
   }
   if (cachedFooter) {
-    // The boat sails in only once the whole contact section has cleared the space it
-    // occupies — measured against the boat's own box, so it can never overlap the text.
-    const contactRect = cachedContact && cachedContact.getBoundingClientRect();
-    const wanted = contactRect && contactRect.bottom < cachedFooter.getBoundingClientRect().top - 32 ? 1 : 0;
-    if (wanted !== lastFooterOn) { cachedFooter.style.opacity = wanted; lastFooterOn = wanted; }
+    // Gate on the last piece of visible contact content, not the section box — the box runs
+    // far below its own text, which cost a screenful of dead scroll to clear. Measured
+    // against the boat's own top, so overlap still can't happen.
+    const linksRect = cachedContactLinks && cachedContactLinks.getBoundingClientRect();
+    const wanted = linksRect && linksRect.bottom < cachedFooter.getBoundingClientRect().top - 32 ? 1 : 0;
+    if (wanted !== lastFooterOn) {
+      cachedFooter.style.opacity = wanted;
+      // the bob (and the SVG filter it drags along) only runs while the boat is visible
+      cachedFooter.classList.toggle('is-sailing', wanted === 1);
+      lastFooterOn = wanted;
+    }
   }
 
   // Horizon line fades in with the sea, at the same fixed waterline.
