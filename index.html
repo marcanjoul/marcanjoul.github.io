@@ -373,10 +373,6 @@ nav {
 .chapter:nth-of-type(even) .project-modal-features li::before {
   color: var(--yellow);
 }
-.chapter:nth-of-type(even) .proj-meta b {
-  color: color-mix(in srgb, var(--yellow) 70%, var(--ink) 30%);
-}
-
 /* the lawn layers are fixed to the bottom 45vh — keep the last card above them */
 /* the wrapper's reserve below already clears the lawn — this only needs breathing room */
 #contact { padding-bottom: 3rem; }
@@ -408,76 +404,6 @@ nav {
   padding-bottom: 2rem;
 }
 
-
-.proj-rail {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  gap: 1.5rem;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x proximity;
-  padding-bottom: 0.5rem;
-  scrollbar-width: none;          /* native bar hidden — .rail-bar below replaces it */
-}
-.proj-rail::-webkit-scrollbar { display: none; }
-
-/* hand-drawn scrollbar: dashed rule for the track, inked bar for the thumb */
-.rail-bar {
-  position: relative;
-  margin: 1.4rem auto 0;
-  width: min(320px, 60%);
-  height: 14px;
-}
-.rail-bar::before {
-  content: '';
-  position: absolute;
-  left: 0; right: 0; top: 50%;
-  border-top: 2px dashed var(--ink);
-  opacity: 0.28;
-  filter: url(#sketchy);
-}
-.rail-bar-thumb {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  height: 8px;
-  transform: translateY(-50%);
-  background: var(--ink);
-  border-radius: 999px;
-  filter: url(#sketchy);
-  transition: opacity 0.2s ease;
-}
-.proj-rail:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
-
-/* sketched circular arrows, centred on the thumbnail row */
-.rail-arrow {
-  position: absolute;
-  top: calc(var(--frame-h, 190px) / 2);
-  transform: translateY(-50%);
-  z-index: 3;
-  width: 2.6rem;
-  height: 2.6rem;
-  display: grid;
-  place-items: center;
-  background: var(--paper);
-  color: var(--ink);
-  border: 2px solid var(--ink);
-  border-radius: 50%;
-  filter: url(#sketchy);
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease, opacity 0.25s ease,
-              transform 160ms var(--ease-expo);
-}
-.rail-arrow svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-.rail-arrow-prev { left: -1.1rem; }
-.rail-arrow-next { right: -1.1rem; }
-@media (hover: hover) and (pointer: fine) {
-  .rail-arrow:hover { background: var(--yellow); }
-}
-.rail-arrow:active { transform: translateY(-50%) scale(0.94); }
-.rail-arrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-.rail-arrow[disabled] { opacity: 0.25; cursor: default; pointer-events: none; }
 
 .proj {
   flex: 0 0 calc((100% - 1.5rem) / 2);
@@ -528,14 +454,15 @@ nav {
 /* Fixed rows, not a flex column: a one-line tagline and a two-line tagline have to leave
    the title and the button in exactly the same place.
 
-   Row 4 is the only flexible one. Everything above it is anchored to the top of the column,
-   everything below it to the bottom, and the slack collects in the middle — so the panel
-   reads as two groups (what it is / what it's made of and where to go) rather than one
-   centred clump, and every slot still lands on the same pixel in all five projects. */
+   Every row is fixed and the column height is constant, so centring the whole block keeps
+   each slot on the same pixel across all five projects while spreading the leftover height
+   evenly above and below. Splitting it top-and-bottom instead pooled all the slack into one
+   visible hole in the middle, which got worse the wider the screenshot grew. */
 .proj-info {
-  flex: 0 0 38%;
+  flex: 0 0 33%;
   display: grid;
-  grid-template-rows: 1.15rem 2.45rem 3rem 1fr 3.3rem;
+  grid-template-rows: 1.15rem 2.5rem 3.1rem 1.15rem 3.3rem;
+  align-content: center;
   row-gap: 0;
   min-width: 0;
 }
@@ -566,21 +493,6 @@ nav {
 }
 .proj-badge:active { transform: scale(0.94); }
 .proj-badge:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-.proj-btn {
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 0.85rem;
-  padding: 0.45rem 1rem;
-  border: 2px solid var(--ink);
-  border-radius: 999px;
-  color: var(--ink);
-  background: var(--paper);
-  transition: background-color 0.2s ease, color 0.2s ease, transform 160ms var(--ease-expo);
-}
-.proj-btn-primary { background: var(--yellow); }
-@media (hover: hover) and (pointer: fine) {
-  .proj-btn:hover { background: var(--ink); color: var(--paper); }
-}
 .proj-shot {
   flex: 1;
   position: relative;
@@ -591,6 +503,19 @@ nav {
   aspect-ratio: 16 / 10;
 }
 .proj-shot img, .proj-shot video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Lead view large, two supporting views stacked beside it. The gap shows the dark ground
+   through as a hairline, so the screens read as separate without any frame around them. */
+.proj-shot.is-triptych {
+  display: grid;
+  grid-template-columns: 1.62fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 3px;
+}
+.proj-shot.is-triptych .shot-lead { grid-row: 1 / 3; }
+/* The supporting cells are far narrower than the landscape captures going into them, so
+   anchor the crop at the top: every screen keeps its header and they read as a set. */
+.proj-shot.is-triptych .shot-aside { object-position: top center; }
 
 .proj-single { position: relative; }
 
@@ -633,20 +558,6 @@ nav {
   transition: opacity 0.25s ease;
 }
 .proj-tick.on { opacity: 0.85; }
-.proj-step {
-  width: 2.6rem; height: 2.6rem;
-  display: grid; place-items: center;
-  background: var(--paper);
-  border: 2px solid var(--ink);
-  border-radius: 50%;
-  filter: url(#sketchy);
-  cursor: pointer;
-  color: var(--ink);
-  transition: background-color 0.2s ease, transform 160ms var(--ease-expo);
-}
-.proj-step svg { width: 1.05rem; height: 1.05rem; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-@media (hover: hover) and (pointer: fine) { .proj-step:hover { background: var(--yellow); } }
-.proj-step:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .proj-count {
   font-family: 'Share Tech Mono', monospace;
   font-size: 0.78rem;
@@ -659,123 +570,9 @@ nav {
   .proj-panel { flex-direction: column; align-items: stretch; }
   /* stacked, there is no shot height to spread against — the flexible row becomes a fixed
      gap so the two groups stay grouped instead of collapsing together */
-  .proj-info { flex: 0 0 auto; grid-template-rows: auto auto auto 0.85rem auto; }
+  .proj-info { flex: 0 0 auto; grid-template-rows: auto auto auto 0.85rem auto; align-content: start; }
 }
 
-.proj-frame { border-radius: 16px; aspect-ratio: 9 / 17; }
-.device-phone::before {
-  content: '';
-  position: absolute; top: 0.62rem; left: 50%; transform: translateX(-50%);
-  width: 46px; height: 5px; border: 1.5px solid var(--ink); border-radius: 999px;
-}
-.device-phone::after {
-  content: '';
-  position: absolute; bottom: 0.4rem; left: 50%; transform: translateX(-50%);
-  width: 62px; height: 4px; background: var(--ink); border-radius: 999px; opacity: 0.6;
-}
-.device-phone .proj-frame { margin-top: 0.85rem; }
-
-/* browser + terminal: window chrome over a wide body */
-.device-browser, .device-terminal { width: 360px; border-radius: 10px; overflow: hidden; }
-.device-browser .proj-frame, .device-terminal .proj-frame { aspect-ratio: 16 / 10; }
-.device-terminal .device-chrome { background: var(--ink); }
-.device-terminal .device-dot { border-color: var(--paper); }
-.device-terminal .device-bar { border-color: var(--paper); opacity: 0.6; }
-
-@media (hover: hover) and (pointer: fine) {
-  .proj:hover .device { transform: translateY(-8px); }
-}
-
-.proj-frame {
-  position: relative;
-  overflow: hidden;
-  background: #2a2620;
-  display: grid;
-  place-items: center;
-  aspect-ratio: 4 / 3;
-}
-
-
-.proj-frame img,
-.proj-frame video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.55s var(--ease-expo);
-}
-@media (hover: hover) and (pointer: fine) {
-  .proj:hover .proj-frame img,
-  .proj:hover .proj-frame video { transform: scale(1.04); }
-}
-
-/* flat colour fields for projects without media yet */
-.field-yellow .proj-frame { background: var(--yellow); }
-.field-ink    .proj-frame { background: var(--ink); }
-.field-blue   .proj-frame { background: var(--accent); }
-.proj-glyph {
-  font-family: var(--font-display);
-  font-size: 4.5rem;
-  line-height: 1;
-  color: var(--ink);
-  opacity: 0.55;
-}
-.field-ink .proj-glyph,
-.field-blue .proj-glyph { color: var(--paper); }
-
-/* "view" affordance — the tiles open the case study */
-.proj-frame::after {
-  content: '';
-  display: none;
-  content: 'View ↗';
-  position: absolute;
-  right: 0.65rem;
-  bottom: 0.65rem;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.28rem 0.6rem;
-  background: var(--ink);
-  color: var(--paper);
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-@media (hover: hover) and (pointer: fine) {
-  .proj:hover .proj-frame::after { opacity: 1; transform: translateY(0); }
-}
-.proj:focus-visible .proj-frame::after { opacity: 1; transform: translateY(0); }
-
-/* caption */
-.proj-caption { display: flex; flex-direction: column; gap: 0.15rem; max-width: 360px; }
-/* a standing invitation rather than a hover-only hint */
-.proj-cta {
-  margin-top: 0.55rem;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-.proj-cta i { font-style: normal; display: inline-block; margin-left: 0.35rem; transition: transform 0.25s var(--ease-expo); }
-@media (hover: hover) and (pointer: fine) {
-  .proj:hover .proj-cta i { transform: translateX(4px); }
-}
-.proj-meta {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.68rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-.proj-meta b { color: var(--accent); font-weight: 400; }
-.proj-meta i { font-style: normal; opacity: 0.75; }
-/* One rule per slot now. The old pair (.proj-info h3 / .proj h3) had equal specificity, so
-   the second silently won and the declared title size never rendered. */
 .proj-kicker {
   font-family: 'Share Tech Mono', monospace;
   font-size: 0.68rem;
@@ -787,7 +584,6 @@ nav {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.proj-kicker { color: var(--ink-3); }
 /* the same face the name is drawn in on the hero canvas */
 .proj h3 {
   font-family: 'Cabin Sketch', var(--font-display);
@@ -1210,9 +1006,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
     font-size: 0.75rem;
   }
   .proj-stage { margin-top: 1.4rem; padding-bottom: 2rem; }
-  .proj-rail { gap: 1rem; }
   .proj { flex-basis: 100%; }
-  .proj-frame::after { opacity: 1; transform: none; }
   .proj p { font-size: 0.82rem; }
   .chapter { padding: 1.2rem 1rem; } /* Reduced padding for tighter mobile layout */
   .contact-links { grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
@@ -1306,21 +1100,17 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 
 /* Press feedback for the rest of the pressable surfaces — the contact CTAs already had
    it, and the inconsistency is what you feel. */
-.logo-link, .proj-cta, .usf-logo-link {
+.logo-link, .usf-logo-link {
   transition: transform 160ms var(--ease-expo);
 }
 .nav-links a:active,
-.proj-cta:active,
-.proj-btn:active,
 .usf-logo-link:active { transform: scale(0.97); }
-.logo-link:active,
-.proj-step:active { transform: scale(0.94); }
+.logo-link:active { transform: scale(0.94); }
 .cl-icon-wrapper { transition: border-color 0.2s ease, transform 160ms var(--ease-expo); }
 
 /* Type steps in rem only — no vw — so it grows with the reader's font-size setting */
 @media (max-width: 1099px) {
   .proj-info h3 { font-size: 2.4rem; }
-  .proj-glyph { font-size: 3.5rem; }
   .proj h3 { font-size: 1.6rem; }
   .chapter-title { font-size: 3.4rem; }
   .chapter-hero h2.split { font-size: 2.2rem; }
@@ -1333,7 +1123,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 /* Type steps in rem only — no vw — so it grows with the reader's font-size setting */
 @media (max-width: 760px) {
   .proj-info h3 { font-size: 1.9rem; }
-  .proj-glyph { font-size: 2.5rem; }
   .proj h3 { font-size: 1.3rem; }
   .chapter-title { font-size: 2.6rem; }
   .chapter-hero h2.split { font-size: 1.8rem; }
@@ -2103,44 +1892,6 @@ function closeProjectModal() {
   modalTriggerEl = null;
 }
 
-// Rail arrows: step by one card, and grey out at the ends
-function wireRail() {
-  const rail = document.querySelector('.proj-rail');
-  if (!rail) return;
-  const prev = document.querySelector('.rail-arrow-prev');
-  const next = document.querySelector('.rail-arrow-next');
-  const step = () => (rail.firstElementChild?.getBoundingClientRect().width || 260) + 24;
-  // arrows sit on the thumbnail row, so publish the real frame height for the CSS
-  const syncFrameH = () => {
-    const f = rail.querySelector('.proj-frame');
-    if (f) rail.closest('.proj-stage').style.setProperty('--frame-h', `${f.getBoundingClientRect().height}px`);
-  };
-  syncFrameH();
-  window.addEventListener('resize', syncFrameH);
-  const sync = () => {
-    const maxLeft = rail.scrollWidth - rail.clientWidth - 1;
-    prev.disabled = rail.scrollLeft <= 0;
-    next.disabled = rail.scrollLeft >= maxLeft;
-  };
-  prev.addEventListener('click', () => rail.scrollBy({ left: -step(), behavior: 'smooth' }));
-  next.addEventListener('click', () => rail.scrollBy({ left: step(), behavior: 'smooth' }));
-  const bar = document.querySelector('.rail-bar');
-  const thumb = document.querySelector('.rail-bar-thumb');
-  const syncBar = () => {
-    const ratio = rail.clientWidth / rail.scrollWidth;
-    const maxLeft = rail.scrollWidth - rail.clientWidth;
-    thumb.style.width = `${Math.max(12, bar.clientWidth * ratio)}px`;
-    const travel = bar.clientWidth - thumb.offsetWidth;
-    thumb.style.left = `${maxLeft > 0 ? (rail.scrollLeft / maxLeft) * travel : 0}px`;
-    bar.style.opacity = ratio >= 1 ? 0 : 1;
-  };
-  rail.addEventListener('scroll', () => { sync(); syncBar(); }, { passive: true });
-  window.addEventListener('resize', syncBar);
-  syncBar();
-  window.addEventListener('resize', sync);
-  sync();
-}
-
 // Each tile is one target: it opens the case study. Repo/live links live in the modal.
 function wireTiles() {
   document.querySelectorAll('.proj').forEach((tile) => {
@@ -2185,6 +1936,24 @@ function projectThumb(t) {
   return `<img src="${esc(t.image)}" alt="" loading="lazy" decoding="async">`;
 }
 
+// Three screens beat one when the project has three. A still gallery becomes a lead shot
+// with two supporting views; anything else (a video demo, or a project with a single
+// screenshot) keeps the one frame, because three stills of a clip is worse than the clip.
+function projectShot(p) {
+  const g = p.gallery;
+  const canTriptych = g && g.type === 'images' && Array.isArray(g.items) && g.items.length >= 3;
+  if (!canTriptych) {
+    return `<div class="proj-shot">${projectThumb(p.thumbnail)}</div>`;
+  }
+  const [lead, ...rest] = g.items.slice(0, 3);
+  const cell = (it, cls) =>
+    `<img class="${cls}" src="${esc(it.src)}" alt="${esc(p.title)} — ${esc(it.label)}"` +
+    ` loading="lazy" decoding="async">`;
+  return `<div class="proj-shot is-triptych">` +
+    cell(lead, 'shot-lead') + rest.map((it) => cell(it, 'shot-aside')).join('') +
+  `</div>`;
+}
+
 const BADGE_ICON = {
   github: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" fill="currentColor"/></svg>',
   site: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.6" y="4.6" width="18.8" height="14.8" rx="2.6" stroke="currentColor" stroke-width="1.9"/><path d="M2.6 9.6H21.4" stroke="currentColor" stroke-width="1.9"/><circle cx="5.9" cy="7.1" r="0.85" fill="currentColor"/><circle cx="8.5" cy="7.1" r="0.85" fill="currentColor"/><circle cx="11.1" cy="7.1" r="0.85" fill="currentColor"/></svg>'
@@ -2214,7 +1983,7 @@ function projectCard(p, i) {
       `<p class="proj-tagline">${esc(p.tagline)}</p>` +
       `<div class="proj-actions">` + projectBadges(p.links) + `</div>` +
     `</div>` +
-    `<div class="proj-shot">` + projectThumb(p.thumbnail) + `</div>` +
+    projectShot(p) +
   `</article>`;
 }
 
