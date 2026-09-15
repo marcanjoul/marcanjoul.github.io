@@ -428,36 +428,85 @@ nav {
   justify-content: center;
 }
 .proj-single { position: relative; width: 100%; }
+/* No box. The work sits straight on the sky, so the only things on screen are the words
+   and the screenshot — nothing framing them. */
 .proj-panel {
   position: relative;
   flex: 0 0 auto;
   width: 100%;
+  padding-block: clamp(1.6rem, 1.067rem + 1.778vw, 2.4rem);
+  cursor: pointer;
+}
+/* The contents. This is the only part that moves. */
+.proj-body {
   display: flex;
   flex-direction: row;
   gap: clamp(1.5rem, 0.167rem + 4.444vw, 3.5rem);
-  align-items: stretch;
-  padding: clamp(1.6rem, 1.067rem + 1.778vw, 2.4rem);
+  /* center, not stretch: stretching the shot overrides its aspect-ratio, and the height
+     then falls back to whatever the image's own proportions are — which differ per project
+     and made the block a different height for every one. */
+  align-items: center;
+}
+.proj-layer-out {
+  position: absolute;
+  inset: clamp(1.6rem, 1.067rem + 1.778vw, 2.4rem) 0;
+  z-index: 3;
+  will-change: clip-path, transform, opacity;
+}
+.proj-layer-out > .proj-body { height: 100%; }
+/* PROTOTYPE ONLY — switcher chrome */
+.proto-switch {
+  position: fixed;
+  left: 1rem; bottom: 1rem;
+  z-index: 500;
+  display: flex; align-items: center; gap: 0.3rem;
+  padding: 0.4rem 0.5rem;
   background: var(--paper);
   border: 2px solid var(--ink);
-  border-radius: 26px 8px 26px 8px;
-  cursor: pointer;
+  border-radius: 999px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.64rem; letter-spacing: 0.05em; text-transform: uppercase;
 }
-.proj-panel::before {
-  content: '';
+.proto-switch-label { color: var(--ink-3); padding: 0 0.3rem 0 0.2rem; }
+.proto-switch button {
+  font: inherit; letter-spacing: inherit; text-transform: inherit;
+  padding: 0.3rem 0.6rem;
+  border: 1.5px solid var(--ink); border-radius: 999px;
+  background: var(--paper); color: var(--ink); cursor: pointer;
+  transition: background-color 0.18s ease, transform 160ms var(--ease-expo);
+}
+.proto-switch button[aria-pressed="true"] { background: var(--yellow); }
+.proto-switch button:active { transform: scale(0.96); }
+
+/* the cloud that crosses the sky in `cloud` mode */
+.proj-fx {
   position: absolute;
-  inset: -3px;
-  border: 2px solid var(--ink);
-  border-radius: inherit;
-  filter: url(#sketchy);
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 5;
+  opacity: 0;
   pointer-events: none;
 }
-/* Fixed rows, not a flex column: a one-line tagline and a two-line tagline have to leave
-   the title and the button in exactly the same place.
+/* Built from the same circle set the canvas clouds use, so it reads as one of them rather
+   than as a generic white blob. 0.97 alpha and a soft blur match how an unlabelled sky
+   cloud is painted at this point in the scroll. */
+/* Same fill and softness the canvas clouds are painted with at this point in the scroll,
+   so the bank reads as more of the same weather rather than a white shape. */
+.fx-cloud {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(var(--x, 0px), -50%);
+  opacity: 0.97;
+  filter: blur(6px);
+  will-change: transform;
+}
+.proj-fx.is-cloud .fx-cloud { display: block; }
 
-   Every row is fixed and the column height is constant, so centring the whole block keeps
-   each slot on the same pixel across all five projects while spreading the leftover height
-   evenly above and below. Splitting it top-and-bottom instead pooled all the slack into one
-   visible hole in the middle, which got worse the wider the screenshot grew. */
+/* Fixed rows, not a flex column: a one-line tagline and a two-line tagline have to leave
+   the title and the button in exactly the same place. Every row is fixed and the column
+   height is constant, so centring the whole block keeps each slot on the same pixel across
+   all five projects while spreading the leftover height evenly above and below. */
 .proj-info {
   flex: 0 0 33%;
   display: grid;
@@ -493,6 +542,7 @@ nav {
 }
 .proj-badge:active { transform: scale(0.94); }
 .proj-badge:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
 .proj-shot {
   flex: 1;
   position: relative;
@@ -528,24 +578,7 @@ nav {
   filter: url(#sketchy);        /* the wipe edge wobbles like a pencil line */
   will-change: clip-path;
 }
-/* each horizontal band of the outgoing project, cleared one eraser pass at a time */
-.erase-band { position: absolute; inset: 0; }
 
-/* The swept band. It used to be solid paper, which defeated the point — once the eraser
-   has passed there is nothing behind the board but sky, so the smear has to let it through. */
-.eraser-smudge {
-  position: absolute;
-  z-index: 5;
-  opacity: 0;
-  pointer-events: none;
-  background: linear-gradient(90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.30) 45%,
-    rgba(255, 255, 255, 0.55) 100%);
-  filter: url(#sketchy) blur(2px);
-}
-/* the sweep edge gets the same pencil wobble as the erase edge, but only while it moves */
-.proj-panel.is-drawing { filter: url(#sketchy); }
 
 /* pager */
 .proj-pager { display: flex; align-items: center; gap: 0.6rem; margin-top: 1.2rem; justify-content: center; }
@@ -1210,7 +1243,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
           <div class="proj-pin">
             <div class="proj-single">
               <div class="proj-holder"></div>
-              <div class="eraser-smudge" aria-hidden="true"></div>
+              <div class="proj-fx" aria-hidden="true"></div>
               <div class="proj-pager">
                 <span class="proj-count" aria-live="polite"></span>
                 <span class="proj-ticks"></span>
@@ -1525,6 +1558,16 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
       </div>
     </div>
   </section>
+  <!-- PROTOTYPE ONLY — transition switcher. Delete this, its CSS and wireProtoSwitch()
+       once a mode is chosen. Keys 1-6 also switch. -->
+  <div class="proto-switch" id="proto-switch" aria-label="Transition prototype">
+    <span class="proto-switch-label">reveal</span>
+    <button type="button" data-mode="scatter">scatter</button>
+    <button type="button" data-mode="depth">depth</button>
+    <button type="button" data-mode="cloud">cloud</button>
+    <button type="button" data-mode="unwrite">un-write</button>
+  </div>
+
   <footer class="site-footer" aria-label="Copyright">
     <svg class="boat" viewBox="0 0 120 62" aria-hidden="true">
       <g class="boat-ink">
@@ -1977,6 +2020,7 @@ function projectCard(p, i) {
   // live in the case study, which is one click away and where someone goes to act on them;
   // keeping them here made the action row wrap and shoved the whole column around.
   return `<article class="proj proj-panel" data-project="${esc(p.id)}">` +
+    `<div class="proj-body">` +
     `<div class="proj-info">` +
       `<span class="proj-kicker">${esc(p.shortType || p.type)}</span>` +
       `<h3>${esc(p.shortTitle || p.title)}</h3>` +
@@ -1984,6 +2028,7 @@ function projectCard(p, i) {
       `<div class="proj-actions">` + projectBadges(p.links) + `</div>` +
     `</div>` +
     projectShot(p) +
+    `</div>` +
   `</article>`;
 }
 
@@ -1993,119 +2038,277 @@ function projectModal(p) {
            features: p.features, links: p.links, media: p.gallery };
 }
 
-/* ---------- scroll-scrubbed wipe ----------
-   The section is N screens tall with the block sticky inside it, so the block holds
-   still while you scroll through. Near each boundary the outgoing project is wiped
-   off the top, left to right, revealing the next one already drawn underneath. A
-   pencil line rides the wipe edge, and the sketchy filter gives that edge its wobble. */
+/* ---------- the box holds still; its contents change ----------
+   The panel is the fixed thing on the page. What travels is `.proj-body` — the text column
+   and the screenshot — swapping inside a box that never moves, never resizes and never
+   leaves. That also means the transition can be soft-edged without the box's outline
+   flickering, because the outline is not part of the animation. */
 let projectList = [];
 let projectIndex = -1;
 let outgoingIndex = -1;
 
-const WIPE_ZONE = 0.28;    // share of each project's scroll segment spent wiping
-const ERASE_SHARE = 0.55;  // ...of which this much is erasing; the rest draws the next one on
+const WIPE_ZONE = 0.30;   // share of each project's scroll segment spent changing over
+
+/* Scrubbed, not timed: the scroll IS the timeline, so a strong ease-out would front-load
+   the whole change into the first fifth of the gesture. Smoothstep tracks the hand in the
+   middle and only softens the two ends. */
+const ease = (x) => { const c = Math.min(Math.max(x, 0), 1); return c * c * (3 - 2 * c); };
+const clamp01 = (x) => Math.min(Math.max(x, 0), 1);
 
 function layerHTML(i) {
   return projectCard(projectList[i], i);
 }
 
-// the project you are reading, drawn in normal flow so it sets the block's height
+// just the contents of the box — the part that actually changes
+function bodyHTML(i) {
+  const p = projectList[i];
+  return `<div class="proj-info">` +
+      `<span class="proj-kicker">${esc(p.shortType || p.type)}</span>` +
+      `<h3>${esc(p.shortTitle || p.title)}</h3>` +
+      `<p class="proj-tagline">${esc(p.tagline)}</p>` +
+      `<div class="proj-actions">` + projectBadges(p.links) + `</div>` +
+    `</div>` + projectShot(p);
+}
+
 function renderBase(i) {
   if (i === projectIndex) return;
   projectIndex = i;
   const holder = document.querySelector('.proj-holder');
   const out = holder.querySelector('.proj-layer-out');
   holder.innerHTML = layerHTML(i);
-  if (out) holder.appendChild(out);
+  if (out) holder.querySelector(':scope > .proj-panel').appendChild(out);
   const count = document.querySelector('.proj-count');
   if (count) count.textContent = `${String(i + 1).padStart(2, '0')} / ${String(projectList.length).padStart(2, '0')}`;
   document.querySelectorAll('.proj-tick').forEach((t, k) => t.classList.toggle('on', k === i));
   wireTiles();
 }
 
-// The outgoing project, stacked on top and split into horizontal bands. The eraser
-// clears one band per pass, snaking left-to-right then right-to-left like a real one.
-const ERASER_PASSES = 4;
-
+// the departing contents, laid over the arriving ones inside the same box
 function setOutgoing(i) {
   const holder = document.querySelector('.proj-holder');
+  const panel = holder.querySelector(':scope > .proj-panel');
   let out = holder.querySelector('.proj-layer-out');
   if (i === -1) { if (out) out.remove(); outgoingIndex = -1; return null; }
   if (i !== outgoingIndex) {
     if (out) out.remove();
     out = document.createElement('div');
     out.className = 'proj-layer-out';
-    // one full copy per band; each is clipped to its own horizontal strip
-    out.innerHTML = Array.from({ length: ERASER_PASSES }, () =>
-      `<div class="erase-band">${layerHTML(i)}</div>`).join('');
-    holder.appendChild(out);
+    out.innerHTML = `<div class="proj-body">${bodyHTML(i)}</div>`;
+    if (panel) panel.appendChild(out);
     outgoingIndex = i;
+    newCloudBank();     // different weather for every changeover
   }
   return out;
 }
 
-// The board is the only opaque thing on the page, so once the eraser has passed there is
-// nothing behind it but the live sky. r: 0 = not yet drawn, 1 = fully on the board.
-function setBaseReveal(r) {
-  const panel = document.querySelector('.proj-holder > .proj-panel');
-  if (!panel) return;
-  if (r >= 0.999) {
-    panel.style.visibility = '';
-    panel.style.clipPath = '';
-  } else if (r <= 0.001) {
-    // hidden, not removed — the base still has to give the holder its height
-    panel.style.visibility = 'hidden';
-    panel.style.clipPath = '';
-  } else {
-    panel.style.visibility = '';
-    panel.style.clipPath = `inset(0 ${((1 - r) * 100).toFixed(2)}% 0 0)`;
-  }
-  panel.classList.toggle('is-drawing', r > 0.001 && r < 0.999);
+/* ---------- PROTOTYPE: six ways the contents change ----------
+   With no box, the contents are two independent objects — a text column and a screenshot —
+   and the text column is itself five separate pieces. Everything below exploits that.
+   Keys 1-6, or the switcher bottom-left. Delete this block, its CSS and the switcher once
+   one is chosen. */
+const MODES = ['scatter', 'depth', 'cloud', 'unwrite'];
+let projMode = 'scatter';
+try { projMode = localStorage.getItem('projMode') || 'scatter'; } catch (e) {}
+if (!MODES.includes(projMode)) projMode = 'scatter';
+
+// in reading order — the order they leave in, and the order they come back in
+function bodyPieces(body) {
+  if (!body) return [];
+  return ['.proj-kicker', 'h3', '.proj-tagline', '.proj-actions', '.proj-shot']
+    .map((s) => body.querySelector(s)).filter(Boolean);
 }
 
-// g: 0 = board untouched, 1 = wiped clean
-function setWipe(g) {
+function resetPieces(body) {
+  bodyPieces(body).forEach((el) => { el.style.cssText = ''; });
+  if (body) body.style.cssText = '';
+}
+
+/* The eight puffs every cloud on this site is built from. */
+const CLOUD_PUFFS = [
+  { dx: -58, dy: 10, r: 27 }, { dx: -34, dy: -8, r: 35 },
+  { dx: -8,  dy: -20, r: 40 }, { dx: 20,  dy: -11, r: 35 },
+  { dx: 46,  dy: 4,  r: 29 }, { dx: 66,  dy: 14, r: 22 },
+  { dx: 12,  dy: 16, r: 31 }, { dx: -22, dy: 18, r: 29 },
+];
+const PUFF_MARKUP = CLOUD_PUFFS.map((c) => `<circle cx="${c.dx}" cy="${c.dy}" r="${c.r}"/>`).join('');
+
+/* A fresh bank for every wipe: four to seven clouds strung out horizontally and clumped
+   close enough to overlap, each its own scale, drift and facing. Because it is rebuilt each
+   time, no two changeovers are covered by the same weather. */
+function buildCloudBank() {
+  // Three to five. More than that and the bank runs wider than the content, so the
+  // changeover spends most of its length fully hidden with nothing to look at.
+  const n = 3 + Math.floor(Math.random() * 3);
+  const parts = [];
+  let x = 0, minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+  for (let k = 0; k < n; k++) {
+    const s = 0.92 + Math.random() * 0.6;
+    // mostly a horizontal run; the vertical wander is only enough to make the bank tall
+    // enough to hide the changeover at every height
+    const y = (Math.random() - 0.5) * 138;
+    const flip = Math.random() < 0.5 ? -1 : 1;
+    parts.push(`<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${(s * flip).toFixed(3)} ${s.toFixed(3)})">${PUFF_MARKUP}</g>`);
+    minX = Math.min(minX, x - 86 * s); maxX = Math.max(maxX, x + 89 * s);
+    minY = Math.min(minY, y - 61 * s); maxY = Math.max(maxY, y + 48 * s);
+    // advance by less than one cloud's width (173) so neighbours always overlap and clump
+    x += 78 + Math.random() * 56;
+  }
+  const pad = 12;
+  return {
+    vb: [minX - pad, minY - pad, (maxX - minX) + pad * 2, (maxY - minY) + pad * 2],
+    parts: parts.join(''),
+  };
+}
+
+function newCloudBank() {
+  const fx = document.querySelector('.proj-fx');
+  if (!fx) return;
+  const { vb, parts } = buildCloudBank();
+  // Uniform scale, sized so the bank is just taller than the content it has to cover —
+  // stretching it to fit would distort the puffs and stop it reading as one of the sky's.
+  const fxH = fx.getBoundingClientRect().height || 380;
+  const unit = (fxH * 1.12) / vb[3];
+  fx.innerHTML =
+    `<svg class="fx-cloud" viewBox="${vb.map((v) => v.toFixed(1)).join(' ')}" ` +
+    `width="${(vb[2] * unit).toFixed(1)}" height="${(vb[3] * unit).toFixed(1)}" ` +
+    `aria-hidden="true"><g fill="#fff">${parts}</g></svg>`;
+}
+
+function setFx(kind, x) {
+  const fx = document.querySelector('.proj-fx');
+  if (!fx) return;
+  if (!kind) { fx.className = 'proj-fx'; fx.style.opacity = 0; return; }
+  fx.className = `proj-fx is-${kind}`;
+  fx.style.opacity = 1;
+  fx.style.setProperty('--x', `${x.toFixed(1)}px`);
+}
+
+/* w: 0 = the departing contents are untouched, 1 = the arriving ones are fully in place. */
+function applyTransition(w) {
   const holder = document.querySelector('.proj-holder');
-  const out = holder.querySelector('.proj-layer-out');
-  const smudge = document.querySelector('.eraser-smudge');
-  if (!out) {
-    if (smudge) smudge.style.opacity = 0;
-    return;
-  }
-  const bands = out.querySelectorAll('.erase-band');
-  const n = ERASER_PASSES;
-  const p = Math.min(Math.max(g, 0), 1) * n;
-  const active = Math.min(Math.floor(p), n - 1);
-  const local = p - active;
+  const out = holder.querySelector('.proj-layer-out > .proj-body');
+  const base = holder.querySelector(':scope > .proj-panel > .proj-body');
+  resetPieces(out);
+  resetPieces(base);
+  if (!out) { setFx(null, 0); return; }
+  const outs = bodyPieces(out);
+  const ins = bodyPieces(base);
 
-  bands.forEach((band, i) => {
-    const top = (i / n) * 100;
-    const bottom = 100 - ((i + 1) / n) * 100;
-    let left = 0, right = 0;
-    if (i < active) { left = 100; }                       // already cleared
-    else if (i === active) {
-      if (i % 2 === 0) left = local * 100;                // pass runs left to right
-      else right = local * 100;                           // and back the other way
+  const leaveEnd = 0.58;                       // the old is gone by here, the new starts after
+  const L = clamp01(w / leaveEnd);
+  const A = clamp01((w - (1 - leaveEnd)) / leaveEnd);
+
+  switch (projMode) {
+    // 1. every piece on its own beat, all travelling the same distance
+    case 'scatter': {
+      outs.forEach((el, k) => {
+        const l = ease(clamp01((L - k * 0.09) / (1 - 0.09 * (outs.length - 1))));
+        el.style.transform = `translate3d(0, ${(-l * 34).toFixed(1)}px, 0)`;
+        el.style.opacity = (1 - l).toFixed(3);
+      });
+      ins.forEach((el, k) => {
+        const a = ease(clamp01((A - k * 0.09) / (1 - 0.09 * (ins.length - 1))));
+        el.style.transform = `translate3d(0, ${((1 - a) * 34).toFixed(1)}px, 0)`;
+        el.style.opacity = a.toFixed(3);
+      });
+      setFx(null, 0);
+      break;
     }
-    band.style.clipPath =
-      `inset(${top.toFixed(2)}% ${right.toFixed(2)}% ${bottom.toFixed(2)}% ${left.toFixed(2)}%)`;
-  });
 
-  // the band being cleared right now
-  const h = holder.getBoundingClientRect().height;
-  const bandH = h / n;
-  const y = bandH * (active + 0.5);
-  const x = (active % 2 === 0 ? local : 1 - local) * 100;
-  const live = g > 0.001 && g < 0.999;
-  if (smudge) {
-    smudge.style.opacity = live ? 0.94 : 0;
-    smudge.style.top = `${(y - bandH / 2).toFixed(1)}px`;
-    smudge.style.height = `${bandH.toFixed(1)}px`;
-    // the cleared side of the band
-    if (active % 2 === 0) { smudge.style.left = '0'; smudge.style.right = `${(100 - x).toFixed(2)}%`; }
-    else { smudge.style.right = '0'; smudge.style.left = `${x.toFixed(2)}%`; }
+    // 2. the old recedes into the sky, the new comes forward out of it
+    case 'depth': {
+      const l = ease(L), a = ease(A);
+      out.style.transform = `scale(${(1 - l * 0.11).toFixed(3)})`;
+      out.style.filter = `blur(${(l * 9).toFixed(1)}px)`;
+      out.style.opacity = (1 - l).toFixed(3);
+      if (base) {
+        base.style.transform = `scale(${(1 + (1 - a) * 0.09).toFixed(3)})`;
+        base.style.filter = `blur(${((1 - a) * 9).toFixed(1)}px)`;
+        base.style.opacity = a.toFixed(3);
+      }
+      setFx(null, 0);
+      break;
+    }
+
+    /* 3. A cloud bank crosses and what comes out behind it has changed. The clip edges are
+          tied to the bank's own leading and trailing edges rather than to the scroll, so the
+          swap always happens underneath cloud and is never visible. */
+    case 'cloud': {
+      const fx = document.querySelector('.proj-fx');
+      const svg = fx && fx.querySelector('.fx-cloud');
+      // SVG elements have no offsetWidth in WebKit, so measure the box instead
+      const fxW = fx ? fx.getBoundingClientRect().width || 1 : 1;
+      const bankW = svg ? svg.getBoundingClientRect().width || fxW : fxW;
+      const travel = ease(w) * (fxW + bankW) - bankW;   // from fully left of the box to fully right
+      const leadPct = ((travel + bankW) / fxW) * 100;   // the bank's leading edge
+      const trailPct = (travel / fxW) * 100;            // and its trailing edge
+      /* A hard clip edge is invisible over text but glaring over a screenshot: the
+         screenshot is dark and high-contrast, so the cut reads as a rough swipe. Dissolve
+         through a soft gradient instead, on a ramp wide enough to match the cloud's blur. */
+      const ramp = 110;
+      const leadPx = travel + bankW;
+      out.style.webkitMaskImage = out.style.maskImage =
+        `linear-gradient(90deg, transparent ${leadPx.toFixed(0)}px, #000 ${(leadPx + ramp).toFixed(0)}px)`;
+      if (base) {
+        base.style.webkitMaskImage = base.style.maskImage =
+          `linear-gradient(90deg, #000 ${Math.max(0, travel - ramp).toFixed(0)}px, transparent ${Math.max(ramp, travel).toFixed(0)}px)`;
+      }
+      setFx('cloud', travel);
+      break;
+    }
+
+    // 5. the words un-write right to left, then the next set writes back on
+    case 'unwrite': {
+      outs.forEach((el, k) => {
+        const isShot = el.classList.contains('proj-shot');
+        const l = ease(clamp01((L - k * 0.07) / (1 - 0.07 * (outs.length - 1))));
+        if (isShot) { el.style.opacity = (1 - l).toFixed(3); }
+        else { el.style.clipPath = `inset(0 0 0 ${(l * 101).toFixed(2)}%)`; }
+      });
+      ins.forEach((el, k) => {
+        const isShot = el.classList.contains('proj-shot');
+        const a = ease(clamp01((A - k * 0.07) / (1 - 0.07 * (ins.length - 1))));
+        if (isShot) { el.style.opacity = a.toFixed(3); }
+        else { el.style.clipPath = `inset(0 ${((1 - a) * 101).toFixed(2)}% 0 0)`; }
+      });
+      setFx(null, 0);
+      break;
+    }
   }
 }
+
+function clearTransition() {
+  const holder = document.querySelector('.proj-holder');
+  if (!holder) return;
+  resetPieces(holder.querySelector(':scope > .proj-panel > .proj-body'));
+  setFx(null, 0);
+}
+
+/* PROTOTYPE ONLY — mode switcher */
+function wireProtoSwitch() {
+  const bar = document.getElementById('proto-switch');
+  if (!bar) return;
+  const paint = () => bar.querySelectorAll('button').forEach((b) =>
+    b.setAttribute('aria-pressed', String(b.dataset.mode === projMode)));
+  const pick = (m) => {
+    projMode = m;
+    try { localStorage.setItem('projMode', m); } catch (err) {}
+    paint();
+    clearTransition();
+  };
+  bar.addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (b) pick(b.dataset.mode);
+  });
+  window.addEventListener('keydown', (e) => {
+    const k = Number(e.key);
+    if (!k || k < 1 || k > MODES.length) return;
+    if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
+    pick(MODES[k - 1]);
+  });
+  paint();
+}
+wireProtoSwitch();
 
 function wireProjectScroll() {
   const track = document.querySelector('.proj-scroll');
@@ -2134,25 +2337,13 @@ function wireProjectScroll() {
       const frac = p - i;
       const wipeStart = 1 - WIPE_ZONE;
       if (frac > wipeStart && i < n - 1) {
-        const w = (frac - wipeStart) / WIPE_ZONE;
         renderBase(i + 1);
-        if (w < ERASE_SHARE) {
-          // erasing project i away — what it uncovers is bare sky, not the next panel
-          setOutgoing(i);
-          setWipe(w / ERASE_SHARE);
-          setBaseReveal(0);
-        } else {
-          // board is clear; project i + 1 sweeps on across it
-          const d = (w - ERASE_SHARE) / (1 - ERASE_SHARE);
-          setOutgoing(-1);
-          setWipe(0);
-          setBaseReveal(d);
-        }
+        setOutgoing(i);
+        applyTransition((frac - wipeStart) / WIPE_ZONE);
       } else {
         renderBase(i);
         setOutgoing(-1);
-        setWipe(0);
-        setBaseReveal(1);
+        clearTransition();
       }
     },
   });
