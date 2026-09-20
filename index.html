@@ -454,55 +454,6 @@ nav {
   will-change: clip-path, transform, opacity;
 }
 .proj-layer-out > .proj-body { height: 100%; }
-/* PROTOTYPE ONLY — switcher chrome */
-.proto-switch {
-  position: fixed;
-  left: 1rem; bottom: 1rem;
-  z-index: 500;
-  display: flex; align-items: center; gap: 0.3rem;
-  padding: 0.4rem 0.5rem;
-  background: var(--paper);
-  border: 2px solid var(--ink);
-  border-radius: 999px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.64rem; letter-spacing: 0.05em; text-transform: uppercase;
-}
-.proto-switch-label { color: var(--ink-3); padding: 0 0.3rem 0 0.2rem; }
-.proto-switch button {
-  font: inherit; letter-spacing: inherit; text-transform: inherit;
-  padding: 0.3rem 0.6rem;
-  border: 1.5px solid var(--ink); border-radius: 999px;
-  background: var(--paper); color: var(--ink); cursor: pointer;
-  transition: background-color 0.18s ease, transform 160ms var(--ease-expo);
-}
-.proto-switch button[aria-pressed="true"] { background: var(--yellow); }
-.proto-switch button:active { transform: scale(0.96); }
-
-/* the cloud that crosses the sky in `cloud` mode */
-.proj-fx {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 5;
-  opacity: 0;
-  pointer-events: none;
-}
-/* Built from the same circle set the canvas clouds use, so it reads as one of them rather
-   than as a generic white blob. 0.97 alpha and a soft blur match how an unlabelled sky
-   cloud is painted at this point in the scroll. */
-/* Same fill and softness the canvas clouds are painted with at this point in the scroll,
-   so the bank reads as more of the same weather rather than a white shape. */
-.fx-cloud {
-  display: none;
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translate(var(--x, 0px), -50%);
-  opacity: 0.97;
-  filter: blur(6px);
-  will-change: transform;
-}
-.proj-fx.is-cloud .fx-cloud { display: block; }
-
 /* Fixed rows, not a flex column: a one-line tagline and a two-line tagline have to leave
    the title and the button in exactly the same place. Every row is fixed and the column
    height is constant, so centring the whole block keeps each slot on the same pixel across
@@ -1243,7 +1194,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
           <div class="proj-pin">
             <div class="proj-single">
               <div class="proj-holder"></div>
-              <div class="proj-fx" aria-hidden="true"></div>
               <div class="proj-pager">
                 <span class="proj-count" aria-live="polite"></span>
                 <span class="proj-ticks"></span>
@@ -1558,16 +1508,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
       </div>
     </div>
   </section>
-  <!-- PROTOTYPE ONLY — transition switcher. Delete this, its CSS and wireProtoSwitch()
-       once a mode is chosen. Keys 1-6 also switch. -->
-  <div class="proto-switch" id="proto-switch" aria-label="Transition prototype">
-    <span class="proto-switch-label">reveal</span>
-    <button type="button" data-mode="scatter">scatter</button>
-    <button type="button" data-mode="depth">depth</button>
-    <button type="button" data-mode="cloud">cloud</button>
-    <button type="button" data-mode="unwrite">un-write</button>
-  </div>
-
   <footer class="site-footer" aria-label="Copyright">
     <svg class="boat" viewBox="0 0 120 62" aria-hidden="true">
       <g class="boat-ink">
@@ -2096,20 +2036,12 @@ function setOutgoing(i) {
     out.innerHTML = `<div class="proj-body">${bodyHTML(i)}</div>`;
     if (panel) panel.appendChild(out);
     outgoingIndex = i;
-    newCloudBank();     // different weather for every changeover
   }
   return out;
 }
 
-/* ---------- PROTOTYPE: six ways the contents change ----------
-   With no box, the contents are two independent objects — a text column and a screenshot —
-   and the text column is itself five separate pieces. Everything below exploits that.
-   Keys 1-6, or the switcher bottom-left. Delete this block, its CSS and the switcher once
-   one is chosen. */
-const MODES = ['scatter', 'depth', 'cloud', 'unwrite'];
-let projMode = 'scatter';
-try { projMode = localStorage.getItem('projMode') || 'scatter'; } catch (e) {}
-if (!MODES.includes(projMode)) projMode = 'scatter';
+/* Every piece of the contents leaves on its own beat and the next set arrives the same
+   way — the text column is five separate pieces plus the screenshot. */
 
 // in reading order — the order they leave in, and the order they come back in
 function bodyPieces(body) {
@@ -2123,66 +2055,6 @@ function resetPieces(body) {
   if (body) body.style.cssText = '';
 }
 
-/* The eight puffs every cloud on this site is built from. */
-const CLOUD_PUFFS = [
-  { dx: -58, dy: 10, r: 27 }, { dx: -34, dy: -8, r: 35 },
-  { dx: -8,  dy: -20, r: 40 }, { dx: 20,  dy: -11, r: 35 },
-  { dx: 46,  dy: 4,  r: 29 }, { dx: 66,  dy: 14, r: 22 },
-  { dx: 12,  dy: 16, r: 31 }, { dx: -22, dy: 18, r: 29 },
-];
-const PUFF_MARKUP = CLOUD_PUFFS.map((c) => `<circle cx="${c.dx}" cy="${c.dy}" r="${c.r}"/>`).join('');
-
-/* A fresh bank for every wipe: four to seven clouds strung out horizontally and clumped
-   close enough to overlap, each its own scale, drift and facing. Because it is rebuilt each
-   time, no two changeovers are covered by the same weather. */
-function buildCloudBank() {
-  // Three to five. More than that and the bank runs wider than the content, so the
-  // changeover spends most of its length fully hidden with nothing to look at.
-  const n = 3 + Math.floor(Math.random() * 3);
-  const parts = [];
-  let x = 0, minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
-  for (let k = 0; k < n; k++) {
-    const s = 0.92 + Math.random() * 0.6;
-    // mostly a horizontal run; the vertical wander is only enough to make the bank tall
-    // enough to hide the changeover at every height
-    const y = (Math.random() - 0.5) * 138;
-    const flip = Math.random() < 0.5 ? -1 : 1;
-    parts.push(`<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${(s * flip).toFixed(3)} ${s.toFixed(3)})">${PUFF_MARKUP}</g>`);
-    minX = Math.min(minX, x - 86 * s); maxX = Math.max(maxX, x + 89 * s);
-    minY = Math.min(minY, y - 61 * s); maxY = Math.max(maxY, y + 48 * s);
-    // advance by less than one cloud's width (173) so neighbours always overlap and clump
-    x += 78 + Math.random() * 56;
-  }
-  const pad = 12;
-  return {
-    vb: [minX - pad, minY - pad, (maxX - minX) + pad * 2, (maxY - minY) + pad * 2],
-    parts: parts.join(''),
-  };
-}
-
-function newCloudBank() {
-  const fx = document.querySelector('.proj-fx');
-  if (!fx) return;
-  const { vb, parts } = buildCloudBank();
-  // Uniform scale, sized so the bank is just taller than the content it has to cover —
-  // stretching it to fit would distort the puffs and stop it reading as one of the sky's.
-  const fxH = fx.getBoundingClientRect().height || 380;
-  const unit = (fxH * 1.12) / vb[3];
-  fx.innerHTML =
-    `<svg class="fx-cloud" viewBox="${vb.map((v) => v.toFixed(1)).join(' ')}" ` +
-    `width="${(vb[2] * unit).toFixed(1)}" height="${(vb[3] * unit).toFixed(1)}" ` +
-    `aria-hidden="true"><g fill="#fff">${parts}</g></svg>`;
-}
-
-function setFx(kind, x) {
-  const fx = document.querySelector('.proj-fx');
-  if (!fx) return;
-  if (!kind) { fx.className = 'proj-fx'; fx.style.opacity = 0; return; }
-  fx.className = `proj-fx is-${kind}`;
-  fx.style.opacity = 1;
-  fx.style.setProperty('--x', `${x.toFixed(1)}px`);
-}
-
 /* w: 0 = the departing contents are untouched, 1 = the arriving ones are fully in place. */
 function applyTransition(w) {
   const holder = document.querySelector('.proj-holder');
@@ -2190,7 +2062,7 @@ function applyTransition(w) {
   const base = holder.querySelector(':scope > .proj-panel > .proj-body');
   resetPieces(out);
   resetPieces(base);
-  if (!out) { setFx(null, 0); return; }
+  if (!out) return;
   const outs = bodyPieces(out);
   const ins = bodyPieces(base);
 
@@ -2198,117 +2070,23 @@ function applyTransition(w) {
   const L = clamp01(w / leaveEnd);
   const A = clamp01((w - (1 - leaveEnd)) / leaveEnd);
 
-  switch (projMode) {
-    // 1. every piece on its own beat, all travelling the same distance
-    case 'scatter': {
-      outs.forEach((el, k) => {
-        const l = ease(clamp01((L - k * 0.09) / (1 - 0.09 * (outs.length - 1))));
-        el.style.transform = `translate3d(0, ${(-l * 34).toFixed(1)}px, 0)`;
-        el.style.opacity = (1 - l).toFixed(3);
-      });
-      ins.forEach((el, k) => {
-        const a = ease(clamp01((A - k * 0.09) / (1 - 0.09 * (ins.length - 1))));
-        el.style.transform = `translate3d(0, ${((1 - a) * 34).toFixed(1)}px, 0)`;
-        el.style.opacity = a.toFixed(3);
-      });
-      setFx(null, 0);
-      break;
-    }
-
-    // 2. the old recedes into the sky, the new comes forward out of it
-    case 'depth': {
-      const l = ease(L), a = ease(A);
-      out.style.transform = `scale(${(1 - l * 0.11).toFixed(3)})`;
-      out.style.filter = `blur(${(l * 9).toFixed(1)}px)`;
-      out.style.opacity = (1 - l).toFixed(3);
-      if (base) {
-        base.style.transform = `scale(${(1 + (1 - a) * 0.09).toFixed(3)})`;
-        base.style.filter = `blur(${((1 - a) * 9).toFixed(1)}px)`;
-        base.style.opacity = a.toFixed(3);
-      }
-      setFx(null, 0);
-      break;
-    }
-
-    /* 3. A cloud bank crosses and what comes out behind it has changed. The clip edges are
-          tied to the bank's own leading and trailing edges rather than to the scroll, so the
-          swap always happens underneath cloud and is never visible. */
-    case 'cloud': {
-      const fx = document.querySelector('.proj-fx');
-      const svg = fx && fx.querySelector('.fx-cloud');
-      // SVG elements have no offsetWidth in WebKit, so measure the box instead
-      const fxW = fx ? fx.getBoundingClientRect().width || 1 : 1;
-      const bankW = svg ? svg.getBoundingClientRect().width || fxW : fxW;
-      const travel = ease(w) * (fxW + bankW) - bankW;   // from fully left of the box to fully right
-      const leadPct = ((travel + bankW) / fxW) * 100;   // the bank's leading edge
-      const trailPct = (travel / fxW) * 100;            // and its trailing edge
-      /* A hard clip edge is invisible over text but glaring over a screenshot: the
-         screenshot is dark and high-contrast, so the cut reads as a rough swipe. Dissolve
-         through a soft gradient instead, on a ramp wide enough to match the cloud's blur. */
-      const ramp = 110;
-      const leadPx = travel + bankW;
-      out.style.webkitMaskImage = out.style.maskImage =
-        `linear-gradient(90deg, transparent ${leadPx.toFixed(0)}px, #000 ${(leadPx + ramp).toFixed(0)}px)`;
-      if (base) {
-        base.style.webkitMaskImage = base.style.maskImage =
-          `linear-gradient(90deg, #000 ${Math.max(0, travel - ramp).toFixed(0)}px, transparent ${Math.max(ramp, travel).toFixed(0)}px)`;
-      }
-      setFx('cloud', travel);
-      break;
-    }
-
-    // 5. the words un-write right to left, then the next set writes back on
-    case 'unwrite': {
-      outs.forEach((el, k) => {
-        const isShot = el.classList.contains('proj-shot');
-        const l = ease(clamp01((L - k * 0.07) / (1 - 0.07 * (outs.length - 1))));
-        if (isShot) { el.style.opacity = (1 - l).toFixed(3); }
-        else { el.style.clipPath = `inset(0 0 0 ${(l * 101).toFixed(2)}%)`; }
-      });
-      ins.forEach((el, k) => {
-        const isShot = el.classList.contains('proj-shot');
-        const a = ease(clamp01((A - k * 0.07) / (1 - 0.07 * (ins.length - 1))));
-        if (isShot) { el.style.opacity = a.toFixed(3); }
-        else { el.style.clipPath = `inset(0 ${((1 - a) * 101).toFixed(2)}% 0 0)`; }
-      });
-      setFx(null, 0);
-      break;
-    }
-  }
+  outs.forEach((el, k) => {
+    const l = ease(clamp01((L - k * 0.09) / (1 - 0.09 * (outs.length - 1))));
+    el.style.transform = `translate3d(0, ${(-l * 34).toFixed(1)}px, 0)`;
+    el.style.opacity = (1 - l).toFixed(3);
+  });
+  ins.forEach((el, k) => {
+    const a = ease(clamp01((A - k * 0.09) / (1 - 0.09 * (ins.length - 1))));
+    el.style.transform = `translate3d(0, ${((1 - a) * 34).toFixed(1)}px, 0)`;
+    el.style.opacity = a.toFixed(3);
+  });
 }
 
 function clearTransition() {
   const holder = document.querySelector('.proj-holder');
   if (!holder) return;
   resetPieces(holder.querySelector(':scope > .proj-panel > .proj-body'));
-  setFx(null, 0);
 }
-
-/* PROTOTYPE ONLY — mode switcher */
-function wireProtoSwitch() {
-  const bar = document.getElementById('proto-switch');
-  if (!bar) return;
-  const paint = () => bar.querySelectorAll('button').forEach((b) =>
-    b.setAttribute('aria-pressed', String(b.dataset.mode === projMode)));
-  const pick = (m) => {
-    projMode = m;
-    try { localStorage.setItem('projMode', m); } catch (err) {}
-    paint();
-    clearTransition();
-  };
-  bar.addEventListener('click', (e) => {
-    const b = e.target.closest('button');
-    if (b) pick(b.dataset.mode);
-  });
-  window.addEventListener('keydown', (e) => {
-    const k = Number(e.key);
-    if (!k || k < 1 || k > MODES.length) return;
-    if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
-    pick(MODES[k - 1]);
-  });
-  paint();
-}
-wireProtoSwitch();
 
 function wireProjectScroll() {
   const track = document.querySelector('.proj-scroll');
