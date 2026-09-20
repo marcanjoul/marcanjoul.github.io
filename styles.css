@@ -31,11 +31,11 @@
   font-display: swap;
 }
 
-/* Roboto Light — the small meta face: project kicker and pager. One weight, pinned to the
-   whole range so a stray font-weight can't synthesise a bold out of it. */
+/* Roboto — the small meta face: project kicker and pager. One weight, pinned to the whole
+   range so a stray font-weight can't synthesise a bold out of it. */
 @font-face {
-  font-family: 'Roboto Light';
-  src: url('assets/fonts/Roboto-Light.ttf') format('truetype');
+  font-family: 'Roboto';
+  src: url('assets/fonts/Roboto-Regular.ttf') format('truetype');
   font-weight: 100 900;
   font-display: swap;
 }
@@ -65,7 +65,7 @@
   --font-head:    'Llewie', var(--font-display);
   /* The small meta face: kicker and pager. Share Tech Mono is now only the name glitch,
      which sets its own font on the canvas in app.js. */
-  --font-meta:    'Roboto Light', sans-serif;
+  --font-meta:    'Roboto', sans-serif;
 
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --maxw: 1180px;
@@ -394,6 +394,7 @@ nav {
 /* ========== PROJECTS — scattered archive ========== */
 .proj-stage {
   --proj-card-w: clamp(220px, 24vw, 290px);
+  --proj-head-room: 11rem;   /* nav + sticky heading */
   position: relative;
   margin-top: 2.5rem;
   padding-bottom: 2rem;
@@ -414,10 +415,12 @@ nav {
 /* --- one project at a time; swiping erases it and scribbles in the next --- */
 /* the section is tall; the block inside pins while you scroll through it */
 .proj-scroll { position: relative; }
+/* The pinned stage starts below the heading that now sticks above it and is shortened by
+   the same amount, so the two share the screen instead of overlapping. */
 .proj-pin {
   position: sticky;
-  top: 0;
-  height: 100vh;
+  top: var(--proj-head-room);
+  height: calc(100vh - var(--proj-head-room));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -634,6 +637,15 @@ nav {
   color: var(--accent);
   margin-bottom: 0.8rem;
 }
+
+/* The projects heading has a screen-per-project of scroll underneath it, so it sticks to
+   the top of that run instead of scrolling away on the first swipe. Only there — the other
+   chapters are short enough that their heading stays on screen anyway. */
+#projects .chapter-title {
+  position: sticky;
+  top: 4.6rem;            /* below the floating nav */
+  z-index: 3;
+  pointer-events: none;   /* it floats over the stage; never eats a click meant for a card */
 }
 
 /* Centred like the hero name. */
@@ -1032,8 +1044,13 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   filter: url(#sketchy);
   transition: transform 160ms var(--ease-expo), background-color 200ms ease;
 }
-.contact-primary-icon { width: 1.25em; height: 1.25em; flex: 0 0 auto; }
-.contact-primary:active { transform: scale(0.97); }
+.contact-primary-icon { width: 1.25em; height: 1.25em; flex: 0 0 auto; color: #0a66c2; }
+/* It is the page's main call to action, so it lifts on hover like the contact tiles rather
+   than only reacting on press. */
+@media (hover: hover) and (pointer: fine) {
+  .contact-primary:hover { transform: translateY(-3px); }
+}
+.contact-primary:active { transform: translateY(-1px) scale(0.97); }
 .contact-inner .contact-links {
   grid-template-columns: repeat(3, minmax(0, 9rem));
   justify-content: center;

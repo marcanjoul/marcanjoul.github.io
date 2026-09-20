@@ -661,8 +661,15 @@ let lastLogoHoverScale = 1.0;
 let lastLogoTilt = 0;
 const hoverPointer = matchMedia('(hover: hover) and (pointer: fine)');
 const wideEnough = matchMedia('(min-width: 761px)');
-let poofT = 0;          // 0 = name showing, 1 = code showing
+let poofT = 0;          // how far along the name the burn has reached, 0..1
 let lastPoofT = 0;
+/* When each letter caught, keyed by index: the name's letters in nameBurnAt, the code's in
+   codeBurnAt. Timestamps, so the scorch and the smoke can age per letter instead of every
+   letter animating on the same clock. */
+let lastHoverState = false;
+let lastBurnTime = -1e9;
+let nameBurnAt = [];
+let codeBurnAt = [];
 
 // Pseudo-random seeded generator for organic, 12fps sketch jitter
 let seed = 1;
@@ -924,6 +931,8 @@ const clouds = cloudSpec.map((c) => ({ ...c, x: width * c.bx, y: height * c.by }
 
 // Hand-drawn sketched sun, parked in the upper sky
 const sun = { x: width * 0.15, y: height * 0.24, radius: 46 };
+let sunScreenX = sun.x;
+let sunScreenY = sun.y;
 
 // Hand-drawn Flapping Birds Setup
 const birds = [
@@ -1126,63 +1135,163 @@ document.fonts.ready.then(() => {
 
 
 // Main Draw Loop
-const CODE_TEXT = '<mark_anjoul />';
+/* No leading "<": every glyph up to the tail now has a name letter directly under it —
+   m·a·r·k·_·a·n·j·o·u·l against M·a·r·k· ·A·n·j·o·u·l — so a letter is replaced in place
+   rather than the whole string being squeezed to fit. */
+const CODE_TEXT = 'mark_anjoul />';
 
-/* The same eight circles every cloud on this site is built from, so a poof reads as more of
-   the page's own weather rather than a generic puff. */
-const POOF_PUFFS = [
-  { dx: -58, dy: 10, r: 27 }, { dx: -34, dy: -8, r: 35 },
-  { dx: -8, dy: -20, r: 40 }, { dx: 20, dy: -11, r: 35 },
-  { dx: 46, dy: 4, r: 29 }, { dx: 66, dy: 14, r: 22 },
-  { dx: 12, dy: 16, r: 31 }, { dx: -22, dy: 18, r: 29 },
-];
 
 /* The puff art spans about 175 units wide and 110 tall, so a caller asks for a pixel width
    and gets that; squash flattens it, because an unsquashed puff wide enough to cover the
    name is also tall enough to swallow the subhead under it. */
-const PUFF_W = 175;
+/* The sun sits in the top-left of the sky, so the hover is the sun burning the name into
+   its code form. The cursor is the lens: how far right you have dragged it across the name
+   is how far the burn has got, letter by letter, and it never runs backwards within a pass.
+   No flame anywhere — rays, scorch and smoke only. */
 
-/* A soft mass with only a hint of cloud in it: the middle lobes of the usual eight-circle
-   silhouette, their vertical offsets flattened almost flat and their gradients widened
-   enough to run into each other, each drawn as a radial gradient rather than a filled
-   shape. Enough shape to belong in this sky, not so much that a cartoon cloud
-   lands on the words. Positions are fixed, not scattered, which is what keeps it from
-   reading as grain. */
-const POOF_LOBES = POOF_PUFFS.slice(1, 6);
-function drawSoftCloud(cx, cy, pxWide, alpha, squash = 0.42) {
-  if (alpha <= 0.004 || pxWide <= 1) return;
-  const sx = pxWide / PUFF_W;
-  const sy = sx * squash;
-  const a = Math.min(alpha, 1);
-  POOF_LOBES.forEach((c) => {
-    const px = cx + c.dx * sx;
-    const py = cy + c.dy * 0.38 * sy;
-    const r = c.r * sx * 1.28;
-    const g = logoCtx.createRadialGradient(px, py, 0, px, py, r);
-    g.addColorStop(0, `rgba(255,255,255,${a})`);
-    g.addColorStop(0.5, `rgba(255,255,255,${a * 0.7})`);
-    g.addColorStop(1, 'rgba(255,255,255,0)');
-    logoCtx.fillStyle = g;
-    logoCtx.beginPath();
-    logoCtx.ellipse(px, py, r, r * squash * 1.6, 0, 0, Math.PI * 2);
-    logoCtx.fill();
+const BURN_MS = 340;        // how long one letter takes to char through
+/* How far through the exchange a letter is. Raised cosine so both ends ease, and it reaches
+   1 at 62% of the char — the old letter is gone well before the ember and smoke finish, but
+   the new one is at full ink by exactly the same moment. */
+const swapAt = (p) => 0.5 - Math.cos(Math.min(1, p * 1.6) * Math.PI) * 0.5;
+const SMOKE_MS = 1400;      // how long a burnt letter keeps smoking
+
+/* One wisp of smoke: a soft grey bloom, no hard edge. */
+function drawSmoke(x, y, r, alpha) {
+  if (alpha <= 0.004 || r <= 0.5) return;
+  const g = logoCtx.createRadialGradient(x, y, 0, x, y, r);
+  g.addColorStop(0, `rgba(228, 224, 216, ${Math.min(alpha, 1)})`);
+  g.addColorStop(0.55, `rgba(216, 212, 204, ${Math.min(alpha, 1) * 0.5})`);
+  g.addColorStop(1, 'rgba(210, 206, 198, 0)');
+  logoCtx.fillStyle = g;
+  logoCtx.beginPath();
+  logoCtx.arc(x, y, r, 0, Math.PI * 2);
+  logoCtx.fill();
+}
+
+/* Per-letter boxes for a string, so every glyph can be burned on its own clock. */
+function letterBoxes(str, font, centreX, targetW) {
+  logoCtx.font = font;
+  const chars = [...str];
+  const widths = chars.map((c) => logoCtx.measureText(c).width);
+  const total = widths.reduce((a, b) => a + b, 0);
+  // squeeze the code to the name's width so the two line up letter for letter
+  const k = targetW ? targetW / total : 1;
+  let x = centreX - (total * k) / 2;
+  return chars.map((c, i) => {
+    const w = widths[i] * k;
+    const box = { ch: c, x, w, mid: x + w / 2, scale: k };
+    x += w;
+    return box;
   });
 }
 
-/* The cloud swells over the words, the name gives way to the code underneath it, and it
-   thins out again. */
-const leaving = (x) => 1 - clamp01((x - 0.16) / 0.14);   // what is left of the outgoing text
-const arriving = (x) => clamp01((x - 0.4) / 0.18);       // how far in the incoming text is
-
-function drawCloudPoof(x, cx, cy, w, h) {
-  if (x <= 0.002 || x >= 0.998) return;
-  /* sin to the power of a fraction rather than a clamped sine: it still reaches full cover
-     by the time the words change, but it comes off the peak on a curve instead of hitting a
-     flat ceiling and dropping off it, so the last of the blob just dissolves. */
-  drawSoftCloud(cx, cy - h * 0.05, w * (0.85 + x * 0.45),
-                Math.pow(Math.sin(x * Math.PI), 0.6));
+/* Lay the code over the name one cell per letter: each code glyph is squeezed into the
+   width of the name letter it replaces, so the swap happens in place. Anything past the
+   end of the name — the " />" tail — carries on at its own width. */
+function codeBoxesOver(nameBoxes, font) {
+  logoCtx.font = font;
+  const chars = [...CODE_TEXT];
+  const boxes = [];
+  let x = 0;
+  chars.forEach((ch, i) => {
+    const natural = logoCtx.measureText(ch).width;
+    const over = nameBoxes[i];
+    if (over) {
+      boxes.push({ ch, x: over.x, w: over.w, mid: over.mid, scale: over.w / natural });
+      x = over.x + over.w;
+    } else {
+      boxes.push({ ch, x, w: natural, mid: x + natural / 2, scale: 1 });
+      x += natural;
+    }
+  });
+  return boxes;
 }
 
+/* The beam: three thin rays converging from the sun onto the letter being worked, plus the
+   bright focus where they land. This is the whole point of the effect, so it is drawn on
+   top of everything else. */
+function drawSunBeam(hx, hy, time, alpha) {
+  // the contact point never sits perfectly still — heat haze, not a laser sight
+  hx += Math.sin(time * 0.017) * 1.6;
+  hy += Math.cos(time * 0.021) * 1.2;
+  const dx = hx - sunScreenX;
+  const dy = hy - sunScreenY;
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len;            // unit normal, to fan the rays out
+  const ny = dx / len;
+
+  logoCtx.save();
+  logoCtx.globalCompositeOperation = 'lighter';
+  for (let i = -1; i <= 1; i++) {
+    const flick = 0.75 + Math.sin(time * 0.012 + i * 2.1) * 0.25;
+    const spread = i * Math.min(34, len * 0.065);
+    const g = logoCtx.createLinearGradient(sunScreenX, sunScreenY, hx, hy);
+    g.addColorStop(0, `rgba(255, 228, 120, ${0.05 * alpha * flick})`);
+    g.addColorStop(0.75, `rgba(255, 236, 160, ${0.5 * alpha * flick})`);
+    g.addColorStop(1, `rgba(255, 252, 226, ${0.95 * alpha * flick})`);
+    logoCtx.strokeStyle = g;
+    logoCtx.lineWidth = i === 0 ? 7.5 : 3.6;
+    logoCtx.beginPath();
+    logoCtx.moveTo(sunScreenX + nx * spread * 0.35, sunScreenY + ny * spread * 0.35);
+    logoCtx.lineTo(hx, hy);
+    logoCtx.stroke();
+  }
+  // a hot core down the middle of the beam
+  const core = logoCtx.createLinearGradient(sunScreenX, sunScreenY, hx, hy);
+  core.addColorStop(0, 'rgba(255, 255, 255, 0)');
+  core.addColorStop(1, `rgba(255, 255, 250, ${0.8 * alpha})`);
+  logoCtx.strokeStyle = core;
+  logoCtx.lineWidth = 2.8;
+  logoCtx.beginPath();
+  logoCtx.moveTo(sunScreenX, sunScreenY);
+  logoCtx.lineTo(hx, hy);
+  logoCtx.stroke();
+
+  // the focus itself
+  const pulse = 0.85 + Math.sin(time * 0.02) * 0.15;
+  const fg = logoCtx.createRadialGradient(hx, hy, 0, hx, hy, 26 * pulse);
+  fg.addColorStop(0, `rgba(255, 255, 245, ${0.95 * alpha})`);
+  fg.addColorStop(0.4, `rgba(255, 226, 130, ${0.55 * alpha})`);
+  fg.addColorStop(1, 'rgba(255, 210, 90, 0)');
+  logoCtx.fillStyle = fg;
+  logoCtx.beginPath();
+  logoCtx.arc(hx, hy, 26 * pulse, 0, Math.PI * 2);
+  logoCtx.fill();
+  logoCtx.restore();
+}
+
+/* Smoke off a letter, thickest just after it caught and trailing away as it ages. */
+function drawLetterSmoke(box, cy, h, age, time, alpha) {
+  const life = 1 - Math.min(1, age / SMOKE_MS);
+  if (life <= 0.01) return;
+  for (let i = 0; i < 5; i++) {
+    const phase = ((age / SMOKE_MS) * 1.5 + i * 0.2) % 1;
+    const rise = phase * h * 2.4;
+    const drift = Math.sin(phase * 3.2 + box.mid + i) * h * 0.45;
+    drawSmoke(box.mid + drift, cy - h * 0.2 - rise,
+              h * (0.3 + phase * 0.85), (1 - phase) * life * 1.15 * alpha);
+  }
+}
+
+
+/* The heading sticks above the projects for the whole run, then has to leave with the last
+   one. Sticky alone releases at its container's edge — a screen too late — and scroll
+   progress saturates before the stage has finished moving, so neither can express it. What
+   works is copying the pinned block: once it starts climbing past its own sticky top, the
+   heading climbs by exactly the same amount. */
+let projHeading = null;
+let projPin = null;
+function rideHeadingOut() {
+  if (projHeading === null) {
+    projHeading = document.querySelector('#projects .chapter-title') || false;
+    projPin = document.querySelector('.proj-pin') || false;
+  }
+  if (!projHeading || !projPin) return;
+  const room = parseFloat(getComputedStyle(projPin).top) || 0;
+  const delta = Math.min(0, projPin.getBoundingClientRect().top - room);
+  projHeading.style.transform = delta < 0 ? `translateY(${delta.toFixed(1)}px)` : '';
+}
 
 function draw(rafTime) {
   // Every ambient motion in the scene reads `time`; the scroll choreography reads scrollTop.
@@ -1251,6 +1360,8 @@ function draw(rafTime) {
     // the sun slides to centre and sinks to meet the sea
     const sunX = sun.x + (width * 0.5 - sun.x) * sunEase;
     const sunY = sun.y + (height * 0.60 - sun.y) * sunEase;
+    sunScreenX = sunX;      // the burn beam is fired from wherever the sun actually is
+    sunScreenY = sunY;
     drawSun(decorCtx, sunX, sunY, 0.9, time);
 
     const ease = cloudEase;
@@ -1312,6 +1423,23 @@ function draw(rafTime) {
       glintKey = seaKey;
     }
     const glowX = width * 0.5;
+
+    /* A soft column of light under the sun before any of the dashes go down. Without it the
+       glints read as loose chalk marks floating on the water rather than one path of light
+       broken up by the swell. */
+    const pathGlow = ctx.createRadialGradient(glowX, horizonY, 0, glowX, horizonY, seaHeight * 1.15);
+    const glowA = 0.3 * (0.35 + dusk * 0.65);
+    pathGlow.addColorStop(0, `rgba(255, 226, 170, ${glowA})`);
+    pathGlow.addColorStop(0.45, `rgba(255, 222, 168, ${glowA * 0.4})`);
+    pathGlow.addColorStop(1, 'rgba(255, 220, 165, 0)');
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(glowX, horizonY, seaHeight * 0.85, seaHeight * 1.15, 0, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.fillStyle = pathGlow;
+    ctx.fillRect(0, horizonY, width, seaHeight);
+    ctx.restore();
+
     ctx.lineCap = 'round';
     for (const g of glintCache) {
       const alpha = (1 - g.depth * 0.75) * 0.6 * (0.35 + dusk * 0.65);
@@ -1323,11 +1451,24 @@ function draw(rafTime) {
       ctx.beginPath();
       ctx.moveTo(cx - half, y - dy);
       ctx.quadraticCurveTo(cx, y + g.kink, cx + half, y + dy);
-      // one wide soft pass under a tighter core — canvas has no blur in WebKit
-      ctx.strokeStyle = `rgba(255, 228, 186, ${(alpha * 0.26).toFixed(3)})`;
-      ctx.lineWidth = 7 + g.depth * 7;
+      /* Each dash is stroked with a gradient that runs out to nothing at both ends. A flat
+         colour with a round cap gave every glint two hard little edges, which is what made
+         the water look chopped up instead of lit. */
+      const fade = ctx.createLinearGradient(cx - half, y, cx + half, y);
+      const soft = (a) => {
+        fade.addColorStop(0, 'rgba(255, 228, 186, 0)');
+        fade.addColorStop(0.5, `rgba(255, 240, 214, ${a.toFixed(3)})`);
+        fade.addColorStop(1, 'rgba(255, 228, 186, 0)');
+        return fade;
+      };
+      ctx.strokeStyle = soft(alpha * 0.24);
+      ctx.lineWidth = 8 + g.depth * 8;
       ctx.stroke();
-      ctx.strokeStyle = `rgba(255, 240, 214, ${(alpha * 0.42).toFixed(3)})`;
+      const core = ctx.createLinearGradient(cx - half, y, cx + half, y);
+      core.addColorStop(0, 'rgba(255, 240, 214, 0)');
+      core.addColorStop(0.5, `rgba(255, 246, 226, ${(alpha * 0.4).toFixed(3)})`);
+      core.addColorStop(1, 'rgba(255, 240, 214, 0)');
+      ctx.strokeStyle = core;
       ctx.lineWidth = 2.5 + g.depth * 2.5;
       ctx.stroke();
     }
@@ -1366,11 +1507,13 @@ function draw(rafTime) {
     const horizonStrokes = horizonStrokeCache;
     // ctx.filter is a no-op in WebKit, so the blur is faked: wide faint passes
     // underneath a narrow one. Reads soft instead of inked.
-    const ink = horizonAlpha * 0.6;
-    for (const [w, k] of [[26, 0.045], [19, 0.05], [13, 0.06], [8, 0.07], [4, 0.08]])
+    const ink = horizonAlpha * 0.34;
+    for (const [w, k] of [[40, 0.03], [30, 0.035], [22, 0.04], [15, 0.045], [9, 0.05], [5, 0.05]])
       drawCachedStrokes(horizonStrokes, `rgba(28, 24, 18, ${(ink * k).toFixed(3)})`, w, ctx);
   }
 
+
+  rideHeadingOut();
 
   // 6. Compute name typography layout values
   const clientWidth = document.documentElement.clientWidth;
@@ -1398,10 +1541,16 @@ function draw(rafTime) {
                     mouseY >= textY - textHeight / 2 - 20 &&
                     mouseY <= textY + textHeight / 2 + 20;
 
-  /* The cloud only plays on the way in. Leaving drops straight back to the name, the way
-     the hover always used to behave — a reverse poof made pulling the pointer away feel
-     like a second event to sit through. */
-  poofT = isHovered ? Math.min(1, poofT + 0.085) : 0;
+  /* The cursor drives the burn: how far right it has reached across the name is how far the
+     sun has got. It ratchets — sliding back left does not un-burn a letter — and leaving
+     resets to the plain name with no reverse animation. */
+  if (isHovered) {
+    const reach = (mouseX - (textX - textWidth / 2)) / textWidth;
+    poofT = Math.max(poofT, Math.min(1, Math.max(0, reach)));
+  }
+  // Pointer away: the rays stop, but whatever was burnt stays burnt. Pick it up again by
+  // coming back to the name.
+  if (isHovered !== lastHoverState) { lastHoverState = isHovered; logoRepaint = true; }
 
   const logoHoverScaleTarget = isHovered ? 1.15 : 1.0;
   logoHoverScale += (logoHoverScaleTarget - logoHoverScale) * 0.16;
@@ -1426,6 +1575,7 @@ function draw(rafTime) {
                   Math.abs(logoHoverScale - lastLogoHoverScale) > 0.001 ||
                   Math.abs(logoTilt - lastLogoTilt) > 0.01 ||
                   Math.abs(poofT - lastPoofT) > 0.002 ||
+                  ((isHovered && poofT > 0 && poofT < 1) || time - lastBurnTime < SMOKE_MS) ||
                   skyFade > 0.01 || // keep redrawing while the sun's idle pulse/ray rotation is visible
                   (isHovered && (Math.abs(mouseX - lastMouseX) > 0.5 || Math.abs(mouseY - lastMouseY) > 0.5));
 
@@ -1440,49 +1590,92 @@ function draw(rafTime) {
 
     // ponytail: the name simply fades as you scroll. The old per-letter version set
     // logoCtx.filter = blur() for every character on every frame — very expensive.
-    const alpha = skyFade * (1 - heroFadeTween.progress());
+    /* The untouched name clears out of the way a little faster than the text under it —
+       once it has been burned to code it fades on the same curve as everything else, since
+       that state is the thing worth looking at. */
+    const heroGone = Math.min(1, heroFadeTween.progress() * (poofT > 0 ? 1 : 1.5));
+    const alpha = skyFade * (1 - heroGone);
     if (alpha > 0.01) {
-      const hide = 1 - leaving(poofT);
-      if (hide < 0.99) {
+      const nameFont = `bold ${fontSize}px ${LOGO_FONT}`;
+      const codeFont = `bold ${fontSize * 0.82}px "Share Tech Mono", monospace`;
+      const nameBoxes = letterBoxes(text, nameFont, textX, 0);
+      const codeBoxes = codeBoxesOver(nameBoxes, codeFont);
+      const burnX = textX - textWidth / 2 + poofT * textWidth;
+
+      // note the moment each letter catches, so it can scorch and smoke on its own clock
+      nameBoxes.forEach((b, k) => {
+        if (nameBurnAt[k] === undefined && b.mid <= burnX) { nameBurnAt[k] = time; lastBurnTime = time; }
+      });
+      codeBoxes.forEach((b, k) => {
+        // tail glyphs have no letter to burn, so they follow the last one that did
+        const gate = k < nameBoxes.length ? b.mid : nameBoxes[nameBoxes.length - 1].mid;
+        if (codeBurnAt[k] === undefined && gate <= burnX) codeBurnAt[k] = time + (k - nameBoxes.length + 1) * 60;
+      });
+
+      logoCtx.save();
+      logoCtx.globalAlpha = alpha;
+      logoCtx.textAlign = 'left';
+      logoCtx.textBaseline = 'middle';
+
+      // the name, letter by letter: untouched, charring, then gone
+      logoCtx.font = nameFont;
+      nameBoxes.forEach((b, k) => {
+        const at = nameBurnAt[k];
+        const p = at === undefined ? 0 : Math.min(1, (time - at) / BURN_MS);
+        if (p >= 1) return;
         logoCtx.save();
-        logoCtx.globalAlpha = alpha * (1 - hide);
-        logoCtx.translate(textX, textY);
-        logoCtx.scale(logoHoverScale, logoHoverScale);
-        if (Math.abs(logoTilt) > 0.01) logoCtx.rotate(logoTilt * Math.PI / 180);
-        logoCtx.font = `bold ${fontSize}px ${LOGO_FONT}`;
+        // fades where it stands — dropping the letter read as gravity, not heat
+        logoCtx.globalAlpha = alpha * (1 - swapAt(p));
+        // ink darkening through scorch brown as the heat takes it, and no halo of any kind
+        logoCtx.fillStyle = p > 0 ? `rgb(${28 + p * 78}, ${24 + p * 34}, ${18 + p * 10})` : '#1c1812';
+        logoCtx.fillText(b.ch, b.x, textY);
+        logoCtx.restore();
+      });
+
+      // the code, arriving one glyph at a time behind the burn
+      logoCtx.font = codeFont;
+      codeBoxes.forEach((b, k) => {
+        const at = codeBurnAt[k];
+        if (at === undefined) return;
+        const p = Math.min(1, (time - at) / BURN_MS);
+        const ease = 1 - Math.pow(1 - p, 3);
+        logoCtx.save();
+        // the exact complement of the name letter, off the same curve: between them there
+        // is always one letter's worth of ink, never two and never none
+        logoCtx.globalAlpha = alpha * swapAt(p);
+        /* Struck white-hot, cooling to the settled yellow over the same beat. That yellow is
+           the site's #ffd400 lifted two points of lightness, so it holds against the sky a
+           little better than the flat brand colour. */
+        const cool = Math.min(1, p * 1.8);
+        logoCtx.fillStyle = `rgb(255, ${255 - cool * 40}, ${245 - cool * 235})`;
+        // the glow while it is still cooling, and nothing once it has settled
+        logoCtx.shadowColor = `rgba(255, 224, 130, ${(1 - cool) * 0.9})`;
+        logoCtx.shadowBlur = fontSize * 0.3 * (1 - cool);
+        logoCtx.translate(b.x + b.w / 2, textY);
+        logoCtx.scale(b.scale * (0.94 + ease * 0.06), 0.94 + ease * 0.06);
         logoCtx.textAlign = 'center';
-        logoCtx.textBaseline = 'middle';
-        logoCtx.fillStyle = '#1c1812';
-        logoCtx.fillText(text, 0, 0);
-        if (fontSize > 36) {
-          logoCtx.strokeStyle = '#1c1812';
-          logoCtx.lineWidth = Math.max(0.4, fontSize * 0.015);
-          logoCtx.strokeText(text, 0, 0);
+        logoCtx.fillText(b.ch, 0, 0);
+        /* Share Tech Mono ships one weight and its @font-face covers 100-900, so asking for
+           bold changes nothing — the stroke is purely what thickens it to sit beside Llewie.
+           It is stroked in the fill's own colour: a darker edge reads as a grey rim around
+           every letter. */
+        logoCtx.strokeStyle = logoCtx.fillStyle;
+        logoCtx.lineWidth = fontSize * 0.035;
+        logoCtx.lineJoin = 'round';
+        logoCtx.strokeText(b.ch, 0, 0);
+        logoCtx.restore();
+      });
+      logoCtx.restore();
+
+      // smoke from every letter that has caught, then the rays doing the work
+      nameBoxes.forEach((b, k) => {
+        if (nameBurnAt[k] !== undefined) {
+          drawLetterSmoke(b, textY, textHeight, time - nameBurnAt[k], time, alpha);
         }
-        logoCtx.restore();
-      }
-
-      // What the poof is for: the name turns into its code form behind the cloud.
-      const codeIn = arriving(poofT);
-      if (codeIn > 0.01) {
-        logoCtx.save();
-        logoCtx.globalAlpha = alpha * codeIn;
-        logoCtx.translate(textX, textY);
-        logoCtx.scale(logoHoverScale, logoHoverScale);
-        if (Math.abs(logoTilt) > 0.01) logoCtx.rotate(logoTilt * Math.PI / 180);
-        logoCtx.font = `bold ${fontSize * 0.82}px "Share Tech Mono", monospace`;
-        logoCtx.textAlign = 'center';
-        logoCtx.textBaseline = 'middle';
-        logoCtx.fillStyle = '#ffd400';
-        logoCtx.fillText(CODE_TEXT, 0, 0);
-        logoCtx.strokeStyle = 'rgba(28, 24, 18, 0.05)';
-        logoCtx.lineWidth = 1;
-        logoCtx.strokeText(CODE_TEXT, 0, 0);
-        logoCtx.restore();
-      }
-
-      // the cloud goes on top of both, so the changeover is never seen bare
-      drawCloudPoof(poofT, textX, textY, textWidth, textHeight);
+      });
+      /* Rays only while there is still something to burn. Once the name is fully code,
+         hovering it does nothing — the sun has finished its work. */
+      if (isHovered && poofT > 0 && poofT < 1) drawSunBeam(burnX, textY, time, alpha);
     }
 
     lastLogoX = textX;
