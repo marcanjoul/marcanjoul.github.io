@@ -70,8 +70,8 @@
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --maxw: 1180px;
 
-  /* hand-drawn wonky rectangle: mismatched corner radii */
-  --wonky: 255px 18px 225px 18px / 18px 225px 18px 255px;
+  /* panels and cards: one even radius, no mismatched corners */
+  --wonky: 26px;
 
   --ink-rgb:    28, 24, 18;
 
@@ -141,24 +141,15 @@ a { color: inherit; text-decoration: none; }
   75% { transform: rotate(3deg); }
 }
 
-/* ========== SKETCHED BORDERS ========== */
+/* ========== BORDERS ==========
+   These used to draw their outline twice: a real border plus a ::before overlay running the
+   #sketchy filter, which is where the wobble came from. The overlay is gone — the border is
+   now just a border. */
 .nav-inner,
 .project-modal-panel, .project-modal-close, .project-modal-links a,
 .media-tab, .demo-phone, .demo-browser {
   position: relative;
-  border: 1.5px solid var(--border-color) !important;
-}
-.nav-inner::before,
-.project-modal-panel::before,
-.project-modal-close::before, .project-modal-links a::before,
-.media-tab::before, .demo-phone::before, .demo-browser::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border: 1.5px solid var(--doodle-border-color) !important;
-  border-radius: inherit;
-  filter: url(#sketchy);
-  pointer-events: none;
+  border: 1.5px solid var(--ink) !important;
 }
 
 
@@ -475,9 +466,8 @@ nav {
   display: grid;
   place-items: center;
   background: var(--paper);
-  border: 2px solid var(--ink);
+  border: 1.5px solid var(--ink);
   border-radius: 50%;
-  filter: url(#sketchy);
   color: var(--ink);
   transition: background-color 0.2s ease, color 0.2s ease,
               border-color 0.2s ease, transform 160ms var(--ease-expo);
@@ -716,9 +706,8 @@ nav {
   align-items: center;
   justify-content: center;
   background: transparent;
-  border-radius: var(--wonky);
-  /* the sketchy filter wobbles the icon art itself — doodle look, no box around it */
-  filter: url(#sketchy);
+  /* no box and no circle around these — the icon art is the shape */
+  border-radius: 10px;
   margin-bottom: 0.5rem;
   color: var(--skill-color, var(--ink)); /* Apply dynamic brand colors to icons */
 }
@@ -790,7 +779,7 @@ nav {
   overflow-y: auto;
   background: var(--paper);
   border: 1.5px solid var(--ink);
-  border-radius: var(--wonky);
+  border-radius: 26px;
   padding: clamp(1.8rem, 1.133rem + 2.222vw, 2.8rem);
   box-shadow: 6px 6px 0 var(--ink);
   transform: translateY(16px) scale(0.98);
@@ -910,7 +899,6 @@ nav {
   background: var(--paper);   /* filled, so the icons read against the water */
   border: 2px solid var(--ink);
   border-radius: 50%;
-  filter: url(#sketchy);
   margin-bottom: 0.7rem;
   color: var(--cl-color, var(--accent));
   transition: border-color 0.2s ease, background-color 0.25s ease;
@@ -1041,7 +1029,6 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   border: 2.5px solid var(--ink);
   border-radius: 999px;
   padding: 0.7rem 2rem;
-  filter: url(#sketchy);
   transition: transform 160ms var(--ease-expo), background-color 200ms ease;
 }
 .contact-primary-icon { width: 1.25em; height: 1.25em; flex: 0 0 auto; color: #0a66c2; }

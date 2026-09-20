@@ -1424,22 +1424,6 @@ function draw(rafTime) {
     }
     const glowX = width * 0.5;
 
-    /* A soft column of light under the sun before any of the dashes go down. Without it the
-       glints read as loose chalk marks floating on the water rather than one path of light
-       broken up by the swell. */
-    const pathGlow = ctx.createRadialGradient(glowX, horizonY, 0, glowX, horizonY, seaHeight * 1.15);
-    const glowA = 0.3 * (0.35 + dusk * 0.65);
-    pathGlow.addColorStop(0, `rgba(255, 226, 170, ${glowA})`);
-    pathGlow.addColorStop(0.45, `rgba(255, 222, 168, ${glowA * 0.4})`);
-    pathGlow.addColorStop(1, 'rgba(255, 220, 165, 0)');
-    ctx.save();
-    ctx.beginPath();
-    ctx.ellipse(glowX, horizonY, seaHeight * 0.85, seaHeight * 1.15, 0, 0, Math.PI * 2);
-    ctx.clip();
-    ctx.fillStyle = pathGlow;
-    ctx.fillRect(0, horizonY, width, seaHeight);
-    ctx.restore();
-
     ctx.lineCap = 'round';
     for (const g of glintCache) {
       const alpha = (1 - g.depth * 0.75) * 0.6 * (0.35 + dusk * 0.65);
