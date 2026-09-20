@@ -2476,7 +2476,6 @@ let ctx = canvas.getContext('2d');
 const decorCanvas = document.getElementById('decor-canvas');
 const decorCtx = decorCanvas.getContext('2d');
 let lastDecorBlur = -1;
-let cloudLabelFade = 1;   // words leave the sky long before the clouds do
 const logoCanvas = document.getElementById('logo-canvas');
 const logoCtx = logoCanvas.getContext('2d');
 
@@ -2747,16 +2746,16 @@ function drawSketchedBird(bx, by, size, flap, color, opacity) {
 // Drifting Clouds Config
 // bx/by are resting positions as fractions of the viewport, so resize can restore them
 const cloudSpec = [
-  { bx: 0.33, by: 0.11, scale: 1.32, speed: 0.19, label: 'UI/UX' },
-  { bx: 0.05, by: 0.06, scale: 0.92, speed: 0.15 },
-  { bx: 0.56, by: 0.19, scale: 1.46, speed: 0.11, label: 'AI' },
-  { bx: 0.44, by: 0.05, scale: 0.86, speed: 0.27 },
-  { bx: 0.80, by: 0.12, scale: 1.34, speed: 0.17, label: 'ML' },
-  { bx: 0.68, by: 0.24, scale: 1.30, speed: 0.13, label: 'SWE' },
-  { bx: 0.95, by: 0.21, scale: 0.90, speed: 0.24 },
-  { bx: 0.20, by: 0.23, scale: 0.84, speed: 0.29 },
-  { bx: 0.88, by: 0.05, scale: 1.00, speed: 0.21 },
-  { bx: 0.13, by: 0.16, scale: 0.78, speed: 0.31 },
+  { bx: 0.30, by: 0.09, scale: 1.32, speed: 0.19 },
+  { bx: 0.03, by: 0.04, scale: 0.92, speed: 0.15 },
+  { bx: 0.54, by: 0.22, scale: 1.46, speed: 0.11 },
+  { bx: 0.42, by: 0.03, scale: 0.86, speed: 0.27 },
+  { bx: 0.83, by: 0.08, scale: 1.34, speed: 0.17 },
+  { bx: 0.67, by: 0.33, scale: 1.30, speed: 0.13 },
+  { bx: 0.97, by: 0.26, scale: 0.90, speed: 0.24 },
+  { bx: 0.18, by: 0.29, scale: 0.84, speed: 0.29 },
+  { bx: 0.90, by: 0.02, scale: 1.00, speed: 0.21 },
+  { bx: 0.09, by: 0.18, scale: 0.78, speed: 0.31 },
 ];
 const clouds = cloudSpec.map((c) => ({ ...c, x: width * c.bx, y: height * c.by }));
 
@@ -2833,8 +2832,7 @@ function updateCachedPaths() {
 
 function drawSketchedCloudCached(cloudIndex, cx, cy, opacity) {
   const fillParsed = cloudFillColor;
-  const solid = clouds[cloudIndex] && clouds[cloudIndex].label ? 1 : 0.97;
-  ctx.fillStyle = `rgba(${fillParsed.r}, ${fillParsed.g}, ${fillParsed.b}, ${Math.min(opacity * 1.2, 1) * solid})`;
+  ctx.fillStyle = `rgba(${fillParsed.r}, ${fillParsed.g}, ${fillParsed.b}, ${Math.min(opacity * 1.2, 1) * 0.97})`;
 
   const cachedCloud = pathCache.clouds[cloudIndex];
   if (!cachedCloud) return;
@@ -2845,30 +2843,6 @@ function drawSketchedCloudCached(cloudIndex, cx, cy, opacity) {
     ctx.arc(cx + c.dx * cachedCloud.scale, cy + c.dy * cachedCloud.scale, c.r * cachedCloud.scale, 0, Math.PI * 2);
   });
   ctx.fill();
-
-  // a few clouds carry a label — drawn on the same layer so it blurs with them
-  const spec = clouds[cloudIndex];
-  if (spec && spec.label) {
-    const size = 30 * cachedCloud.scale;
-    const lx = cx + 4 * cachedCloud.scale;
-    const ly = cy - 2 * cachedCloud.scale;
-    ctx.save();
-    ctx.font = `700 ${size}px 'Cabin Sketch', cursive`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    // knock the outlines back with a paper halo, then lay the word on solid
-    ctx.lineJoin = 'round';
-    ctx.lineWidth = 7 * cachedCloud.scale;
-    // The word leaves ahead of the cloud it sits on: squaring the cloud's own fade makes
-    // it drop away early instead of lingering as a smudge once the shape has thinned out.
-    const fade = cloudLabelFade * Math.min(opacity / 0.75, 1);
-    if (fade <= 0.004) { ctx.restore(); return; }
-    ctx.strokeStyle = `rgba(243, 237, 224, ${(fade * 0.95).toFixed(3)})`;
-    ctx.strokeText(spec.label, lx, ly);
-    ctx.fillStyle = `rgba(28, 24, 18, ${(fade * 0.96).toFixed(3)})`;
-    ctx.fillText(spec.label, lx, ly);
-    ctx.restore();
-  }
 }
 
 function drawSun(targetCtx, cx, cy, opacity, time, scale = 1) {
@@ -3059,9 +3033,6 @@ function draw(rafTime) {
     ctx = decorCtx;
     // Scroll opens the sky: the clouds draw apart and thin out, while the sun climbs to
     // the top centre. The blur ramp above is untouched — this is position and opacity only.
-    // The words are tied to actual scroll distance, not to the cloud fade — they should be
-    // gone within half a screen, while the clouds themselves drift for most of the page.
-    cloudLabelFade = 1 - Math.min(Math.max(scrollTop / (height * 0.4), 0), 1);
 
     // Two clocks. The clouds run on scroll distance so they part early no matter how long
     // the page gets; the sun keeps to overall page progress so it lands up top at the end.
