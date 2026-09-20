@@ -28,10 +28,10 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/splitting@1.1.0/dist/splitting.css">
 
-<!-- Google Font Cabin Sketch -->
+<!-- Google Font: Share Tech Mono (kicker, pager, logo glitch) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
 <style>
 /* ============================================================
@@ -57,6 +57,15 @@
   font-display: swap;
 }
 
+/* Sirukota — the headline face. One weight, declared across the whole range so the 700s
+   in the rules below use the real file instead of a synthetic bold. */
+@font-face {
+  font-family: 'Sirukota';
+  src: url('assets/fonts/Sirukota.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 :root {
   --paper:      #f3ede0;
   --paper-2:    #ece3cf;
@@ -70,6 +79,10 @@
 
   --font-display: 'Winky Rough', cursive;
   --font-body:    'Winky Rough', sans-serif;
+  /* The headline face; the canvas logo reads LOGO_FONT in the script, which has to match. */
+  --font-head:    'Sirukota', var(--font-display);
+  /* The small technical face: kicker and pager. */
+  --font-mono:    'Share Tech Mono', monospace;
 
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --maxw: 1180px;
@@ -96,7 +109,9 @@ html { font-size: 100%; scroll-behavior: auto; }
 
 body {
   font-family: var(--font-body);
-  font-variation-settings: 'wght' 400, 'BNCE' 0;
+  /* Pins Winky Rough's wght axis, which outranks font-weight — so a default-bold tag like
+     h2 stays at 400. Set a real font-weight on an element to opt it out. */
+  font-variation-settings: 'wght' 400;
   background: var(--paper);
   color: var(--ink);
   line-height: 1.7;
@@ -119,9 +134,6 @@ body {
   border: 0;
 }
 
-.logo-placeholder, .chapter-title, .project-modal-title, .cl-label, .proj h3, .mobile-nav a {
-  font-variation-settings: 'wght' var(--wght), 'BNCE' var(--bnce);
-}
 
 /* hand-drawn star cursor, desktop only */
 @media (hover: hover) and (pointer: fine) {
@@ -543,7 +555,7 @@ nav {
 }
 .proj-tick.on { opacity: 0.85; }
 .proj-count {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.78rem;
   letter-spacing: 0.12em;
   color: var(--ink-3);
@@ -558,7 +570,7 @@ nav {
 }
 
 .proj-kicker {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.68rem;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -570,7 +582,7 @@ nav {
 }
 /* the same face the name is drawn in on the hero canvas */
 .proj h3 {
-  font-family: 'Cabin Sketch', var(--font-display);
+  font-family: var(--font-head);
   font-weight: 700;
   font-size: 1.9rem;
   line-height: 1.1;
@@ -633,7 +645,7 @@ nav {
   justify-content: center;
   gap: 0;   /* keeps the bull tight to the @ — symmetric, so the text stays centred */
   font-size: 1.85rem;
-  font-family: 'Cabin Sketch', var(--font-display);
+  font-family: var(--font-head);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -675,7 +687,7 @@ nav {
   width: fit-content;
   margin-inline: auto;
   text-align: center;
-  font-family: 'Cabin Sketch', var(--font-display);
+  font-family: var(--font-head);
   font-size: 4.2rem;
   line-height: 1.1;
   margin-bottom: 1.1rem;
@@ -705,8 +717,7 @@ nav {
 /* Splitting.js char reveal */
 .split .char {
   display: inline-block;
-  will-change: transform, opacity, font-variation-settings;
-  font-variation-settings: 'wght' var(--char-wght, var(--wght)), 'BNCE' var(--char-bnce, var(--bnce)), 'INFM' var(--char-infm, 0), 'ital' var(--char-ital, 0);
+  will-change: transform, opacity;
 }
 .split .word { white-space: nowrap; }
 
@@ -839,7 +850,7 @@ nav {
 }
 .project-modal-close:active { transform: scale(0.94); }
 .project-modal-type { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); font-weight: 600; margin-bottom: 0.5rem; }
-.project-modal-title { font-family: 'Cabin Sketch', var(--font-display); font-size: 2.4rem; font-weight: 700; color: var(--ink); margin-bottom: 0.9rem; }
+.project-modal-title { font-family: var(--font-head); font-size: 2.4rem; font-weight: 700; color: var(--ink); margin-bottom: 0.9rem; }
 .project-modal-desc { font-size: 0.98rem; color: var(--ink-2); margin-bottom: 1.2rem; }
 .project-modal-features { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.4rem; }
 .project-modal-features li { font-size: 0.92rem; color: var(--ink-2); padding-left: 1.2rem; position: relative; }
@@ -1014,7 +1025,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   pointer-events: none;      /* it floats over the page, never blocks it */
   opacity: 0;                /* the draw loop raises this as the sea comes in */
   transition: opacity 0.4s var(--ease-expo);
-  font-family: 'Cabin Sketch', var(--font-display);
+  font-family: var(--font-head);
   font-weight: 700;
   font-size: clamp(0.85rem, 1.1vw, 1rem);
   letter-spacing: 0.01em;
@@ -1047,7 +1058,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 .contact-inner { text-align: center; }
 .contact-inner .chapter-title {
   font-size: 5.0rem;
-  /* the box hugs the advance width, but Cabin Sketch's hatching paints wider —
+  /* the box hugs the advance width, but the headline face paints wider than it measures —
      a little side padding keeps the outer strokes inside the box */
   padding: 0 0.14em;
 }
@@ -1062,7 +1073,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  font-family: 'Cabin Sketch', var(--font-display);
+  font-family: var(--font-head);
   font-weight: 700;
   font-size: 1.5rem;
   color: var(--ink);
@@ -1508,6 +1519,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
       </div>
     </div>
   </section>
+
   <footer class="site-footer" aria-label="Copyright">
     <svg class="boat" viewBox="0 0 120 62" aria-hidden="true">
       <g class="boat-ink">
@@ -1579,52 +1591,6 @@ if (!reduceMotion && !isMobile) {
   gsap.ticker.lagSmoothing(0);
 }
 
-/* ---------- Shantell Sans variable font hover interactivity ---------- */
-const root = document.documentElement;
-if (!reduceMotion) {
-  let lastX = null;
-  let lastY = null;
-  let lastT = 0;
-  let bounceTarget = 6;
-  let bounceCurrent = 6;
-  let easeBounceActive = false;
-
-  function easeBounce() {
-    const diff = bounceTarget - bounceCurrent;
-    const targetDiff = 6 - bounceTarget;
-    
-    if (Math.abs(diff) < 0.05 && Math.abs(targetDiff) < 0.05) {
-      bounceCurrent = 6;
-      bounceTarget = 6;
-      root.style.setProperty('--bnce', '6.0');
-      easeBounceActive = false;
-      return;
-    }
-    
-    bounceCurrent += diff * 0.12;
-    bounceTarget += targetDiff * 0.05;
-    root.style.setProperty('--bnce', bounceCurrent.toFixed(1));
-    requestAnimationFrame(easeBounce);
-  }
-
-  window.addEventListener('pointermove', (e) => {
-    const now = performance.now();
-    if (lastX !== null) {
-      const dt = Math.max(now - lastT, 1);
-      const dist = Math.hypot(e.clientX - lastX, e.clientY - lastY);
-      bounceTarget = Math.min(6 + (dist / dt) * 18, 95);
-    }
-    lastX = e.clientX;
-    lastY = e.clientY;
-    lastT = now;
-
-    if (!easeBounceActive) {
-      easeBounceActive = true;
-      requestAnimationFrame(easeBounce);
-    }
-  });
-}
-
 /* ---------- letter-by-letter reveal on scroll ---------- */
 Splitting({ target: '.split', by: 'chars' });
 document.querySelectorAll('.split').forEach((el) => {
@@ -1634,10 +1600,7 @@ document.querySelectorAll('.split').forEach((el) => {
       y: () => gsap.utils.random(-15, 15),
       x: () => gsap.utils.random(-8, 8),
       rotation: () => gsap.utils.random(-18, 18),
-      scale: () => gsap.utils.random(0.4, 0.7),
-      '--char-infm': 100,
-      '--char-bnce': () => gsap.utils.random(-100, 100),
-      '--char-ital': () => gsap.utils.random(0, 1)
+      scale: () => gsap.utils.random(0.4, 0.7)
     },
     {
       opacity: 1,
@@ -1645,9 +1608,6 @@ document.querySelectorAll('.split').forEach((el) => {
       x: 0,
       rotation: 0,
       scale: 1,
-      '--char-infm': 0,
-      '--char-bnce': 1,
-      '--char-ital': 0,
       duration: 0.5,
       stagger: 0.012,
       ease: 'back.out(1.2)',
@@ -2196,7 +2156,7 @@ class CanvasTextScribbler {
     // word onto a second line that falls outside the one-line-tall canvas and disappears.
     const st = window.getComputedStyle(this.heading);
     this.padX = Math.max(8, parseFloat(st.fontSize) * 0.2);
-    // Cabin Sketch's ascenders overshoot the em box, so a canvas exactly line-height
+    // the headline face's ascenders overshoot the em box, so a canvas exactly line-height
     // tall slices the tops off tall letters. Give it vertical headroom too.
     this.padY = Math.max(6, parseFloat(st.fontSize) * 0.22);
 
@@ -2476,6 +2436,7 @@ let ctx = canvas.getContext('2d');
 const decorCanvas = document.getElementById('decor-canvas');
 const decorCtx = decorCanvas.getContext('2d');
 let lastDecorBlur = -1;
+const LOGO_FONT = '"Sirukota", cursive';   // must match --font-head in the CSS above
 const logoCanvas = document.getElementById('logo-canvas');
 const logoCtx = logoCanvas.getContext('2d');
 
@@ -3176,7 +3137,7 @@ function draw(rafTime) {
   const fontSize = Math.max(48, Math.min(width * 0.09, height * 0.12, 105));
 
   // Measure text dimensions for hover bounding box
-  logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
+  logoCtx.font = `bold ${fontSize}px ${LOGO_FONT}`;
   const textWidth = logoCtx.measureText("Mark Anjoul").width;
   const textHeight = fontSize * 0.85;
 
@@ -3266,7 +3227,7 @@ function draw(rafTime) {
         logoCtx.translate(textX, textY);
         logoCtx.scale(logoHoverScale, logoHoverScale);
         if (Math.abs(logoTilt) > 0.01) logoCtx.rotate(logoTilt * Math.PI / 180);
-        logoCtx.font = `bold ${fontSize}px "Cabin Sketch", cursive`;
+        logoCtx.font = `bold ${fontSize}px ${LOGO_FONT}`;
         logoCtx.textAlign = 'center';
         logoCtx.textBaseline = 'middle';
         logoCtx.fillStyle = '#1c1812';
