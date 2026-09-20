@@ -272,6 +272,7 @@ nav {
    drawn on .nav-container, which also carries the sway, because .nav-inner's transform
    belongs to the GSAP reveal and the two would fight over it. */
 @media (min-width: 761px) {
+  nav { padding-top: 0.75rem; }        /* the kite rides a touch higher than the phone nav */
   .nav-container { justify-content: center; transform-origin: top center; animation: kite-sway 7s ease-in-out infinite; }
   /* the string belongs to the bar, not the container: hung off .nav-inner it inherits the
      reveal's opacity, so it cannot show up on its own before the bar has arrived. Its
@@ -280,7 +281,7 @@ nav {
     content: '';
     position: absolute;
     left: 50%; bottom: 100%;
-    width: 2px; height: 1.1rem;
+    width: 2px; height: 0.75rem;
     background: linear-gradient(180deg, transparent, rgba(28, 24, 18, 0.55));
   }
   .logo-placeholder { display: none; }
@@ -990,6 +991,9 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 @media (max-width: 760px) {
   .logo-placeholder { width: 140px; }
   .nav-links { display: none; }
+  /* screen room is the scarce thing here, so the pills hug the right edge instead of
+     lining up with the circle: the anchored offset only sets how far down they start */
+  .mobile-nav { right: 0.6rem; }
   /* the pills sit over live content here, so each carries a soft halo to lift it off
      whatever it lands on — a glow rather than a panel, so nothing boxes them in */
   .mobile-nav a {

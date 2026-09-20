@@ -1649,7 +1649,9 @@ function draw(rafTime) {
 
   // Fade in and slide the navigation capsule quickly on scroll
   if (cachedNavInner) {
-    const navFade = Math.min(scrollTop / (window.innerHeight * 0.4), 1);
+    // the bar holds off until the hero has properly started leaving: nothing from a third
+    // of a screen down, then it fades in over the next half screen
+    const navFade = clamp01((scrollTop - window.innerHeight * 0.35) / (window.innerHeight * 0.5));
     if (Math.abs(navFade - lastNavFade) > 0.002) {
     lastNavFade = navFade;
     gsap.set(cachedNavInner, {
