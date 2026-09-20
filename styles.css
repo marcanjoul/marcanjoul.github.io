@@ -164,7 +164,7 @@ a { color: inherit; text-decoration: none; }
 #celestial-canvas {
   z-index: -2;
 }
-/* Sun, clouds and birds live here so a CSS filter can blur them. Canvas ctx.filter is
+/* Sun and clouds live here so a CSS filter can blur them. Canvas ctx.filter is
    silently ignored by WebKit, so the blur has to be applied to the element instead. */
 #decor-canvas {
   z-index: -1;
@@ -268,6 +268,34 @@ nav {
 .logo-link[tabindex="-1"]:focus-visible {
   outline: none !important;
 }
+/* Above the phone breakpoint the bar hangs from the top edge like a kite: the string is
+   drawn on .nav-container, which also carries the sway, because .nav-inner's transform
+   belongs to the GSAP reveal and the two would fight over it. */
+@media (min-width: 761px) {
+  .nav-container { justify-content: center; transform-origin: top center; animation: kite-sway 7s ease-in-out infinite; }
+  /* the string belongs to the bar, not the container: hung off .nav-inner it inherits the
+     reveal's opacity, so it cannot show up on its own before the bar has arrived. Its
+     height is the nav's top padding, so it meets the screen edge exactly. */
+  .nav-inner::before {
+    content: '';
+    position: absolute;
+    left: 50%; bottom: 100%;
+    width: 2px; height: 1.1rem;
+    background: linear-gradient(180deg, transparent, rgba(28, 24, 18, 0.55));
+  }
+  .logo-placeholder { display: none; }
+  .nav-inner {
+    margin: 0 !important;
+    position: relative;
+    border: 2px solid var(--ink) !important;
+    box-shadow: 0 4px 0 rgba(28, 24, 18, 0.14);
+  }
+}
+@keyframes kite-sway {
+  0%, 100% { transform: rotate(-1.6deg) translateY(0); }
+  50%      { transform: rotate(1.6deg) translateY(3px); }
+}
+
 .nav-inner {
   display: flex;
   align-items: center;
@@ -295,39 +323,67 @@ nav {
 }
 .nav-cta:active { transform: scale(0.96); }
 
-.mobile-menu-btn { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: none; border: none; cursor: pointer; min-width: 44px; min-height: 44px; }
-.mobile-menu-btn span { width: 20px; height: 2px; background: var(--ink); border-radius: 2px; }
+.mobile-menu-btn {
+  display: none;
+  flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  width: 46px; height: 46px; min-width: 46px; min-height: 46px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 260ms var(--ease-expo);
+}
+.mobile-menu-btn:hover { transform: translateY(-2px); }
+.mobile-menu-btn span {
+  width: 20px; height: 2px; background: var(--ink); border-radius: 2px;
+  transition: transform 260ms var(--ease-expo), opacity 160ms ease;
+}
+/* the bars cross into an X while the links are out */
+.menu-open .mobile-menu-btn span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.menu-open .mobile-menu-btn span:nth-child(2) { opacity: 0; }
+.menu-open .mobile-menu-btn span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
+/* The menu is a popover hung off the circle, not a sheet: JS measures the button and
+   hands over --menu-top/--menu-right, so the links land under it whatever the bar style,
+   the viewport or the scroll position. The right edge is clamped so it can never be
+   pushed off screen on a narrow phone. */
 .mobile-nav {
   position: fixed;
-  inset: 0;
+  top: var(--menu-top, 4.6rem);
+  right: max(0.75rem, var(--menu-right, 1.5rem));
   z-index: 300;
-  background: var(--paper);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2rem;
-  transform: translateY(-100%);
-  transition: transform 0.45s var(--ease-expo), background-color 0.25s ease;
-  pointer-events: auto;
+  pointer-events: none;
 }
-.mobile-nav.active { transform: translateY(0); }
-.mobile-nav ul { list-style: none; display: flex; flex-direction: column; align-items: center; gap: 1.6rem; }
-/* The panel slides in over 450ms; the links ride in just behind it rather than arriving
-   pre-placed. Delays are offsets from the panel's own travel, not from zero. */
+.mobile-nav.active { pointer-events: auto; }
+.mobile-nav ul {
+  list-style: none;
+  display: flex; flex-direction: column; align-items: flex-end;
+  gap: 0.45rem;
+}
+/* The links leave the circle as their own tags, one under the next: no card, each popping
+   up from the button it came out of. */
 .mobile-nav li {
   opacity: 0;
-  transform: translateY(12px);
-  transition: opacity 260ms var(--ease-expo), transform 260ms var(--ease-expo);
+  transform: scale(0.2) translateY(-28px);
+  transform-origin: top right;
+  transition: opacity 260ms var(--ease-expo), transform 320ms var(--ease-expo);
 }
 .mobile-nav.active li { opacity: 1; transform: none; }
-.mobile-nav.active li:nth-child(1) { transition-delay: 130ms; }
-.mobile-nav.active li:nth-child(2) { transition-delay: 175ms; }
-.mobile-nav.active li:nth-child(3) { transition-delay: 220ms; }
-.mobile-nav.active li:nth-child(4) { transition-delay: 265ms; }
-.mobile-nav a { font-family: var(--font-display); font-size: 2.2rem; }
-.mobile-nav-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: var(--ink); font-size: 1.5rem; cursor: pointer; }
+.mobile-nav.active li:nth-child(1) { transition-delay: 0ms; }
+.mobile-nav.active li:nth-child(2) { transition-delay: 45ms; }
+.mobile-nav.active li:nth-child(3) { transition-delay: 90ms; }
+.mobile-nav.active li:nth-child(4) { transition-delay: 135ms; }
+.mobile-nav a {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  white-space: nowrap;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 0.32rem 0.95rem;
+}
+.mobile-nav-close { display: none; }
 
 /* ========== SCROLLABLE PORTFOLIO WRAPPER ========== */
 .scroll-wrapper {
@@ -603,6 +659,10 @@ nav {
 }
 .chapter-inner-hero::before { content: none !important; }
 
+/* The hero reads as three descending steps — name, sentence, role — so the two text lines
+   are ordered against the source, which keeps the sentence next to the <h1> for a reader. */
+.chapter-inner-hero { display: flex; flex-direction: column; align-items: center; }
+
 
 
 
@@ -616,16 +676,17 @@ nav {
 }
 
 .hero-label-wrapper {
+  order: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.85rem;
+  font-size: 1.3rem;
   font-family: var(--font-head);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--accent);
-  margin-bottom: 0.8rem;
+  margin: 0.1rem 0 0;
 }
 
 /* The projects heading has a screen-per-project of scroll underneath it, so it sticks to
@@ -651,10 +712,11 @@ nav {
 }
 
 .chapter-hero h2.split {
+  order: 1;
   font-family: var(--font-display);
-  font-size: 2.6rem;
+  font-size: 1.9rem;
   line-height: 1.25;
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.35rem;
   color: var(--ink-2);
 }
 
@@ -928,7 +990,15 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 @media (max-width: 760px) {
   .logo-placeholder { width: 140px; }
   .nav-links { display: none; }
-  .nav-inner { padding: 0.3rem; }
+  /* the pills sit over live content here, so each carries a soft halo to lift it off
+     whatever it lands on — a glow rather than a panel, so nothing boxes them in */
+  .mobile-nav a {
+    box-shadow: 0 0 18px 7px rgba(255, 255, 255, 0.55), 0 2px 6px rgba(28, 24, 18, 0.14);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  /* the circle is the whole nav here, so the container around it paints nothing */
+  .nav-inner { padding: 0; background: none; border: none !important; box-shadow: none; }
   .mobile-menu-btn { display: flex; }
   .hero-label-wrapper {
     font-size: clamp(1.15rem, 0.950rem + 0.667vw, 1.45rem);
@@ -1059,7 +1129,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   .proj-info h3 { font-size: 2.4rem; }
   .proj h3 { font-size: 1.6rem; }
   .chapter-title { font-size: 3.4rem; }
-  .chapter-hero h2.split { font-size: 2.2rem; }
+  .chapter-hero h2.split { font-size: 1.6rem; }
   .site-footer { font-size: 1.125rem; }
   .contact-inner .chapter-title { font-size: 4.0rem; }
   .contact-lead { font-size: 1.175rem; }
@@ -1071,7 +1141,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   .proj-info h3 { font-size: 1.9rem; }
   .proj h3 { font-size: 1.3rem; }
   .chapter-title { font-size: 2.6rem; }
-  .chapter-hero h2.split { font-size: 1.8rem; }
+  .chapter-hero h2.split { font-size: 1.4rem; }
   .site-footer { font-size: 1.0rem; }
   .contact-inner .chapter-title { font-size: 3.0rem; }
   .contact-lead { font-size: 1.05rem; }

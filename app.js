@@ -574,24 +574,31 @@ document.addEventListener('keydown', (e) => {
 /* ---------- mobile nav trigger ---------- */
 const menuBtn = document.querySelector('.mobile-menu-btn');
 const mobileNav = document.querySelector('.mobile-nav');
-const mobileNavClose = document.querySelector('.mobile-nav-close');
 mobileNav.inert = true;
+// The popover hangs off the button rather than covering the page, so it takes its position
+// from the button itself: wherever the bar puts the circle, the links land under it.
+function anchorMobileNav() {
+  const r = menuBtn.getBoundingClientRect();
+  if (!r.width) return;   // the bar is showing its links instead; leave the defaults alone
+  mobileNav.style.setProperty('--menu-top', `${Math.round(r.bottom + 12)}px`);
+  mobileNav.style.setProperty('--menu-right', `${Math.round(window.innerWidth - r.right)}px`);
+}
 function openMobileNav() {
+  anchorMobileNav();
   mobileNav.classList.add('active');
+  document.documentElement.classList.add('menu-open');
   mobileNav.inert = false;
-  document.body.style.overflow = 'hidden';
-  if (siteNav) siteNav.inert = true;
-  if (scrollWrapperEl) scrollWrapperEl.inert = true;
-  mobileNavClose.focus();
+  mobileNav.querySelector('a').focus();
 }
 function closeMobileNav() {
   mobileNav.classList.remove('active');
+  document.documentElement.classList.remove('menu-open');
   mobileNav.inert = true;
-  document.body.style.overflow = '';
-  if (siteNav) siteNav.inert = false;
-  if (scrollWrapperEl) scrollWrapperEl.inert = false;
   menuBtn.focus();
 }
+window.addEventListener('resize', () => {
+  if (mobileNav.classList.contains('active')) anchorMobileNav();
+});
 /* Anchor links were doing a native jump — measured 0 -> 5701px in a single frame. That
    skips the whole scroll choreography and leaves Lenis's internal position out of sync with
    the real scrollY, so the next wheel event lurches. Route them through Lenis instead.
@@ -612,8 +619,15 @@ document.querySelectorAll('a[href^="#"]').forEach((link) => {
   });
 });
 
-menuBtn.addEventListener('click', openMobileNav);
-mobileNavClose.addEventListener('click', closeMobileNav);
+menuBtn.addEventListener('click', () => {
+  if (mobileNav.classList.contains('active')) closeMobileNav(); else openMobileNav();
+});
+// a popover closes when you go back to the page; a sheet has its own close button
+document.addEventListener('pointerdown', (e) => {
+  if (!isPopover() || !mobileNav.classList.contains('active')) return;
+  if (mobileNav.contains(e.target) || menuBtn.contains(e.target)) return;
+  closeMobileNav();
+});
 mobileNav.querySelectorAll('a').forEach((link) => {
   link.addEventListener('click', closeMobileNav);
 });
@@ -739,10 +753,9 @@ function parseColor(color) {
   return { r: 255, g: 255, b: 255 };
 }
 
-// Static cloud/bird colors (previously interpolated between day/night states)
+// Static cloud colors (previously interpolated between day/night states)
 const cloudFillColor = parseColor('#ffffff');
 const cloudStrokeColor = parseColor('#1c1812');
-const birdColor = parseColor('#1c1812');
 
 // Sketched path generator (used to pre-calculate paths)
 function generateSketchedPath(points, jitter = 1.2, strokeCount = 2, close = false) {
@@ -818,7 +831,7 @@ function drawCachedStrokes(strokes, color, width, targetCtx = ctx, close = false
   });
 }
 
-// Dynamic sketched path drawing function (used for birds)
+// Dynamic sketched path drawing function
 function drawSketchedPath(points, color, width, jitter = 1.2, strokeCount = 2, close = false, targetCtx = ctx) {
   targetCtx.strokeStyle = color;
   targetCtx.lineWidth = width;
@@ -875,44 +888,6 @@ function drawSketchedPath(points, color, width, jitter = 1.2, strokeCount = 2, c
   }
 }
 
-// Sketched flapping bird drawing function
-function drawSketchedBird(bx, by, size, flap, color, opacity) {
-  const strokeColor = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
-  ctx.strokeStyle = strokeColor;
-  ctx.lineWidth = 1.4;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-
-  const strokeCount = 2;
-  for (let s = 0; s < strokeCount; s++) {
-    seed = jitterSeed + s * 180;
-
-    const leftX = bx - size;
-    const leftY = by - size * 0.25 + flap * size * 0.45;
-    const rightX = bx + size;
-    const rightY = by - size * 0.25 + flap * size * 0.45;
-
-    const ctrlLeftX = bx - size * 0.5;
-    const ctrlLeftY = by - size * 0.65 - flap * size * 0.15;
-    const ctrlRightX = bx + size * 0.5;
-    const ctrlRightY = by - size * 0.65 - flap * size * 0.15;
-
-    // Draw left wing curve
-    drawSketchedPath([
-      { x: leftX, y: leftY },
-      { x: ctrlLeftX, y: ctrlLeftY },
-      { x: bx, y: by }
-    ], strokeColor, 1.4, 1.0, 1);
-
-    // Draw right wing curve
-    drawSketchedPath([
-      { x: bx, y: by },
-      { x: ctrlRightX, y: ctrlRightY },
-      { x: rightX, y: rightY }
-    ], strokeColor, 1.4, 1.0, 1);
-  }
-}
-
 // Drifting Clouds Config
 // bx/by are resting positions as fractions of the viewport, so resize can restore them
 const cloudSpec = [
@@ -933,13 +908,6 @@ const clouds = cloudSpec.map((c) => ({ ...c, x: width * c.bx, y: height * c.by }
 const sun = { x: width * 0.15, y: height * 0.24, radius: 46 };
 let sunScreenX = sun.x;
 let sunScreenY = sun.y;
-
-// Hand-drawn Flapping Birds Setup
-const birds = [
-  { x: width * 0.2, y: height * 0.28, size: 13, speedX: 0.7, flapSpeed: 0.05, phase: 0 },
-  { x: width * 0.55, y: height * 0.22, size: 16, speedX: 0.55, flapSpeed: 0.04, phase: Math.PI * 0.5 },
-  { x: width * 0.85, y: height * 0.32, size: 11, speedX: 0.9, flapSpeed: 0.07, phase: Math.PI }
-];
 
 /* ---------- sky-to-ground scroll scene ---------- */
 const easeInOutQuad = (t) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
@@ -1097,11 +1065,6 @@ function resize() {
   clouds.forEach((c) => { c.x = width * c.bx; c.y = height * c.by; });
   sun.x = width * 0.15;
   sun.y = height * 0.24;
-  if (birds && birds.length >= 3) {
-    birds[0].x = width * 0.2; birds[0].y = height * 0.28;
-    birds[1].x = width * 0.55; birds[1].y = height * 0.22;
-    birds[2].x = width * 0.85; birds[2].y = height * 0.32;
-  }
 
   updateCachedPaths();
   setupScrollTriggers();
@@ -1329,9 +1292,9 @@ function draw(rafTime) {
     updateCachedPaths();
   }
 
-  // 1b, 2 & 3. Draw the ambient sun, clouds and birds, fading out as we descend below them
+  // 1b, 2 & 3. Draw the ambient sun and clouds, fading out as we descend below them
   const skyFade = 1 - Math.min(Math.max((sceneProgress - 0.3) / 0.2, 0), 1);
-  // Clouds and birds stay for the whole page but soften as you descend, so they read as
+  // Clouds stay for the whole page but soften as you descend, so they read as
   // depth behind the content instead of competing with it. One number to tune:
   const DECOR_MAX_BLUR_PX = 14;
   const decorBlur = DECOR_MAX_BLUR_PX * Math.min(Math.max(rawProgress, 0), 1);
@@ -1381,16 +1344,6 @@ function draw(rafTime) {
       });
     }
 
-    birds.forEach(bird => {
-      if (!reduceMotion) bird.x += bird.speedX;
-      if (bird.x > width + 50) {
-        bird.x = -50;
-        bird.y = height * (0.12 + Math.random() * 0.35);
-      }
-
-      const flap = Math.sin(time * bird.flapSpeed + bird.phase);
-      drawSketchedBird(bird.x, bird.y, bird.size, flap, birdColor, 0.75);
-    });
     ctx = mainCtx; // hand the sky canvas back before anything else draws
   }
 
