@@ -628,7 +628,16 @@ let ctx = canvas.getContext('2d');
 const decorCanvas = document.getElementById('decor-canvas');
 const decorCtx = decorCanvas.getContext('2d');
 let lastDecorBlur = -1;
-const LOGO_FONT = '"Sirukota", cursive';   // must match --font-head in the CSS above
+// Must match --font-head in the CSS. The fallback is the site's own face, never the
+// platform `cursive` default — that is Apple Chancery on macOS and it flashed on every
+// slow load. logoFontReady gates the name so even that fallback is not painted.
+const LOGO_FONT = '"Llewie", "Winky Rough", sans-serif';
+let logoFontReady = document.fonts.check('bold 105px "Llewie"');
+let logoRepaint = false;
+Promise.all([
+  document.fonts.load('bold 105px "Llewie"'),
+  document.fonts.load('bold 86px "Share Tech Mono"'),
+]).catch(() => {}).then(() => { logoFontReady = true; logoRepaint = true; });
 const logoCanvas = document.getElementById('logo-canvas');
 const logoCtx = logoCanvas.getContext('2d');
 
@@ -1361,7 +1370,7 @@ function draw(rafTime) {
   }
 
   // Redraw logo canvas ONLY when position/size changes OR hover scale/tilt updates OR mouse moves while hovering OR matrix scramble is active
-  let logoMoved = Math.abs(textX - lastLogoX) > 0.01 ||
+  let logoMoved = logoRepaint || Math.abs(textX - lastLogoX) > 0.01 ||
                   Math.abs(textY - lastLogoY) > 0.01 ||
                   Math.abs(fontSize - lastLogoSize) > 0.01 ||
                   Math.abs(state.logoTransition - lastLogoTransition) > 0.01 ||
@@ -1377,7 +1386,8 @@ function draw(rafTime) {
     logoMoved = true;
   }
 
-  if (logoMoved) {
+  if (logoMoved && logoFontReady) {
+    logoRepaint = false;
     logoCtx.clearRect(0, 0, width, height);
 
     let text = "Mark Anjoul";

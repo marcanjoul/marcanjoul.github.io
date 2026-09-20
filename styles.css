@@ -21,11 +21,30 @@
   font-display: swap;
 }
 
-/* Sirukota — the headline face. One weight, declared across the whole range so the 700s
+/* Share Tech Mono — the name's glitch state only. Nothing in the DOM uses it, so app.js
+   pulls it in with document.fonts.load(); without that the canvas would fall back to the
+   system monospace. */
+@font-face {
+  font-family: 'Share Tech Mono';
+  src: url('assets/fonts/ShareTechMono-Regular.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* Roboto Light — the small meta face: project kicker and pager. One weight, pinned to the
+   whole range so a stray font-weight can't synthesise a bold out of it. */
+@font-face {
+  font-family: 'Roboto Light';
+  src: url('assets/fonts/Roboto-Light.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* Llewie — the headline face. One weight, declared across the whole range so the 700s
    in the rules below use the real file instead of a synthetic bold. */
 @font-face {
-  font-family: 'Sirukota';
-  src: url('assets/fonts/Sirukota.ttf') format('truetype');
+  font-family: 'Llewie';
+  src: url('assets/fonts/Llewie.ttf') format('truetype');
   font-weight: 100 900;
   font-display: swap;
 }
@@ -40,12 +59,13 @@
   --accent:     #2b4dff;
   --yellow:     #ffd400;
 
-  --font-display: 'Winky Rough', cursive;
+  --font-display: 'Winky Rough', sans-serif;
   --font-body:    'Winky Rough', sans-serif;
   /* The headline face; the canvas logo reads LOGO_FONT in the script, which has to match. */
-  --font-head:    'Sirukota', var(--font-display);
-  /* The small technical face: kicker and pager. */
-  --font-mono:    'Share Tech Mono', monospace;
+  --font-head:    'Llewie', var(--font-display);
+  /* The small meta face: kicker and pager. Share Tech Mono is now only the name glitch,
+     which sets its own font on the canvas in app.js. */
+  --font-meta:    'Roboto Light', sans-serif;
 
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --maxw: 1180px;
@@ -518,7 +538,7 @@ nav {
 }
 .proj-tick.on { opacity: 0.85; }
 .proj-count {
-  font-family: var(--font-mono);
+  font-family: var(--font-meta);
   font-size: 0.78rem;
   letter-spacing: 0.12em;
   color: var(--ink-3);
@@ -533,7 +553,7 @@ nav {
 }
 
 .proj-kicker {
-  font-family: var(--font-mono);
+  font-family: var(--font-meta);
   font-size: 0.68rem;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -606,7 +626,6 @@ nav {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0;   /* keeps the bull tight to the @ — symmetric, so the text stays centred */
   font-size: 1.85rem;
   font-family: var(--font-head);
   font-weight: 700;
@@ -615,32 +634,6 @@ nav {
   color: var(--accent);
   margin-bottom: 0.8rem;
 }
-/* The bull sits entirely on the right, which drags the words off-centre even though the
-   box is centred. An equal spacer on the left balances it, so the text reads centred. */
-.hero-label-wrapper::before {
-  content: '';
-  flex: 0 0 auto;
-  width: 3.3rem;
-  margin-right: -0.32rem;   /* mirrors the bull pull-in so the text stays centred */
-}
-.usf-logo-link {
-  display: inline-block;
-  vertical-align: middle;
-  margin-left: -0.32rem;
-}
-.usf-logo {
-  height: 2.1rem;
-  width: 3.3rem;          /* fixed box, matched by the spacer that balances it */
-  object-fit: contain;
-  filter: url(#sketchy);
-  display: inline-block;
-  vertical-align: middle;
-  mix-blend-mode: multiply;
-  transform: translateY(-2px);
-  transition: transform 0.25s var(--ease-expo);
-}
-@media (hover: hover) and (pointer: fine) {
-  .usf-logo-link:hover .usf-logo { transform: translateY(-2px) scale(1.12); }
 }
 
 /* Centred like the hero name. */
@@ -939,13 +932,9 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   .mobile-menu-btn { display: flex; }
   .hero-label-wrapper {
     font-size: clamp(1.15rem, 0.950rem + 0.667vw, 1.45rem);
-    gap: 0.5rem;
     white-space: nowrap;
     display: inline-flex;
     align-items: center;
-  }
-  .usf-logo {
-    height: clamp(1.8rem, 1.533rem + 0.889vw, 2.2rem);
   }
   .skill-icon-wrapper {
     width: 2.8rem;
@@ -1054,11 +1043,10 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 
 /* Press feedback for the rest of the pressable surfaces — the contact CTAs already had
    it, and the inconsistency is what you feel. */
-.logo-link, .usf-logo-link {
+.logo-link {
   transition: transform 160ms var(--ease-expo);
 }
-.nav-links a:active,
-.usf-logo-link:active { transform: scale(0.97); }
+.nav-links a:active { transform: scale(0.97); }
 .logo-link:active { transform: scale(0.94); }
 .cl-icon-wrapper { transition: border-color 0.2s ease, transform 160ms var(--ease-expo); }
 
