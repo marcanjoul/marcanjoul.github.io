@@ -659,9 +659,10 @@ let logoHoverScale = 1.0;
 let logoTilt = 0;
 let lastLogoHoverScale = 1.0;
 let lastLogoTilt = 0;
-let glitchFrameCount = 0;
-let lastIsHoveredState = false;
-let lastBlinkState = false;
+const hoverPointer = matchMedia('(hover: hover) and (pointer: fine)');
+const wideEnough = matchMedia('(min-width: 761px)');
+let poofT = 0;          // 0 = name showing, 1 = code showing
+let lastPoofT = 0;
 
 // Pseudo-random seeded generator for organic, 12fps sketch jitter
 let seed = 1;
@@ -1123,23 +1124,66 @@ document.fonts.ready.then(() => {
   resize();
 });
 
-// Scramble helper for matrix transition on hover
-const matrixChars = "01<>/_[]$#@%&*?+=!x-";
-function getScrambledText(targetText, frameCount, totalFrames = 12) {
-  if (frameCount <= 0) return targetText;
-  let result = "";
-  const progress = (totalFrames - frameCount) / totalFrames;
-  for (let i = 0; i < targetText.length; i++) {
-    if (Math.random() > progress * 1.25 && targetText[i] !== ' ') {
-      result += matrixChars[Math.floor(Math.random() * matrixChars.length)];
-    } else {
-      result += targetText[i];
-    }
-  }
-  return result;
-}
 
 // Main Draw Loop
+const CODE_TEXT = '<mark_anjoul />';
+
+/* The same eight circles every cloud on this site is built from, so a poof reads as more of
+   the page's own weather rather than a generic puff. */
+const POOF_PUFFS = [
+  { dx: -58, dy: 10, r: 27 }, { dx: -34, dy: -8, r: 35 },
+  { dx: -8, dy: -20, r: 40 }, { dx: 20, dy: -11, r: 35 },
+  { dx: 46, dy: 4, r: 29 }, { dx: 66, dy: 14, r: 22 },
+  { dx: 12, dy: 16, r: 31 }, { dx: -22, dy: 18, r: 29 },
+];
+
+/* The puff art spans about 175 units wide and 110 tall, so a caller asks for a pixel width
+   and gets that; squash flattens it, because an unsquashed puff wide enough to cover the
+   name is also tall enough to swallow the subhead under it. */
+const PUFF_W = 175;
+
+/* A soft mass with only a hint of cloud in it: the middle lobes of the usual eight-circle
+   silhouette, their vertical offsets flattened almost flat and their gradients widened
+   enough to run into each other, each drawn as a radial gradient rather than a filled
+   shape. Enough shape to belong in this sky, not so much that a cartoon cloud
+   lands on the words. Positions are fixed, not scattered, which is what keeps it from
+   reading as grain. */
+const POOF_LOBES = POOF_PUFFS.slice(1, 6);
+function drawSoftCloud(cx, cy, pxWide, alpha, squash = 0.42) {
+  if (alpha <= 0.004 || pxWide <= 1) return;
+  const sx = pxWide / PUFF_W;
+  const sy = sx * squash;
+  const a = Math.min(alpha, 1);
+  POOF_LOBES.forEach((c) => {
+    const px = cx + c.dx * sx;
+    const py = cy + c.dy * 0.38 * sy;
+    const r = c.r * sx * 1.28;
+    const g = logoCtx.createRadialGradient(px, py, 0, px, py, r);
+    g.addColorStop(0, `rgba(255,255,255,${a})`);
+    g.addColorStop(0.5, `rgba(255,255,255,${a * 0.7})`);
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    logoCtx.fillStyle = g;
+    logoCtx.beginPath();
+    logoCtx.ellipse(px, py, r, r * squash * 1.6, 0, 0, Math.PI * 2);
+    logoCtx.fill();
+  });
+}
+
+/* The cloud swells over the words, the name gives way to the code underneath it, and it
+   thins out again. */
+const leaving = (x) => 1 - clamp01((x - 0.16) / 0.14);   // what is left of the outgoing text
+const arriving = (x) => clamp01((x - 0.4) / 0.18);       // how far in the incoming text is
+
+function drawCloudPoof(x, cx, cy, w, h) {
+  if (x <= 0.002 || x >= 0.998) return;
+  /* sin to the power of a fraction rather than a clamped sine: it still reaches full cover
+     by the time the words change, but it comes off the peak on a curve instead of hitting a
+     flat ceiling and dropping off it, so the last of the blob just dissolves. */
+  drawSoftCloud(cx, cy - h * 0.05, w * (0.85 + x * 0.45),
+                Math.pow(Math.sin(x * Math.PI), 0.6));
+}
+
+
 function draw(rafTime) {
   // Every ambient motion in the scene reads `time`; the scroll choreography reads scrollTop.
   // Freezing the clock under prefers-reduced-motion stops the drift, flapping, shimmer and
@@ -1342,17 +1386,22 @@ function draw(rafTime) {
   const textWidth = logoCtx.measureText("Mark Anjoul").width;
   const textHeight = fontSize * 0.85;
 
+  /* No poof on phones. The hover query alone is not enough — a desktop window dragged down
+     to phone width still reports hover:hover — so the 760px breakpoint the stylesheet uses
+     is checked too, live, rather than once at load. */
+  const canPoof = hoverPointer.matches && wideEnough.matches;
+
   // Check if cursor is hovering over the name text
-  const isHovered = mouseX >= textX - textWidth / 2 - 20 &&
+  const isHovered = canPoof &&
+                    mouseX >= textX - textWidth / 2 - 20 &&
                     mouseX <= textX + textWidth / 2 + 20 &&
                     mouseY >= textY - textHeight / 2 - 20 &&
                     mouseY <= textY + textHeight / 2 + 20;
 
-  // Trigger glitch scramble countdown on mouse enter
-  if (isHovered && !lastIsHoveredState) {
-    glitchFrameCount = 12;
-  }
-  lastIsHoveredState = isHovered;
+  /* The cloud only plays on the way in. Leaving drops straight back to the name, the way
+     the hover always used to behave — a reverse poof made pulling the pointer away feel
+     like a second event to sit through. */
+  poofT = isHovered ? Math.min(1, poofT + 0.085) : 0;
 
   const logoHoverScaleTarget = isHovered ? 1.15 : 1.0;
   logoHoverScale += (logoHoverScaleTarget - logoHoverScale) * 0.16;
@@ -1376,56 +1425,27 @@ function draw(rafTime) {
                   Math.abs(state.logoTransition - lastLogoTransition) > 0.01 ||
                   Math.abs(logoHoverScale - lastLogoHoverScale) > 0.001 ||
                   Math.abs(logoTilt - lastLogoTilt) > 0.01 ||
-                  glitchFrameCount > 0 ||
+                  Math.abs(poofT - lastPoofT) > 0.002 ||
                   skyFade > 0.01 || // keep redrawing while the sun's idle pulse/ray rotation is visible
                   (isHovered && (Math.abs(mouseX - lastMouseX) > 0.5 || Math.abs(mouseY - lastMouseY) > 0.5));
-
-  const blinkState = isHovered && glitchFrameCount === 0 && (Math.floor(time / 350) % 2 === 0);
-  if (blinkState !== lastBlinkState) {
-    lastBlinkState = blinkState;
-    logoMoved = true;
-  }
 
   if (logoMoved && logoFontReady) {
     logoRepaint = false;
     logoCtx.clearRect(0, 0, width, height);
 
-    let text = "Mark Anjoul";
-    let isTech = isHovered;
+    const text = "Mark Anjoul";
 
     logoCtx.textAlign = 'center';
     logoCtx.textBaseline = 'middle';
 
-    if (isTech) {
-      logoCtx.font = `bold ${fontSize * 0.82}px "Share Tech Mono", monospace`;
-
-      const rawTechText = "<mark_anjoul />";
-      const scrambledText = getScrambledText(rawTechText, glitchFrameCount);
-      const cursorStr = (glitchFrameCount === 0 && blinkState) ? "_" : "";
-      text = scrambledText + cursorStr;
-
-      const baseColor = '#ffd400';
-      const strokeColor = 'rgba(28, 24, 18, 0.05)';
-
-      logoCtx.save();
-      logoCtx.translate(textX, textY);
-      logoCtx.scale(logoHoverScale, logoHoverScale);
-      if (Math.abs(logoTilt) > 0.01) {
-        logoCtx.rotate(logoTilt * Math.PI / 180);
-      }
-      logoCtx.fillStyle = baseColor;
-      logoCtx.fillText(text, 0, 0);
-      logoCtx.strokeStyle = strokeColor;
-      logoCtx.lineWidth = 1.0;
-      logoCtx.strokeText(text, 0, 0);
-      logoCtx.restore();
-    } else {
-      // ponytail: the name simply fades as you scroll. The old per-letter version set
-      // logoCtx.filter = blur() for every character on every frame — very expensive.
-      const alpha = skyFade * (1 - heroFadeTween.progress());
-      if (alpha > 0.01) {
+    // ponytail: the name simply fades as you scroll. The old per-letter version set
+    // logoCtx.filter = blur() for every character on every frame — very expensive.
+    const alpha = skyFade * (1 - heroFadeTween.progress());
+    if (alpha > 0.01) {
+      const hide = 1 - leaving(poofT);
+      if (hide < 0.99) {
         logoCtx.save();
-        logoCtx.globalAlpha = alpha;
+        logoCtx.globalAlpha = alpha * (1 - hide);
         logoCtx.translate(textX, textY);
         logoCtx.scale(logoHoverScale, logoHoverScale);
         if (Math.abs(logoTilt) > 0.01) logoCtx.rotate(logoTilt * Math.PI / 180);
@@ -1441,6 +1461,28 @@ function draw(rafTime) {
         }
         logoCtx.restore();
       }
+
+      // What the poof is for: the name turns into its code form behind the cloud.
+      const codeIn = arriving(poofT);
+      if (codeIn > 0.01) {
+        logoCtx.save();
+        logoCtx.globalAlpha = alpha * codeIn;
+        logoCtx.translate(textX, textY);
+        logoCtx.scale(logoHoverScale, logoHoverScale);
+        if (Math.abs(logoTilt) > 0.01) logoCtx.rotate(logoTilt * Math.PI / 180);
+        logoCtx.font = `bold ${fontSize * 0.82}px "Share Tech Mono", monospace`;
+        logoCtx.textAlign = 'center';
+        logoCtx.textBaseline = 'middle';
+        logoCtx.fillStyle = '#ffd400';
+        logoCtx.fillText(CODE_TEXT, 0, 0);
+        logoCtx.strokeStyle = 'rgba(28, 24, 18, 0.05)';
+        logoCtx.lineWidth = 1;
+        logoCtx.strokeText(CODE_TEXT, 0, 0);
+        logoCtx.restore();
+      }
+
+      // the cloud goes on top of both, so the changeover is never seen bare
+      drawCloudPoof(poofT, textX, textY, textWidth, textHeight);
     }
 
     lastLogoX = textX;
@@ -1451,10 +1493,7 @@ function draw(rafTime) {
     lastLogoTilt = logoTilt;
     lastMouseX = mouseX;
     lastMouseY = mouseY;
-
-    if (glitchFrameCount > 0) {
-      glitchFrameCount--;
-    }
+    lastPoofT = poofT;
   }
 
   // 7. Fade out hero elements on scroll
