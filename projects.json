@@ -7,7 +7,9 @@
     "size sets the card width: lg | md | sm",
     "about / features / links / gallery fill the case-study modal. gallery is optional.",
     "tags are the domain labels that drift in on clouds beside the panel — keep to 1-2, they share the hero's vocabulary (UI/UX, AI, ML, SWE).",
-    "notes are the hand-drawn callouts on each screenshot: text (\\n for a line break), x/y are % positions of the label, from = which side the arrow reaches in."
+    "notes are the hand-drawn callouts on each screenshot: text (\\n for a line break), x/y are % positions of the label, from = which side the arrow reaches in.",
+    "logo is optional: an app icon shown beside the title on the card and in the case study.",
+    "gallery { type: images, frame: phone } shows screens in a phone; give an item a dark src to get a Light/Dark switch."
   ],
   "projects": [
     {
@@ -21,8 +23,7 @@
       ],
       "tagline": "Job tracker that parses emails on-device. Designed in Figma, built in SwiftUI.",
       "thumbnail": {
-        "video": "assets/appnest/parse-email.mp4",
-        "poster": "assets/appnest/poster.jpg"
+        "image": "assets/appnest/screens/01-applications.webp"
       },
       "size": "lg",
       "about": "An iOS job application tracker I designed and built end to end. Paste a confirmation email and Apple's on-device NaturalLanguage framework pulls out the company, role, status and pay, with no API calls and no account. Paste a Greenhouse, Lever, Ashby or Workday link and it fills itself in. Everything is stored locally with SwiftData. The UI runs on a token-based design system that I mirrored in Figma (light and dark modes as one variable switch, components mapped to their Swift views).",
@@ -42,24 +43,38 @@
         }
       ],
       "gallery": {
-        "type": "video",
-        "poster": "assets/appnest/poster.jpg",
+        "type": "images",
+        "frame": "phone",
         "items": [
           {
+            "label": "Applications",
+            "src": "assets/appnest/screens/01-applications.webp",
+            "dark": "assets/appnest/screens/01-applications-dark.webp"
+          },
+          {
+            "label": "Add a job",
+            "src": "assets/appnest/screens/02-add-job.webp",
+            "dark": "assets/appnest/screens/02-add-job-dark.webp"
+          },
+          {
+            "label": "Job detail",
+            "src": "assets/appnest/screens/03-job-detail.webp",
+            "dark": "assets/appnest/screens/03-job-detail-dark.webp"
+          },
+          {
             "label": "Parse email",
-            "src": "assets/appnest/parse-email.mp4"
+            "src": "assets/appnest/screens/08-parse-email.webp",
+            "dark": "assets/appnest/screens/08-parse-email-dark.webp"
           },
           {
-            "label": "Parse link",
-            "src": "assets/appnest/parse-link.mp4"
+            "label": "CSV import",
+            "src": "assets/appnest/screens/09-csv-import.webp",
+            "dark": "assets/appnest/screens/09-csv-import-dark.webp"
           },
           {
-            "label": "Import CSV",
-            "src": "assets/appnest/import-csv.mp4"
-          },
-          {
-            "label": "Manual entry",
-            "src": "assets/appnest/manual-entry.mp4"
+            "label": "Profile",
+            "src": "assets/appnest/screens/04-profile.webp",
+            "dark": "assets/appnest/screens/04-profile-dark.webp"
           }
         ]
       },
@@ -77,76 +92,7 @@
           "from": "left"
         }
       ],
-      "screens": [
-        {
-          "label": "Onboarding",
-          "src": "assets/appnest/screens/05-onboarding-1.webp"
-        },
-        {
-          "label": "Onboarding",
-          "src": "assets/appnest/screens/05-onboarding-2.webp"
-        },
-        {
-          "label": "Onboarding",
-          "src": "assets/appnest/screens/05-onboarding-3.webp"
-        },
-        {
-          "label": "Applications",
-          "src": "assets/appnest/screens/01-applications.webp"
-        },
-        {
-          "label": "Edit mode",
-          "src": "assets/appnest/screens/01b-applications-edit.webp"
-        },
-        {
-          "label": "Cycle picker",
-          "src": "assets/appnest/screens/06-cycle-picker.webp"
-        },
-        {
-          "label": "Add a job",
-          "src": "assets/appnest/screens/02-add-job.webp"
-        },
-        {
-          "label": "Parse email",
-          "src": "assets/appnest/screens/08-parse-email.webp"
-        },
-        {
-          "label": "CSV preview",
-          "src": "assets/appnest/screens/09-csv-import.webp"
-        },
-        {
-          "label": "Job detail",
-          "src": "assets/appnest/screens/03-job-detail.webp"
-        },
-        {
-          "label": "Detail, filled",
-          "src": "assets/appnest/screens/03b-job-detail-optional.webp"
-        },
-        {
-          "label": "Detail, collapsed",
-          "src": "assets/appnest/screens/03c-job-detail-collapsed.webp"
-        },
-        {
-          "label": "Profile",
-          "src": "assets/appnest/screens/04-profile.webp"
-        },
-        {
-          "label": "Applications · dark",
-          "src": "assets/appnest/screens/01-applications-dark.webp"
-        },
-        {
-          "label": "Add a job · dark",
-          "src": "assets/appnest/screens/02-add-job-dark.webp"
-        },
-        {
-          "label": "Job detail · dark",
-          "src": "assets/appnest/screens/03-job-detail-dark.webp"
-        },
-        {
-          "label": "Profile · dark",
-          "src": "assets/appnest/screens/04-profile-dark.webp"
-        }
-      ]
+      "logo": "assets/appnest/icon.webp"
     },
     {
       "id": "ois",

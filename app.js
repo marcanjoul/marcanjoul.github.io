@@ -214,23 +214,50 @@ function renderMedia(media, screens) {
       });
     });
   } else if (media.type === 'images') {
-    const first = `src="${media.items[0].src}" alt="${media.items[0].label} screenshot"`;
-    modalMedia.innerHTML = (media.frame === 'phone'
-      ? `<div class="demo-phone"><span class="demo-phone-notch"></span><img class="demo-phone-screen" ${first}></div>`
+    // A screen can carry a `dark` twin; if any do, a Light/Dark switch rides along with the tabs.
+    const hasDark = media.items.some((it) => it.dark);
+    let current = 0;
+    let dark = false;
+    const srcOf = (it) => (dark && it.dark) || it.src;
+    const first = `src="${srcOf(media.items[0])}" alt="${media.items[0].label} screenshot"`;
+    const toggle = hasDark
+      ? `<div class="mode-toggle" role="group" aria-label="Appearance">` +
+          `<button type="button" data-mode="light" aria-pressed="true">Light</button>` +
+          `<button type="button" data-mode="dark" aria-pressed="false">Dark</button></div>`
+      : '';
+    const phone = media.frame === 'phone';
+    modalMedia.innerHTML = phone
+      ? `<div class="demo-phone-layout">
+          <div class="demo-phone"><span class="demo-phone-notch"></span><img class="demo-phone-screen" ${first}></div>
+          <div class="demo-phone-controls">${toggle}<div class="media-tabs">${tabs}</div></div>
+        </div>`
       : `<div class="demo-browser">
-        <div class="demo-browser-bar"><span></span><span></span><span></span></div>
-        <img class="demo-browser-screen" ${first}>
-      </div>`) + `<div class="media-tabs">${tabs}</div>`;
+          <div class="demo-browser-bar"><span></span><span></span><span></span></div>
+          <img class="demo-browser-screen" ${first}>
+        </div><div class="media-tabs">${tabs}</div>`;
     const img = modalMedia.querySelector('img');
-    modalMedia.querySelectorAll('.media-tab').forEach((btn) => {
+    const show = () => {
+      const it = media.items[current];
+      fadeSwapMedia(img, () => {
+        img.src = srcOf(it);
+        img.alt = it.label + ' screenshot';
+      }, (done) => (img.decode ? img.decode().then(done, done) : img.addEventListener('load', done, { once: true })));
+    };
+    modalMedia.querySelectorAll('.media-tab').forEach((btn, i) => {
       btn.addEventListener('click', () => {
         modalMedia.querySelectorAll('.media-tab').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
-        const label = btn.textContent;
-        fadeSwapMedia(img, () => {
-          img.src = btn.dataset.src;
-          img.alt = label + ' screenshot';
-        }, (show) => (img.decode ? img.decode().then(show, show) : img.addEventListener('load', show, { once: true })));
+        current = i;
+        show();
+      });
+    });
+    modalMedia.querySelectorAll('.mode-toggle button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if ((btn.dataset.mode === 'dark') === dark) return;
+        dark = !dark;
+        modalMedia.querySelectorAll('.mode-toggle button').forEach((b) =>
+          b.setAttribute('aria-pressed', String(b === btn)));
+        show();
       });
     });
   }
@@ -262,7 +289,7 @@ function openProjectModal(id, triggerEl) {
   if (!data) return;
   renderMedia(data.media, data.screens);
   modalType.textContent = data.type;
-  modalTitle.textContent = data.title;
+  modalTitle.innerHTML = data.logo + esc(data.title);
   modalDesc.textContent = data.desc;
   modalFeatures.innerHTML = data.features.map((f) => `<li>${f}</li>`).join('');
   modalLinks.innerHTML = data.links
@@ -375,6 +402,9 @@ function projectBadges(links) {
   }).join('');
 }
 
+// the app's own icon beside its name, when it has one
+const projectLogo = (p) => (p.logo ? `<img class="proj-logo" src="${esc(p.logo)}" alt="" width="40" height="40">` : '');
+
 function projectCard(p, i) {
   // shortTitle / shortType are card-only overrides; everything else is shared with the modal
   // Five slots, always the same five, always in the same place. The repo and live links
@@ -384,7 +414,7 @@ function projectCard(p, i) {
     `<div class="proj-body">` +
     `<div class="proj-info">` +
       `<span class="proj-kicker">${esc(p.shortType || p.type)}</span>` +
-      `<h3>${esc(p.shortTitle || p.title)}</h3>` +
+      `<h3>${projectLogo(p)}${esc(p.shortTitle || p.title)}</h3>` +
       `<p class="proj-tagline">${esc(p.tagline)}</p>` +
       `<div class="proj-actions">` + projectBadges(p.links) + `</div>` +
     `</div>` +
@@ -396,7 +426,8 @@ function projectCard(p, i) {
 // the modal reads its own field names, so map once here
 function projectModal(p) {
   return { type: p.type, title: p.title, desc: p.about,
-           features: p.features, links: p.links, media: p.gallery, screens: p.screens };
+           features: p.features, links: p.links, media: p.gallery, screens: p.screens,
+           logo: projectLogo(p) };
 }
 
 /* ---------- the box holds still; its contents change ----------
@@ -425,7 +456,7 @@ function bodyHTML(i) {
   const p = projectList[i];
   return `<div class="proj-info">` +
       `<span class="proj-kicker">${esc(p.shortType || p.type)}</span>` +
-      `<h3>${esc(p.shortTitle || p.title)}</h3>` +
+      `<h3>${projectLogo(p)}${esc(p.shortTitle || p.title)}</h3>` +
       `<p class="proj-tagline">${esc(p.tagline)}</p>` +
       `<div class="proj-actions">` + projectBadges(p.links) + `</div>` +
     `</div>` + projectShot(p);
@@ -638,9 +669,9 @@ document.querySelectorAll('a[href^="#"]').forEach((link) => {
 menuBtn.addEventListener('click', () => {
   if (mobileNav.classList.contains('active')) closeMobileNav(); else openMobileNav();
 });
-// a popover closes when you go back to the page; a sheet has its own close button
+// the menu is a popover, so tapping back on the page closes it
 document.addEventListener('pointerdown', (e) => {
-  if (!isPopover() || !mobileNav.classList.contains('active')) return;
+  if (!mobileNav.classList.contains('active')) return;
   if (mobileNav.contains(e.target) || menuBtn.contains(e.target)) return;
   closeMobileNav();
 });
