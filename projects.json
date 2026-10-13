@@ -14,22 +14,26 @@
       "id": "appnest",
       "title": "AppNest",
       "type": "Mobile App",
-      "stack": "SwiftUI · SwiftData · NLP",
-      "tags": ["UI/UX", "ML"],
-      "tagline": "On-device AI email parsing. No server, no accounts.",
+      "stack": "SwiftUI · SwiftData · NaturalLanguage · Figma",
+      "tags": [
+        "UI/UX",
+        "SWE"
+      ],
+      "tagline": "Job tracker that parses emails on-device. Designed in Figma, built in SwiftUI.",
       "thumbnail": {
         "video": "assets/appnest/parse-email.mp4",
         "poster": "assets/appnest/poster.jpg"
       },
       "size": "lg",
-      "about": "A job application tracker that parses pasted confirmation emails using Apple's on-device NaturalLanguage framework (no APIs), with SwiftData persistence, a centralized design system, search/sort/filter options, CSV export, and a profile stats dashboard.",
+      "about": "An iOS job application tracker I designed and built end to end. Paste a confirmation email and Apple's on-device NaturalLanguage framework pulls out the company, role, status and pay, with no API calls and no account. Paste a Greenhouse, Lever, Ashby or Workday link and it fills itself in. Everything is stored locally with SwiftData. The UI runs on a token-based design system that I mirrored in Figma (light and dark modes as one variable switch, components mapped to their Swift views).",
       "features": [
-        "On-device AI email parsing with NaturalLanguage framework",
-        "SwiftData persistence: no server, no accounts",
-        "Centralized design system for consistent UI",
-        "Search, sort, and filter applications",
-        "CSV export for spreadsheet tracking",
-        "Profile stats dashboard with application analytics"
+        "On-device email parsing with NLTagger, regex and NSDataDetector: nothing leaves the phone",
+        "ATS link parsing for Greenhouse, Lever, Ashby and Workday",
+        "CSV import with a forgiving column mapper and an editable preview, plus CSV export",
+        "Search cycles (\"Summer 2026\") with bulk edit, move and delete",
+        "Per-application interview prep notes and follow-up reminders",
+        "Figma design system: semantic color tokens with light/dark modes, components mapped 1:1 to SwiftUI views",
+        "Dynamic Type throughout and 44pt minimum touch targets"
       ],
       "links": [
         {
@@ -72,32 +76,106 @@
           "y": 80,
           "from": "left"
         }
+      ],
+      "screens": [
+        {
+          "label": "Onboarding",
+          "src": "assets/appnest/screens/05-onboarding-1.webp"
+        },
+        {
+          "label": "Onboarding",
+          "src": "assets/appnest/screens/05-onboarding-2.webp"
+        },
+        {
+          "label": "Onboarding",
+          "src": "assets/appnest/screens/05-onboarding-3.webp"
+        },
+        {
+          "label": "Applications",
+          "src": "assets/appnest/screens/01-applications.webp"
+        },
+        {
+          "label": "Edit mode",
+          "src": "assets/appnest/screens/01b-applications-edit.webp"
+        },
+        {
+          "label": "Cycle picker",
+          "src": "assets/appnest/screens/06-cycle-picker.webp"
+        },
+        {
+          "label": "Add a job",
+          "src": "assets/appnest/screens/02-add-job.webp"
+        },
+        {
+          "label": "Parse email",
+          "src": "assets/appnest/screens/08-parse-email.webp"
+        },
+        {
+          "label": "CSV preview",
+          "src": "assets/appnest/screens/09-csv-import.webp"
+        },
+        {
+          "label": "Job detail",
+          "src": "assets/appnest/screens/03-job-detail.webp"
+        },
+        {
+          "label": "Detail, filled",
+          "src": "assets/appnest/screens/03b-job-detail-optional.webp"
+        },
+        {
+          "label": "Detail, collapsed",
+          "src": "assets/appnest/screens/03c-job-detail-collapsed.webp"
+        },
+        {
+          "label": "Profile",
+          "src": "assets/appnest/screens/04-profile.webp"
+        },
+        {
+          "label": "Applications · dark",
+          "src": "assets/appnest/screens/01-applications-dark.webp"
+        },
+        {
+          "label": "Add a job · dark",
+          "src": "assets/appnest/screens/02-add-job-dark.webp"
+        },
+        {
+          "label": "Job detail · dark",
+          "src": "assets/appnest/screens/03-job-detail-dark.webp"
+        },
+        {
+          "label": "Profile · dark",
+          "src": "assets/appnest/screens/04-profile-dark.webp"
+        }
       ]
     },
     {
       "id": "ois",
-      "title": "OIS Competition Tracker",
-      "shortTitle": "OIS Tracker",
+      "title": "OIS Competition",
+      "shortTitle": "OIS Competition",
       "type": "Web App",
-      "stack": "JavaScript · Firebase",
-      "tags": ["SWE", "UI/UX"],
-      "tagline": "Retail competition app with a live leaderboard.",
+      "stack": "JavaScript · Vite · Firebase",
+      "tags": [
+        "SWE",
+        "UI/UX"
+      ],
+      "tagline": "Turns a store sales metric into a live team competition.",
       "thumbnail": {
         "image": "assets/hco-ois/screen-leaderboard.png"
       },
       "size": "md",
-      "about": "A fast, game-like retail competition web app built for my retail job. Associates log daily OIS (orders in store) performance, the app computes sales-per-hour automatically, and everyone can see where they stand on a live leaderboard. Managers get a PIN-protected admin view to oversee the competition.",
+      "about": "A game-like web app I built for my retail job at Hollister. Associates log their daily OIS (orders in store), the app computes sales per hour, and the whole team watches a live leaderboard. It now runs multiple stores, each with its own roster, competitions and manager PIN. Teammates' names are blurred in these screenshots.",
       "features": [
-        "Daily order logging with automatic sales-per-hour calculation",
-        "Live, real-time leaderboard visible to the whole team",
-        "Competition countdown timer with automatic winner reveal",
-        "PIN-protected manager admin view",
-        "Mobile-first UI built for quick use on the sales floor"
+        "Multi-store: each store has its own data, roster and manager PIN",
+        "Automatic sales-per-hour from logged orders and hours",
+        "Real-time leaderboard on Firebase, updated for everyone at once",
+        "Countdown, store-wide goal meter and an end-of-competition podium",
+        "PIN-gated manager tools for players, logs and competitions",
+        "Mobile-first arcade UI built for a quick tap between customers"
       ],
       "links": [
         {
           "label": "View Live Site →",
-          "href": "https://hco-ois.vercel.app/"
+          "href": "https://ois-comp.vercel.app/"
         },
         {
           "label": "View on GitHub →",
@@ -134,26 +212,47 @@
           "y": 78,
           "from": "left"
         }
+      ],
+      "screens": [
+        {
+          "label": "Pick a store",
+          "src": "assets/hco-ois/mobile-stores.webp"
+        },
+        {
+          "label": "Final podium",
+          "src": "assets/hco-ois/mobile-results.webp"
+        },
+        {
+          "label": "Leaderboard",
+          "src": "assets/hco-ois/mobile-leaderboard.webp"
+        },
+        {
+          "label": "Manager gate",
+          "src": "assets/hco-ois/mobile-manager.webp"
+        }
       ]
     },
     {
       "id": "groov",
       "title": "Groov",
       "type": "Mobile App",
-      "stack": "UIKit · Spotify API",
-      "tags": ["UI/UX"],
-      "tagline": "Rate and log the albums you listen to.",
+      "stack": "Swift · UIKit · Last.fm API",
+      "tags": [
+        "UI/UX"
+      ],
+      "tagline": "Letterboxd for albums: discover, rate and shelve what you hear.",
       "thumbnail": {
-        "image": "assets/placeholder/groov.svg",
-        "placeholder": true
+        "image": "assets/groov/discover.webp"
       },
       "size": "sm",
-      "about": "A social music tracker for rating and logging the albums you listen to, capstone project for CodePath's iOS101 class.",
+      "about": "An iOS app for logging the albums you listen to, built as my capstone for CodePath's iOS 101. Discover pulls trending albums from the Last.fm API, search covers albums and artists, and every album gets a detail page with a five-star rating and a To Listen button. Your library persists on-device.",
       "features": [
-        "Album search powered by the Spotify API",
-        "Personal library with listened & want-to-listen lists",
-        "Star rating system for albums",
-        "Built with UIKit"
+        "Trending albums from the Last.fm API in a Discover grid",
+        "Debounced live search, filterable by album, artist or both",
+        "Album detail with art, description and a 1-5 star rating",
+        "Library split into Rated and To Listen, with swipe to delete",
+        "Persistence with Codable and UserDefaults",
+        "UIKit with Storyboards and a custom vinyl app icon"
       ],
       "links": [
         {
@@ -163,7 +262,7 @@
       ],
       "notes": [
         {
-          "text": "album search via\nthe Spotify API",
+          "text": "trending albums via\nthe Last.fm API",
           "x": 58,
           "y": 18,
           "from": "right"
@@ -174,14 +273,43 @@
           "y": 76,
           "from": "left"
         }
-      ]
+      ],
+      "gallery": {
+        "type": "images",
+        "frame": "phone",
+        "items": [
+          {
+            "label": "Discover",
+            "src": "assets/groov/discover.webp"
+          },
+          {
+            "label": "Album",
+            "src": "assets/groov/detail.webp"
+          },
+          {
+            "label": "Library",
+            "src": "assets/groov/library.webp"
+          },
+          {
+            "label": "To Listen",
+            "src": "assets/groov/tolisten.webp"
+          },
+          {
+            "label": "Search",
+            "src": "assets/groov/search.webp"
+          }
+        ]
+      }
     },
     {
       "id": "noteweb",
       "title": "NoteWeb",
       "type": "RAG / AI",
       "stack": "LLaMA 3 · Embeddings",
-      "tags": ["AI", "SWE"],
+      "tags": [
+        "AI",
+        "SWE"
+      ],
       "tagline": "Local-first semantic search. Nothing leaves your machine.",
       "thumbnail": {
         "image": "assets/placeholder/noteweb.svg",
@@ -224,19 +352,21 @@
       "type": "Data Science / ML",
       "shortType": "Data Science",
       "stack": "Python · scikit-learn",
-      "tags": ["ML"],
-      "tagline": "Can audio features predict a hit?",
+      "tags": [
+        "ML"
+      ],
+      "tagline": "Can audio features predict a hit? Mostly no, and that was the finding.",
       "thumbnail": {
-        "image": "assets/placeholder/spotify.svg",
-        "placeholder": true
+        "image": "assets/hit-predictor/feature-importance.webp"
       },
       "size": "sm",
-      "about": "Logistic regression model exploring whether audio features can predict hit songs. Key insight: individual features have weak predictive power, and feature engineering is essential.",
+      "about": "A logistic regression study of whether Spotify audio features (danceability, energy, valence, tempo and more) can predict a hit. They can't, at least not alone: no single feature correlates with hit status above 0.10, and even with engineered interaction terms the model lands at ROC AUC 0.53, barely above chance. Class imbalance pushed it to predict \"not a hit\" almost every time, which made accuracy a misleading metric.",
       "features": [
-        "Audio features alone are weak predictors of commercial success",
-        "Feature engineering and combination significantly improve accuracy",
-        "Explored danceability, energy, valence, tempo, and more",
-        "Built full data pipeline from Spotify API to model evaluation"
+        "Full pipeline in a Jupyter notebook: cleaning, EDA, feature engineering, model, evaluation",
+        "Correlation analysis showing no audio feature strongly tracks hit status",
+        "Interaction features (energy x danceability, valence x energy) and their learned weights",
+        "Evaluated with ROC/AUC, precision-recall and a confusion matrix, not accuracy alone",
+        "Takeaway: popularity depends on things audio features don't capture, like marketing, timing and the artist"
       ],
       "links": [
         {
@@ -246,18 +376,40 @@
       ],
       "notes": [
         {
-          "text": "audio features alone\nbarely predict a hit",
+          "text": "no feature tops\n0.10 correlation",
           "x": 56,
           "y": 18,
           "from": "right"
         },
         {
-          "text": "feature engineering\nis what moved it",
+          "text": "AUC 0.53: the honest\nanswer is \"barely\"",
           "x": 15,
           "y": 78,
           "from": "left"
         }
-      ]
+      ],
+      "gallery": {
+        "type": "images",
+        "triptych": false,
+        "items": [
+          {
+            "label": "Feature weights",
+            "src": "assets/hit-predictor/feature-importance.webp"
+          },
+          {
+            "label": "Correlations",
+            "src": "assets/hit-predictor/correlation-heatmap.webp"
+          },
+          {
+            "label": "ROC curve",
+            "src": "assets/hit-predictor/roc-curve.webp"
+          },
+          {
+            "label": "Confusion matrix",
+            "src": "assets/hit-predictor/confusion-matrix.webp"
+          }
+        ]
+      }
     }
   ]
 }

@@ -556,6 +556,15 @@ nav {
    anchor the crop at the top: every screen keeps its header and they read as a set. */
 .proj-shot.is-triptych .shot-aside { object-position: top center; }
 
+/* Phone apps: three whole screens side by side rather than a landscape crop of one. Each
+   cell is cropped from the top so the headers line up across the set. */
+.proj-shot.is-phones {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+}
+.proj-shot.is-phones .shot-phone { object-position: top center; }
+
 .proj-single { position: relative; }
 
 /* the outgoing project sits on top and is wiped away to reveal the next one under it */
@@ -955,6 +964,36 @@ nav {
 .demo-browser-bar { display: flex; gap: 6px; padding: 0.6rem 0.7rem; background: var(--paper); border-bottom: 1.5px solid var(--ink); }
 .demo-browser-bar span { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--ink); }
 .demo-browser-screen { width: 100%; display: block; }
+
+/* every screen of the app in one sideways row; snaps so a flick lands on a whole screen */
+.screen-strip {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1.2rem;
+  padding-bottom: 0.6rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+}
+.screen-strip:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.screen-strip figure { flex: 0 0 132px; margin: 0; scroll-snap-align: start; }
+.screen-strip img {
+  width: 100%;
+  aspect-ratio: 393 / 852;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+  border: 1.5px solid var(--ink);
+  border-radius: 16px;
+  background: var(--paper-2);
+}
+.screen-strip figcaption {
+  font-family: var(--font-meta);
+  font-size: 0.72rem;
+  color: var(--ink-3);
+  margin-top: 0.4rem;
+  text-align: center;
+}
 
 /* ========== EXPERIENCE ========== */
 

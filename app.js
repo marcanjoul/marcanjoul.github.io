@@ -171,7 +171,17 @@ function fadeSwapMedia(el, apply, ready) {
   }, 180);
 }
 
-function renderMedia(media) {
+// Every designed screen in one swipeable row, under the live demo. Shown as-is, no tabs:
+// the point is to see the whole set at once.
+function screensStrip(screens) {
+  if (!screens || !screens.length) return '';
+  return `<div class="screen-strip" tabindex="0" role="region" aria-label="All screens, scroll sideways">` +
+    screens.map((s) => `<figure><img src="${esc(s.src)}" alt="${esc(s.label)} screen" loading="lazy" decoding="async">` +
+      `<figcaption>${esc(s.label)}</figcaption></figure>`).join('') +
+  `</div>`;
+}
+
+function renderMedia(media, screens) {
   if (!media) {
     modalMedia.hidden = true;
     modalMedia.innerHTML = '';
@@ -204,13 +214,13 @@ function renderMedia(media) {
       });
     });
   } else if (media.type === 'images') {
-    modalMedia.innerHTML = `
-      <div class="demo-browser">
+    const first = `src="${media.items[0].src}" alt="${media.items[0].label} screenshot"`;
+    modalMedia.innerHTML = (media.frame === 'phone'
+      ? `<div class="demo-phone"><span class="demo-phone-notch"></span><img class="demo-phone-screen" ${first}></div>`
+      : `<div class="demo-browser">
         <div class="demo-browser-bar"><span></span><span></span><span></span></div>
-        <img class="demo-browser-screen" src="${media.items[0].src}" alt="${media.items[0].label} screenshot">
-      </div>
-      <div class="media-tabs">${tabs}</div>
-    `;
+        <img class="demo-browser-screen" ${first}>
+      </div>`) + `<div class="media-tabs">${tabs}</div>`;
     const img = modalMedia.querySelector('img');
     modalMedia.querySelectorAll('.media-tab').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -224,6 +234,7 @@ function renderMedia(media) {
       });
     });
   }
+  modalMedia.insertAdjacentHTML('beforeend', screensStrip(screens));
 }
 
 const modalPanel = modal.querySelector('.project-modal-panel');
@@ -249,7 +260,7 @@ function trapModalTab(e) {
 function openProjectModal(id, triggerEl) {
   const data = projectData[id];
   if (!data) return;
-  renderMedia(data.media);
+  renderMedia(data.media, data.screens);
   modalType.textContent = data.type;
   modalTitle.textContent = data.title;
   modalDesc.textContent = data.desc;
@@ -329,14 +340,19 @@ function projectThumb(t) {
 // screenshot) keeps the one frame, because three stills of a clip is worse than the clip.
 function projectShot(p) {
   const g = p.gallery;
-  const canTriptych = g && g.type === 'images' && Array.isArray(g.items) && g.items.length >= 3;
+  // charts don't survive being cropped into thirds, so a gallery can opt out with triptych: false
+  const canTriptych = g && g.type === 'images' && g.triptych !== false && Array.isArray(g.items) && g.items.length >= 3;
   if (!canTriptych) {
     return `<div class="proj-shot">${projectThumb(p.thumbnail)}</div>`;
   }
-  const [lead, ...rest] = g.items.slice(0, 3);
   const cell = (it, cls) =>
     `<img class="${cls}" src="${esc(it.src)}" alt="${esc(p.title)} — ${esc(it.label)}"` +
     ` loading="lazy" decoding="async">`;
+  if (g.frame === 'phone') {
+    return `<div class="proj-shot is-phones">` +
+      g.items.slice(0, 3).map((it) => cell(it, 'shot-phone')).join('') + `</div>`;
+  }
+  const [lead, ...rest] = g.items.slice(0, 3);
   return `<div class="proj-shot is-triptych">` +
     cell(lead, 'shot-lead') + rest.map((it) => cell(it, 'shot-aside')).join('') +
   `</div>`;
@@ -380,7 +396,7 @@ function projectCard(p, i) {
 // the modal reads its own field names, so map once here
 function projectModal(p) {
   return { type: p.type, title: p.title, desc: p.about,
-           features: p.features, links: p.links, media: p.gallery };
+           features: p.features, links: p.links, media: p.gallery, screens: p.screens };
 }
 
 /* ---------- the box holds still; its contents change ----------
