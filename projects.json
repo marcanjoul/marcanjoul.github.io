@@ -16,8 +16,7 @@
     {
       "id": "airborder",
       "title": "AirBorder",
-      "type": "UX Case Study",
-      "shortType": "UX Case Study · Research + co-design",
+      "type": "UX case study",
       "stack": "Figma · Interviews",
       "tags": [
         "UI/UX"
@@ -28,6 +27,7 @@
       },
       "size": "lg",
       "caseStudy": "airborder/",
+      "logo": "assets/airborder/icon.webp",
       "gallery": {
         "type": "images",
         "frame": "phone",
@@ -50,7 +50,7 @@
     {
       "id": "appnest",
       "title": "AppNest",
-      "type": "Mobile App",
+      "type": "Mobile app",
       "stack": "SwiftUI · SwiftData · NaturalLanguage · Figma",
       "tags": [
         "UI/UX",
@@ -133,7 +133,7 @@
       "id": "ois",
       "title": "OIS Competition",
       "shortTitle": "OIS Competition",
-      "type": "Web App",
+      "type": "Web app",
       "stack": "JavaScript · Vite · Firebase",
       "tags": [
         "SWE",
@@ -216,7 +216,7 @@
     {
       "id": "groov",
       "title": "Groov",
-      "type": "Mobile App",
+      "type": "Mobile app",
       "stack": "Swift · UIKit · Last.fm API",
       "tags": [
         "UI/UX"
@@ -331,7 +331,7 @@
       "title": "Spotify Hit Song Predictor",
       "shortTitle": "Hit Song Predictor",
       "type": "Data Science / ML",
-      "shortType": "Data Science",
+      "shortType": "Data science",
       "stack": "Python · scikit-learn",
       "tags": [
         "ML"

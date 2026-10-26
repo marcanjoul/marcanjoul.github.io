@@ -404,6 +404,11 @@ function projectBadges(links) {
 }
 
 // the app's own icon beside its name, when it has one
+// the category is a hand-written margin note whose arrow points down at the title
+const projectKicker = (p) => `<span class="proj-kicker"><span class="hand-note">` +
+  `<svg class="hand-note-arrow" viewBox="0 0 46 40" aria-hidden="true"><path d="M44 4 C 30 2, 20 8, 22 18 C 24 26, 12 30, 6 34 M6 34 l 8 -1 M6 34 l 2 -8"/></svg>` +
+  `${esc(p.shortType || p.type)}</span></span>`;
+
 const projectLogo = (p) => (p.logo ? `<img class="proj-logo" src="${esc(p.logo)}" alt="" width="40" height="40">` : '');
 
 // a project with its own page gets a real link, not a modal
@@ -419,7 +424,7 @@ function projectCard(p, i) {
     (p.caseStudy ? ` data-href="${esc(p.caseStudy)}"` : '') + `>` +
     `<div class="proj-body">` +
     `<div class="proj-info">` +
-      `<span class="proj-kicker">${esc(p.shortType || p.type)}</span>` +
+      projectKicker(p) +
       `<h3>${projectLogo(p)}${esc(p.shortTitle || p.title)}</h3>` +
       `<p class="proj-tagline">${esc(p.tagline)}</p>` +
       `<div class="proj-actions">` + projectBadges(p.links) + projectCta(p) + `</div>` +
@@ -461,7 +466,7 @@ function layerHTML(i) {
 function bodyHTML(i) {
   const p = projectList[i];
   return `<div class="proj-info">` +
-      `<span class="proj-kicker">${esc(p.shortType || p.type)}</span>` +
+      projectKicker(p) +
       `<h3>${projectLogo(p)}${esc(p.shortTitle || p.title)}</h3>` +
       `<p class="proj-tagline">${esc(p.tagline)}</p>` +
       `<div class="proj-actions">` + projectBadges(p.links) + projectCta(p) + `</div>` +
