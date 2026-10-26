@@ -9,9 +9,44 @@
     "tags are the domain labels that drift in on clouds beside the panel — keep to 1-2, they share the hero's vocabulary (UI/UX, AI, ML, SWE).",
     "notes are the hand-drawn callouts on each screenshot: text (\\n for a line break), x/y are % positions of the label, from = which side the arrow reaches in.",
     "logo is optional: an app icon shown beside the title on the card and in the case study.",
-    "gallery { type: images, frame: phone } shows screens in a phone; give an item a dark src to get a Light/Dark switch."
+    "gallery { type: images, frame: phone } shows screens in a phone; give an item a dark src to get a Light/Dark switch.",
+    "caseStudy is optional: a page path. The card then links there with a Read case study button instead of opening the modal."
   ],
   "projects": [
+    {
+      "id": "airborder",
+      "title": "AirBorder",
+      "type": "UX Case Study",
+      "shortType": "UX Case Study · Research + co-design",
+      "stack": "Figma · Interviews",
+      "tags": [
+        "UI/UX"
+      ],
+      "tagline": "Shows how much free time you have before your next gate closes.",
+      "thumbnail": {
+        "image": "assets/airborder/main-flight.webp"
+      },
+      "size": "lg",
+      "caseStudy": "airborder/",
+      "gallery": {
+        "type": "images",
+        "frame": "phone",
+        "items": [
+          {
+            "label": "Flight",
+            "src": "assets/airborder/main-flight.webp"
+          },
+          {
+            "label": "Layover",
+            "src": "assets/airborder/main-layover.webp"
+          },
+          {
+            "label": "Route",
+            "src": "assets/airborder/main-route.webp"
+          }
+        ]
+      }
+    },
     {
       "id": "appnest",
       "title": "AppNest",

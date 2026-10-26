@@ -322,13 +322,14 @@ function closeProjectModal() {
 function wireTiles() {
   document.querySelectorAll('.proj').forEach((tile) => {
   const name = tile.querySelector('h3').textContent.trim();
+  const href = tile.dataset.href;
   tile.setAttribute('tabindex', '0');
-  tile.setAttribute('role', 'button');
-  tile.setAttribute('aria-label', `${name} — open case study`);
-  const open = () => openProjectModal(tile.dataset.project, tile);
+  tile.setAttribute('role', href ? 'link' : 'button');
+  tile.setAttribute('aria-label', `${name} — ${href ? 'read case study' : 'open case study'}`);
+  const open = () => (href ? location.assign(href) : openProjectModal(tile.dataset.project, tile));
   tile.addEventListener('click', open);
   // the badges are their own destinations — clicking one must not also open the case study
-  tile.querySelectorAll('.proj-badge').forEach((b) => {
+  tile.querySelectorAll('.proj-badge, .proj-cta').forEach((b) => {
     b.addEventListener('click', (e) => e.stopPropagation());
   });
   tile.addEventListener('keydown', (e) => {
@@ -405,18 +406,23 @@ function projectBadges(links) {
 // the app's own icon beside its name, when it has one
 const projectLogo = (p) => (p.logo ? `<img class="proj-logo" src="${esc(p.logo)}" alt="" width="40" height="40">` : '');
 
+// a project with its own page gets a real link, not a modal
+const projectCta = (p) => (p.caseStudy
+  ? `<a class="proj-cta" href="${esc(p.caseStudy)}">Read case study →</a>` : '');
+
 function projectCard(p, i) {
   // shortTitle / shortType are card-only overrides; everything else is shared with the modal
   // Five slots, always the same five, always in the same place. The repo and live links
   // live in the case study, which is one click away and where someone goes to act on them;
   // keeping them here made the action row wrap and shoved the whole column around.
-  return `<article class="proj proj-panel" data-project="${esc(p.id)}">` +
+  return `<article class="proj proj-panel" data-project="${esc(p.id)}"` +
+    (p.caseStudy ? ` data-href="${esc(p.caseStudy)}"` : '') + `>` +
     `<div class="proj-body">` +
     `<div class="proj-info">` +
       `<span class="proj-kicker">${esc(p.shortType || p.type)}</span>` +
       `<h3>${projectLogo(p)}${esc(p.shortTitle || p.title)}</h3>` +
       `<p class="proj-tagline">${esc(p.tagline)}</p>` +
-      `<div class="proj-actions">` + projectBadges(p.links) + `</div>` +
+      `<div class="proj-actions">` + projectBadges(p.links) + projectCta(p) + `</div>` +
     `</div>` +
     projectShot(p) +
     `</div>` +
@@ -458,7 +464,7 @@ function bodyHTML(i) {
       `<span class="proj-kicker">${esc(p.shortType || p.type)}</span>` +
       `<h3>${projectLogo(p)}${esc(p.shortTitle || p.title)}</h3>` +
       `<p class="proj-tagline">${esc(p.tagline)}</p>` +
-      `<div class="proj-actions">` + projectBadges(p.links) + `</div>` +
+      `<div class="proj-actions">` + projectBadges(p.links) + projectCta(p) + `</div>` +
     `</div>` + projectShot(p);
 }
 

@@ -1241,3 +1241,276 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   .contact-lead { font-size: 1.05rem; }
   .contact-primary { font-size: 1.15rem; }
 }
+
+/* ========== CASE STUDY PAGES (airborder/) ==========
+   Same paper, ink and faces as the homepage, minus the canvas scene: a long read needs a
+   still background. Everything is scoped under body.cs so the homepage is untouched. */
+.cs main { position: relative; z-index: 2; }
+.cs-wrap { max-width: 760px; margin-inline: auto; padding-inline: 1.5rem; }
+
+.cs-top, .cs-foot { max-width: 1080px; margin-inline: auto; padding: 1.1rem 1.5rem; position: relative; z-index: 11; }
+.cs-foot { padding-block: 3rem 4rem; }
+.cs-back {
+  display: inline-flex; align-items: center; min-height: 44px;
+  padding: 0.45rem 1.1rem; border: 1.5px solid var(--ink); border-radius: 999px;
+  background: var(--paper); font-size: 0.92rem;
+  transition: background-color 0.2s, color 0.2s, transform 160ms var(--ease-expo);
+}
+@media (hover: hover) and (pointer: fine) {
+  .cs-back:hover { background: var(--ink); color: var(--paper); }
+}
+.cs-back:active { transform: scale(0.97); }
+
+.cs-hero { padding-top: clamp(1.5rem, 6vw, 4rem); }
+.cs-kicker {
+  font-family: var(--font-meta); font-size: 0.72rem; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.cs-h1 {
+  font-family: var(--font-head); font-weight: 700; line-height: 1;
+  font-size: clamp(3.2rem, 2rem + 6vw, 5.6rem); margin: 0.35rem 0 1rem;
+}
+.cs-lede { font-size: clamp(1.1rem, 1rem + 0.5vw, 1.35rem); line-height: 1.5; color: var(--ink-2); max-width: 36ch; }
+
+/* Four phones in a row on desktop, two by two on a phone. The slight tilt is the notebook
+   hand; it stays static, so there is nothing for reduced motion to switch off. */
+.cs-hero-shots {
+  max-width: 1080px; margin: clamp(2rem, 5vw, 3.5rem) auto;
+  padding-inline: 1.5rem;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(0.75rem, 2vw, 1.5rem);
+}
+.cs-hero-shots img {
+  width: 100%; height: auto; display: block;
+  border: 1.5px solid var(--ink); border-radius: 18px;
+  box-shadow: var(--project-shadow);
+}
+.cs-hero-shots img:nth-child(odd)  { transform: rotate(-1deg); }
+.cs-hero-shots img:nth-child(even) { transform: rotate(1deg) translateY(1.25rem); }
+@media (max-width: 640px) {
+  .cs-hero-shots { grid-template-columns: repeat(2, 1fr); row-gap: 2rem; }
+}
+
+.cs-meta {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 1rem 1.5rem;
+  padding: 1.25rem 0; border-block: 1.5px solid var(--ink); margin-bottom: 2rem;
+}
+.cs-meta dt {
+  font-family: var(--font-meta); font-size: 0.68rem; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.cs-meta dd { font-size: 1rem; line-height: 1.4; }
+
+.cs-h3 { font-family: var(--font-head); font-weight: 700; font-size: 1.6rem; line-height: 1.2; margin-bottom: 0.6rem; }
+.cs-list { list-style: none; display: grid; gap: 0.5rem; }
+.cs-list li { position: relative; padding-left: 1.3rem; color: var(--ink-2); }
+.cs-list li::before { content: '✦'; position: absolute; left: 0; color: var(--accent); }
+
+/* Draft-only: every unknown is highlighted so it can't ship by accident. */
+.cs-todo { background: var(--yellow); color: var(--ink); padding: 0 0.3em; border-radius: 3px; font-family: var(--font-meta); font-size: 0.85em; }
+
+/* "Read case study" on a project card: the same yellow pill as the nav's Let's Talk */
+.proj-cta {
+  display: inline-flex; align-items: center; min-height: 44px;
+  background: var(--yellow); color: var(--ink);
+  border: 1.5px solid var(--ink); border-radius: 999px;
+  padding: 0.5rem 1.1rem; font-size: 0.92rem; font-weight: 600; white-space: nowrap;
+  transition: background-color 0.2s, color 0.2s, transform 160ms var(--ease-expo);
+}
+@media (hover: hover) and (pointer: fine) {
+  .proj-cta:hover { background: var(--ink); color: var(--yellow); }
+}
+.proj-cta:active { transform: scale(0.97); }
+
+/* case study sections */
+.cs-section { padding-block: clamp(3rem, 8vw, 5.5rem) 0; position: relative; }
+.cs-section p { color: var(--ink-2); font-size: 1.05rem; margin-bottom: 1rem; max-width: 62ch; }
+.cs-section strong { color: var(--ink); font-weight: 600; font-variation-settings: 'wght' 600; }
+.cs-num {
+  font-family: var(--font-meta); font-size: 0.72rem !important; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--accent) !important; margin-bottom: 0.4rem !important;
+}
+.cs-h2 {
+  font-family: var(--font-head); font-weight: 700; line-height: 1.1;
+  font-size: clamp(2rem, 1.4rem + 2.4vw, 2.9rem); margin-bottom: 1.2rem; max-width: 22ch;
+}
+.cs-cite { color: var(--accent); font-size: 0.8em; vertical-align: super; line-height: 0; padding-inline: 0.1em; }
+
+.cs-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin: 2rem 0; }
+@media (max-width: 640px) { .cs-compare { grid-template-columns: 1fr; } }
+.cs-card {
+  background: var(--paper); border: 1.5px solid var(--ink); border-radius: var(--detail-radius);
+  padding: 1.25rem 1.35rem;
+}
+.cs-card-accent { box-shadow: var(--project-shadow); }
+.cs-card p:last-child { margin-bottom: 0; }
+.cs-card p { font-size: 0.98rem; }
+.cs-card-label {
+  font-family: var(--font-meta); font-size: 0.68rem !important; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--ink-3) !important; margin-bottom: 0.35rem !important;
+}
+.cs-card-title { font-family: var(--font-head); font-weight: 700; font-size: 1.35rem; line-height: 1.2; margin-bottom: 0.5rem; }
+
+.cs-question { border-left: 4px solid var(--yellow); padding: 0.25rem 0 0.25rem 1.25rem; margin: 2rem 0 1.25rem; }
+.cs-question p:last-child {
+  font-family: var(--font-head); font-weight: 700; color: var(--ink);
+  font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.65rem); line-height: 1.3; margin: 0;
+}
+.cs-note { font-size: 0.92rem !important; color: var(--ink-3) !important; }
+
+.cs-sources { padding-top: 4rem; }
+.cs-sources ol { padding-left: 1.2rem; font-size: 0.85rem; color: var(--ink-3); }
+.cs-sources a { text-decoration: underline; text-underline-offset: 2px; }
+
+/* the scroll entrance; .pre is only ever added by the script, after the reduced-motion check */
+.cs-reveal.pre { opacity: 0; transform: translateY(15px); transition: opacity 0.3s ease-out, transform 0.3s ease-out; }
+.cs-reveal.pre.in { opacity: 1; transform: none; }
+
+/* research */
+.cs-wrap-wide { max-width: 980px; }
+.cs-sub { margin-top: 2.75rem; }
+.cs-people { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0 1rem; }
+.cs-insights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1rem 0 2rem; }
+@media (max-width: 760px) { .cs-insights { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .cs-people { grid-template-columns: 1fr; } }
+.cs-insight { border-top: 1.5px solid var(--ink); padding-top: 0.9rem; }
+.cs-insight p { font-size: 0.95rem; }
+.cs-insight-lead {
+  border: 1.5px solid var(--ink); border-radius: var(--detail-radius); box-shadow: var(--project-shadow);
+  background: var(--paper); padding: 1.4rem 1.5rem; margin-top: 1rem;
+}
+.cs-insight-lead .cs-card-title { font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.8rem); }
+.cs-insight-lead p { font-size: 1.02rem; }
+.cs-insight-lead p:last-child { margin-bottom: 0; }
+.cs-quote {
+  font-family: var(--font-head); font-weight: 700; font-size: clamp(1.25rem, 1.1rem + 0.7vw, 1.6rem);
+  line-height: 1.25; margin: 0 0 1rem; padding: 0.4rem 0.9rem;
+  background: var(--yellow); display: inline-block; transform: rotate(-0.6deg); border-radius: 4px;
+}
+
+/* traceability table: a real table on wide screens, one card per row on a phone */
+.cs-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.95rem; }
+.cs-table th {
+  font-family: var(--font-meta); font-weight: 400; font-size: 0.68rem; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--ink-3); text-align: left; padding: 0 1rem 0.6rem 0;
+  border-bottom: 1.5px solid var(--ink);
+}
+.cs-table td { padding: 0.9rem 1rem 0.9rem 0; vertical-align: top; color: var(--ink-2); border-bottom: 1px solid var(--rule); line-height: 1.5; }
+.cs-table td:nth-child(2) { color: var(--ink); }
+.cs-table td:nth-child(3) { color: var(--accent); }
+@media (max-width: 640px) {
+  .cs-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .cs-table, .cs-table tbody, .cs-table tr, .cs-table td { display: block; }
+  .cs-table tr { border: 1.5px solid var(--ink); border-radius: var(--detail-radius); padding: 0.4rem 1rem; margin-bottom: 0.9rem; }
+  .cs-table td { padding: 0.55rem 0; }
+  .cs-table td:last-child { border-bottom: 0; }
+  .cs-table td::before {
+    content: attr(data-label); display: block; font-family: var(--font-meta); font-size: 0.64rem;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 0.15rem;
+  }
+}
+
+/* design decisions: text beside screens, alternating sides; stacked on a phone */
+.cs-decision {
+  display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center; padding-block: clamp(2rem, 5vw, 3.25rem); border-top: 1px solid var(--rule);
+}
+.cs-decision-flip .cs-decision-text { order: 2; }
+.cs-decision-wide { grid-template-columns: 1fr; }
+.cs-decision-text p { font-size: 0.98rem; }
+.cs-decision-text .cs-card-title { font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.85rem); }
+@media (max-width: 760px) {
+  .cs-decision { grid-template-columns: 1fr; }
+  .cs-decision-flip .cs-decision-text { order: 0; }
+}
+
+.cs-shot { margin: 0; }
+.cs-shot img {
+  width: 100%; max-width: 300px; height: auto; display: block; margin-inline: auto;
+  border: 1.5px solid var(--ink); border-radius: 16px; box-shadow: var(--project-shadow);
+}
+.cs-shot-flat img { max-width: 420px; border-radius: var(--detail-radius); }
+.cs-shot figcaption {
+  text-align: center; margin-top: 0.75rem; font-family: var(--font-meta);
+  font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3);
+}
+.cs-trio { display: grid; gap: clamp(0.75rem, 2.5vw, 1.75rem); }
+.cs-trio { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 560px) { .cs-trio { grid-template-columns: 1fr 1fr; } .cs-trio figure:first-child { display: none; } }
+
+/* time budget diagram */
+.cs-budget {
+  margin: 0 0 1rem; padding: 1.5rem; border: 1.5px solid var(--ink);
+  border-radius: var(--detail-radius); background: var(--paper);
+}
+.cs-formula { font-family: var(--font-head); font-weight: 700; font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.3rem); margin-bottom: 1rem; color: var(--ink); }
+.cs-bar { display: flex; height: 2.75rem; border: 1.5px solid var(--ink); border-radius: 8px; overflow: hidden; }
+.cs-seg { display: grid; place-items: center; font-family: var(--font-head); font-weight: 700; font-size: 1.1rem; }
+.cs-bar .cs-seg-m { flex: 60; } .cs-bar .cs-seg-t { flex: 14; } .cs-bar .cs-seg-r { flex: 26; }
+.cs-seg-m { background: var(--yellow); color: var(--ink); }
+.cs-seg-t { background: var(--ink); color: var(--paper); }
+.cs-seg-r { background: repeating-linear-gradient(135deg, var(--paper) 0 6px, var(--paper-2) 6px 12px); color: var(--ink); border-left: 1.5px solid var(--ink); }
+.cs-legend { list-style: none; display: grid; gap: 0.4rem; margin: 1rem 0; font-size: 0.92rem; color: var(--ink-2); }
+.cs-legend b { color: var(--ink); font-weight: 600; font-variation-settings: 'wght' 600; margin-right: 0.35rem; }
+.cs-key { display: inline-block; width: 0.9rem; height: 0.9rem; border: 1.5px solid var(--ink); border-radius: 3px; vertical-align: -0.1rem; margin-right: 0.5rem; }
+.cs-budget figcaption { font-size: 0.88rem; color: var(--ink-3); line-height: 1.55; }
+
+/* key flows: numbered screens in a row; on a phone the row swipes sideways inside itself */
+.cs-flow { padding-block: clamp(2rem, 5vw, 3rem); border-top: 1px solid var(--rule); }
+.cs-flow-lede { font-size: 0.98rem !important; max-width: 60ch; }
+.cs-steps {
+  list-style: none; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 2rem); align-items: start; margin-top: 1.5rem;
+}
+.cs-steps img {
+  width: 100%; max-width: 280px; height: auto; display: block; margin-inline: auto;
+  border: 1.5px solid var(--ink); border-radius: 16px; box-shadow: var(--project-shadow);
+}
+.cs-steps .cs-step-card { border-radius: var(--detail-radius); }
+.cs-steps p { font-size: 0.92rem; margin: 1rem auto 0; max-width: 280px; }
+.cs-steps b {
+  display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; margin-right: 0.4rem;
+  border-radius: 50%; background: var(--yellow); border: 1.5px solid var(--ink);
+  font-family: var(--font-meta); font-weight: 400; font-size: 0.75rem; color: var(--ink);
+}
+@media (max-width: 640px) {
+  .cs-steps {
+    grid-auto-columns: 72%; overflow-x: auto; scroll-snap-type: x mandatory;
+    padding: 0.25rem 0.5rem 1rem 0.25rem; margin-inline: -0.25rem; overscroll-behavior-x: contain;
+  }
+  .cs-steps li { scroll-snap-align: start; }
+}
+
+/* edge cases: a wide two-screen card, then a two-column grid of screen + text */
+.cs-edge {
+  display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 1.25rem; align-items: start;
+  padding: 1.25rem; border: 1.5px solid var(--ink); border-radius: var(--detail-radius); background: var(--paper);
+}
+.cs-edge img, .cs-edge-shots img {
+  width: 100%; height: auto; display: block; border: 1.5px solid var(--ink); border-radius: 12px;
+}
+.cs-edge-text p { font-size: 0.94rem; }
+.cs-edge-text p:last-child { margin-bottom: 0; }
+.cs-edge-text .cs-card-title { font-size: 1.3rem; }
+.cs-edge-wide { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); box-shadow: var(--project-shadow); margin: 1.5rem 0 1.25rem; }
+.cs-edge-shots { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; align-items: start; }
+.cs-edges { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+@media (max-width: 860px) { .cs-edges { grid-template-columns: 1fr; } }
+@media (max-width: 640px) {
+  .cs-edge-wide { grid-template-columns: 1fr; }
+  .cs-edge { grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr); padding: 1rem; gap: 0.9rem; }
+  .cs-edge-wide { grid-template-columns: 1fr; }
+}
+@media (max-width: 420px) { .cs-edge { grid-template-columns: 1fr; } .cs-edge > img { max-width: 220px; } }
+
+/* evaluation: two tallies side by side, the count in a disc */
+.cs-eval { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0; }
+@media (max-width: 640px) { .cs-eval { grid-template-columns: 1fr; } }
+.cs-tally { list-style: none; display: grid; gap: 0.8rem; }
+.cs-tally li { display: grid; grid-template-columns: 2.1rem 1fr; gap: 0.7rem; align-items: start; color: var(--ink-2); font-size: 0.95rem; line-height: 1.5; }
+.cs-tally span {
+  display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%;
+  background: var(--yellow); border: 1.5px solid var(--ink); color: var(--ink);
+  font-family: var(--font-head); font-weight: 700; font-size: 1rem;
+}
+.cs-tally-warn span { background: var(--paper); }
+.cs-section .cs-insight-lead { margin-bottom: 2rem; }

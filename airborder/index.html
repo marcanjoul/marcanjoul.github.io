@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AirBorder — UX case study | Mark Anjoul</title>
+<meta name="description" content="A layover companion that tells travelers how much free time they have before their next gate closes. Interview research, requirements traceability and a Figma prototype from a USF HCI team project.">
+<meta name="theme-color" content="#f3ede0">
+<link rel="canonical" href="https://markanjoul.com/airborder/">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://markanjoul.com/airborder/">
+<meta property="og:title" content="AirBorder — UX case study">
+<meta property="og:description" content="How much free time do you have before your next gate closes? A layover companion, from interviews to prototype.">
+<meta property="og:image" content="https://markanjoul.com/assets/airborder/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://markanjoul.com/assets/airborder/og.jpg">
+
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/Llewie.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="../assets/fonts/WinkyRough-VariableFont_wght.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="cs">
+<div class="paper-grain" aria-hidden="true"></div>
+
+<header class="cs-top">
+  <a class="cs-back" href="../#projects">← All projects</a>
+</header>
+
+<main>
+  <!-- 1. HERO -->
+  <section class="cs-hero" aria-labelledby="cs-title">
+    <div class="cs-wrap">
+      <p class="cs-kicker">UX case study · HCI team project</p>
+      <h1 id="cs-title" class="cs-h1">AirBorder</h1>
+      <p class="cs-lede">Flight apps tell you when your plane leaves. AirBorder tells you how much free time you have before your next gate closes, and what fits in it.</p>
+    </div>
+
+    <div class="cs-hero-shots">
+      <img src="../assets/airborder/main-flight.webp" width="560" height="1218" fetchpriority="high"
+           alt="Flight tab: ANA NH 106 from Tokyo Haneda to Los Angeles, departing 18:00 from Gate 105, with the plan summary “5h 25m before Gate 105 closes.”">
+      <img src="../assets/airborder/main-layover.webp" width="560" height="1218"
+           alt="Layover and transit tab: airside places in Terminal 3, each card showing walking time, whether it is open, a leave-by time and an Add to plan button.">
+      <img src="../assets/airborder/main-route.webp" width="560" height="1218"
+           alt="Route tab in map mode: 12 minutes on foot to Gate 105, a floor diagram of Terminal 3, and step 1 of 3, “Follow the Gates 105–109 sign.”">
+      <img src="../assets/airborder/main-profile.webp" width="560" height="1218"
+           alt="Profile tab with settings for language, a step-free routes toggle, connected accounts and saved flights.">
+    </div>
+
+    <div class="cs-wrap">
+      <dl class="cs-meta">
+        <div><dt>My role</dt><dd>Interview analysis &amp; co-design</dd></div>
+        <div><dt>Team</dt><dd>3 people</dd></div>
+        <div><dt>Timeline</dt><dd>Fall 2026</dd></div>
+        <div><dt>Tools</dt><dd>Figma</dd></div>
+        <div><dt>Status</dt><dd>Prototype, not built yet</dd></div>
+      </dl>
+
+      <h2 class="cs-h3">What I did</h2>
+      <ul class="cs-list">
+        <li>Wrote the interview analysis in our team report: the findings and the requirements traceability table.</li>
+        <li>Co-designed the screens with the team from the second iteration on. Teammates built the first iteration.</li>
+        <li>Helped write the rest of the report.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 2. THE PROBLEM -->
+  <section class="cs-section cs-reveal" aria-labelledby="cs-problem">
+    <div class="cs-wrap">
+      <p class="cs-num">01 · The problem</p>
+      <h2 id="cs-problem" class="cs-h2">A departure time is not a deadline you can plan around</h2>
+      <p>On a layover, “my flight leaves at 18:00” doesn't tell you when to stop eating. The real deadline is when the gate closes, and between you and it sit a walk, maybe a security or border check, maybe baggage, and flight information that can change while you're sitting down.</p>
+      <p>Travelers combine all of that in their heads to decide one thing: <strong>what can I do next, and when do I have to leave?</strong> When the plan breaks, the cost is real. In 2024, 21.9% of scheduled U.S. domestic flights didn't arrive on time, counting cancellations and diversions.<a class="cs-cite" href="#src-dot" aria-label="Source: U.S. Department of Transportation">¹</a> The two travelers we interviewed described lost rest, missed commitments and extra costs.</p>
+
+      <div class="cs-compare">
+        <div class="cs-card">
+          <p class="cs-card-label">What exists</p>
+          <h3 class="cs-card-title">Flighty's Connection Assistant</h3>
+          <p>Estimates the steps of a connection (deplaning, immigration, baggage, security, getting to the gate) and updates the status as conditions change. It overlaps the most with AirBorder, so it's our main comparison.</p>
+        </div>
+        <div class="cs-card cs-card-accent">
+          <p class="cs-card-label">The gap we're testing</p>
+          <h3 class="cs-card-title">What about the time in between?</h3>
+          <p>Knowing a route takes 12 minutes doesn't tell you whether to cut lunch short, stop working or skip the city visit. AirBorder ties the activity you chose to the steps you still have to do, and says which constraint changed when the plan stops working.</p>
+        </div>
+      </div>
+
+      <blockquote class="cs-question">
+        <p class="cs-card-label">Our research question</p>
+        <p>How can an interface make the next feasible action understandable when time, access and information change together?</p>
+      </blockquote>
+      <p class="cs-note">We aren't claiming AirBorder beats Flighty. Comparing the two on matched tasks is part of the evaluation we've planned. TripIt Pro and the Fly Delta app were reference points too.</p>
+    </div>
+  </section>
+
+  <!-- 3. RESEARCH -->
+  <section class="cs-section cs-reveal" aria-labelledby="cs-research">
+    <div class="cs-wrap">
+      <p class="cs-num">02 · Research</p>
+      <h2 id="cs-research" class="cs-h2">Two interviews, read for what people did, not only what they said</h2>
+      <p>We interviewed travelers through a digital questionnaire our team built. It branched into follow-up questions based on earlier answers and included interactive interface tasks, so we could see what people clicked as well as what they told us. Both participants completed it on their own.</p>
+
+      <div class="cs-people">
+        <div class="cs-card">
+          <p class="cs-card-label">Participant R1</p>
+          <p>18–24, computer science student, 3–5 flights in the past two years. Prefers map-first guidance.</p>
+        </div>
+        <div class="cs-card">
+          <p class="cs-card-label">Participant R2</p>
+          <p>18–24, computer science student, 3–5 flights in the past two years. Prefers camera guidance with the map hidden until opened.</p>
+        </div>
+      </div>
+      <p class="cs-note">Two people with nearly the same profile (students, CS, English-speaking, iPhone users) is a small, narrow sample. These findings are hypotheses to test, not conclusions about travelers in general.</p>
+
+      <h3 class="cs-h3 cs-sub">What we found</h3>
+
+      <div class="cs-insight cs-insight-lead">
+        <p class="cs-card-label">Finding 1 · the one that changed the design most</p>
+        <h4 class="cs-card-title">“Easy” didn't mean they found it</h4>
+        <p>Both travelers rated expanding the map as very easy. Yet neither used the dedicated map-expansion control first; both reached for the camera. After a gate change, R2 couldn't find the action that leads to the new gate and wrote:</p>
+        <blockquote class="cs-quote">“miss the map directing to new gate”</blockquote>
+        <p><strong>Design response:</strong> route actions are explicit and always visible, and we measure whether people find a control separately from how easy they say it was.</p>
+      </div>
+
+      <div class="cs-insights">
+        <div class="cs-insight">
+          <h4 class="cs-card-title">Both wanted to know what changed</h4>
+          <p>Both put leave-by time, routes and explanations of changes first, and both picked “What changed and when” as what they wanted after an update.</p>
+          <p><strong>Response:</strong> a change shows the old value struck through next to the new one, on every tab.</p>
+        </div>
+        <div class="cs-insight">
+          <h4 class="cs-card-title">Same need, different guidance</h4>
+          <p>R1 wanted the map first; R2 wanted the camera. Both wanted the app to remember their choice.</p>
+          <p><strong>Response:</strong> both modes are always available, and the app remembers which one you used.</p>
+        </div>
+        <div class="cs-insight">
+          <h4 class="cs-card-title">Disruption costs more than time</h4>
+          <p>R1 described stress and lost rest. R2 described extra costs and missed commitments too.</p>
+          <p><strong>Response:</strong> recovery guidance covers practical support, not just new times.</p>
+        </div>
+      </div>
+
+      <p>Their tools showed a gap too. Both used Google Flights, airline or airport apps and ChatGPT. R2 rated ChatGPT very helpful but also said its advice was sometimes outdated and took effort to move into an itinerary. And both preferred free or included facility access, like rest seating or a lounge through their ticket.</p>
+
+      <h3 class="cs-h3 cs-sub">From finding to feature to test</h3>
+      <p>I wrote this analysis for our team report, including the table below. Each row ties a design decision to something a participant said or did, and to the question our evaluation has to answer.</p>
+    </div>
+
+    <div class="cs-wrap cs-wrap-wide">
+      <table class="cs-table">
+        <caption class="sr-only">Requirements traceability: interview evidence, the design response, and the evaluation question for each</caption>
+        <thead>
+          <tr><th scope="col">What we heard</th><th scope="col">What we designed</th><th scope="col">What we'll test</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="What we heard">Both: leave-by time, routes and what changed come first</td>
+            <td data-label="What we designed">A next action that stays on screen, with a record of what changed</td>
+            <td data-label="What we'll test">Can they tell when to leave, and why?</td>
+          </tr>
+          <tr>
+            <td data-label="What we heard">R1 map-first; R2 camera-first</td>
+            <td data-label="What we designed">A remembered view, with visible controls for both</td>
+            <td data-label="What we'll test">Can they expand the map and find a changed route?</td>
+          </tr>
+          <tr>
+            <td data-label="What we heard">R1 lost activity time; R2 has work and rest commitments</td>
+            <td data-label="What we designed">Editable activity length and time to get back</td>
+            <td data-label="What we'll test">Can they change an activity and still make the deadline?</td>
+          </tr>
+          <tr>
+            <td data-label="What we heard">R2: outdated chatbot advice, effort moving it into a plan</td>
+            <td data-label="What we designed">Show when information was last updated; keep one shared plan</td>
+            <td data-label="What we'll test">Can they check advice and carry on without re-entering it?</td>
+          </tr>
+          <tr>
+            <td data-label="What we heard">Both: free or included access; disruption hit them differently</td>
+            <td data-label="What we designed">Costs shown up front; separate recovery steps</td>
+            <td data-label="What we'll test">Can they find affordable facilities and the right support?</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 4. DESIGN DECISIONS -->
+  <section class="cs-section cs-reveal" aria-labelledby="cs-decisions">
+    <div class="cs-wrap">
+      <p class="cs-num">03 · Design decisions</p>
+      <h2 id="cs-decisions" class="cs-h2">Four decisions, each tied to something we heard</h2>
+    </div>
+
+    <div class="cs-wrap cs-wrap-wide">
+      <!-- 4a. Time budget -->
+      <article class="cs-decision">
+        <div class="cs-decision-text">
+          <p class="cs-card-label">Decision 1</p>
+          <h3 class="cs-card-title">Count down to the gate closing, not the departure</h3>
+          <p><strong>Problem:</strong> both travelers put leave-by time first, and a departure time isn't the moment you have to stop.</p>
+          <p><strong>Decision:</strong> the Flight tab leads with one sentence: <em>5h 25m before Gate 105 closes.</em> The number is time left until the gate closes, the deadline that actually matters.</p>
+        </div>
+        <figure class="cs-shot cs-shot-flat">
+          <img src="../assets/airborder/plan-countdown.webp" width="560" height="257" loading="lazy" decoding="async"
+               alt="The Your plan section of the Flight tab: “5h 25m before Gate 105 closes,” with a Route button underneath.">
+        </figure>
+      </article>
+
+      <!-- the model behind decisions 1 and 2, with the prototype's own numbers -->
+      <figure class="cs-budget" aria-labelledby="cs-budget-cap">
+        <p class="cs-card-label">The math behind it</p>
+        <p class="cs-formula"><span>M</span> = <span>D</span> − <span>t</span> − <span>R</span> − <span>T</span></p>
+        <div class="cs-bar" aria-hidden="true">
+          <span class="cs-seg cs-seg-m">M</span><span class="cs-seg cs-seg-t">T</span><span class="cs-seg cs-seg-r">R</span>
+        </div>
+        <ul class="cs-legend">
+          <li><i class="cs-key cs-seg-m"></i><b>M, usable margin</b> 12:00 → 17:01 · 5h 01m in the lounge</li>
+          <li><i class="cs-key cs-seg-t"></i><b>T, steps still to do</b> 17:01 → 17:05 · 4 min walk to the gate</li>
+          <li><i class="cs-key cs-seg-r"></i><b>R, buffer</b> 17:05 → 17:25 · arrive 20 min before the gate closes</li>
+        </ul>
+        <figcaption id="cs-budget-cap">From the lounge plan in our prototype: now (<i>t</i>) is 12:00 and the gate closes (<i>D</i>) at 17:25, so the app says leave at 17:01. The bar isn't to scale. If <i>M</i> drops below zero the plan no longer fits, and the interface names the term that caused it, such as a longer walk or a gate change.</figcaption>
+      </figure>
+
+      <!-- 4b. Plans feed the budget -->
+      <article class="cs-decision cs-decision-flip">
+        <div class="cs-decision-text">
+          <p class="cs-card-label">Decision 2</p>
+          <h3 class="cs-card-title">A plan comes with a time to leave</h3>
+          <p><strong>Problem:</strong> R1 lost the activity time they wanted; R2 works and rests during layovers. Picking a place is easy. Knowing when to walk away from it isn't.</p>
+          <p><strong>Decision:</strong> place cards on the Layover tab show walk time and opening details before you add them, and the lounge card says when you'd have to leave (17:01). Once added, the plan becomes a timeline on the Flight tab (Now → Leave → At gate → Gate closes) that you can edit or remove.</p>
+        </div>
+        <figure class="cs-shot">
+          <img src="../assets/airborder/main-layover.webp" width="560" height="1218" loading="lazy" decoding="async"
+               alt="Layover and transit tab: the ANA Lounge card shows Terminal 3, a 4 minute walk, Open now, Leave by 17:01 and an Add to plan button.">
+        </figure>
+      </article>
+
+      <!-- 4c. Escalating states -->
+      <article class="cs-decision cs-decision-wide">
+        <div class="cs-decision-text">
+          <p class="cs-card-label">Decision 3</p>
+          <h3 class="cs-card-title">The screen gets louder as the risk goes up</h3>
+          <p><strong>Problem:</strong> both travelers wanted to know what changed, and their disruptions cost them different things: R1 rest, R2 money and missed commitments.</p>
+          <p><strong>Decision:</strong> the Flight tab has three states. A gate change adds a yellow banner and strikes through the old gate. When boarding is at risk, the banner and countdown turn red and give the numbers that matter (gate closes in 15 min, walk 12 min) plus a way to call the airline.</p>
+        </div>
+        <div class="cs-trio">
+          <figure class="cs-shot">
+            <img src="../assets/airborder/main-flight.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="Normal state: the Flight tab with a dark ticket for NH 106, Gate 105, and no banner.">
+            <figcaption>Normal</figcaption>
+          </figure>
+          <figure class="cs-shot">
+            <img src="../assets/airborder/gate.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="Gate changed: a yellow banner reads “105 struck through, 108A, Gate changed” with an Alerts link, and the ticket shows Gate 105 crossed out next to 108A.">
+            <figcaption>Gate changed</figcaption>
+          </figure>
+          <figure class="cs-shot">
+            <img src="../assets/airborder/risk.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="Boarding at risk: a red banner reads “Gate closes in 15 min, walk 12 min” with a Call ANA link, the status says Boarding soon, and the countdown chip turns red at 15 min.">
+            <figcaption>Boarding at risk</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <!-- 4d. Wayfinding -->
+      <article class="cs-decision">
+        <div class="cs-decision-text">
+          <p class="cs-card-label">Decision 4</p>
+          <h3 class="cs-card-title">The route is never hidden behind a control</h3>
+          <p><strong>Problem:</strong> our strongest finding. Both travelers said the map was easy, but neither found the map control first, and R2 missed the route to the new gate.</p>
+          <p><strong>Decision:</strong> the Route tab opens straight to the route: walk time, a floor diagram and numbered steps with one instruction at a time. After a gate change, the same banner follows you here. Map and camera sit side by side as one switch. In camera mode, the app reads bilingual signs (Japanese and English) and offers “Read sign again” when it can't read one.</p>
+        </div>
+        <figure class="cs-shot">
+          <img src="../assets/airborder/route108.webp" width="560" height="1218" loading="lazy" decoding="async"
+               alt="Route to Gate 108A in map mode: the Map and Camera switch, the gate-change banner, a 12 minute walk to Gate 108A, a floor diagram of Terminal 3, and step 1 of 3, “Follow the Gates 105–109 sign.”">
+        </figure>
+      </article>
+    </div>
+  </section>
+
+  <!-- 5. KEY FLOWS -->
+  <section class="cs-section cs-reveal" aria-labelledby="cs-flows">
+    <div class="cs-wrap">
+      <p class="cs-num">04 · Key flows</p>
+      <h2 id="cs-flows" class="cs-h2">Three layovers, start to finish</h2>
+    </div>
+
+    <div class="cs-wrap cs-wrap-wide">
+      <!-- Flow A -->
+      <div class="cs-flow">
+        <h3 class="cs-card-title">Planning a lounge stop</h3>
+        <p class="cs-flow-lede">Picking a place, getting there and getting back, all against the same deadline.</p>
+        <ol class="cs-steps" tabindex="0" aria-label="Planning a lounge stop, 3 screens">
+          <li>
+            <img src="../assets/airborder/lounge-card.webp" width="560" height="576" loading="lazy" decoding="async" class="cs-step-card"
+                 alt="ANA Lounge details: Terminal 3, 4F. Open 05:00 until the last ANA departure. Entry needs a Business Class boarding pass, shown at the entrance. A Directions button.">
+            <p><b>1</b> Access rules come first: opening hours and what you need to get in.</p>
+          </li>
+          <li>
+            <img src="../assets/airborder/lounge-route.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="Route to ANA Lounge in map mode: “Turn right for airline lounges” with the sign text in Japanese and English, then 3F, lift, 4F, ANA Lounge, from the airside 3F concourse.">
+            <p><b>2</b> The floor change is spelled out (3F, lift, 4F), with the sign text in Japanese and English.</p>
+          </li>
+          <li>
+            <img src="../assets/airborder/lounge-return.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="Gate 105 from ANA Lounge: a 4 minute walk, Leave by 17:01, Gate 105 closes 17:25, and three steps: leave the lounge and take the lift to 3F, follow the overhead signs to Gate 105, check NH 106 on the gate display.">
+            <p><b>3</b> The way back shows the same leave-by time as the plan: 17:01 for a gate that closes at 17:25.</p>
+          </li>
+        </ol>
+      </div>
+
+      <!-- Flow B -->
+      <div class="cs-flow">
+        <h3 class="cs-card-title">When time runs short</h3>
+        <p class="cs-flow-lede">The same flight as the countdown gets tighter. Each state says what's left and what to do next.</p>
+        <ol class="cs-steps" tabindex="0" aria-label="When time runs short, 3 screens">
+          <li>
+            <img src="../assets/airborder/return.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="Return to your gate: a banner reads “Time to return to Gate 105” and the countdown says 25 min before Gate 105 closes.">
+            <p><b>1</b> 25 minutes left: a nudge to head back.</p>
+          </li>
+          <li>
+            <img src="../assets/airborder/risk.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="Boarding at risk: a red banner reads “Gate closes in 15 min, walk 12 min” with a Call ANA link, and the countdown chip turns red at 15 min.">
+            <p><b>2</b> 15 minutes left, 12 to walk: the screen turns red and offers to call the airline.</p>
+          </li>
+          <li>
+            <img src="../assets/airborder/assist.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="Boarding assistance: a banner reads “Arrival 4 min after closure” with a Call ANA link, and the plan shows Arrival 17:29.">
+            <p><b>3</b> You'd arrive 4 minutes after the gate closes. The app says so plainly and points to the airline, instead of a countdown that can't be met.</p>
+          </li>
+        </ol>
+      </div>
+
+      <!-- Flow C -->
+      <div class="cs-flow">
+        <h3 class="cs-card-title">Changing airports in Tokyo</h3>
+        <p class="cs-flow-lede">Landing at Haneda, leaving from Narita: the transfer is a step of the journey, with its own cost and timing.</p>
+        <ol class="cs-steps" tabindex="0" aria-label="Changing airports in Tokyo, 3 screens">
+          <li>
+            <img src="../assets/airborder/xfer-flight.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="Flight tab during an airport change: a banner reads “Change airports: Haneda to Narita,” the ticket for NH 6 shows HND to NRT as an airport transfer and Terminal 1, and the countdown says 8h 20m before Narita gate closes.">
+            <p><b>1</b> The countdown points at the Narita gate, and a banner flags the airport change.</p>
+          </li>
+          <li>
+            <img src="../assets/airborder/xfer-journey.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="Journey details: “Next flight leaves from Narita,” flight 1 of 2 is TG 660 from Bangkok to Haneda, then a 9h 45m layover with a change to Narita, then flight 2 of 2, NH 6 from Narita.">
+            <p><b>2</b> Journey details puts the airport change between the two flights, with the layover length.</p>
+          </li>
+          <li>
+            <img src="../assets/airborder/xfer-route.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="Route to Narita in map mode: step 1, Follow Bus signs, then Haneda to Narita by airport bus, 95 min, JPY 3,600, leaving Haneda Terminal 3 at 13:10 from the 1F bus stops.">
+            <p><b>3</b> The route shows the bus's travel time, price and departure (95 min, ¥3,600, 13:10), so the cost isn't a surprise.</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. EDGE CASES & ACCESSIBILITY -->
+  <section class="cs-section cs-reveal" aria-labelledby="cs-edges">
+    <div class="cs-wrap">
+      <p class="cs-num">05 · Edge cases &amp; accessibility</p>
+      <h2 id="cs-edges" class="cs-h2">Designing for when the plan doesn't hold</h2>
+      <p>A layover app gets used at the worst moments: the place is closed, the gate moved, there isn't enough time. We designed those states on purpose instead of leaving them as error messages.</p>
+    </div>
+
+    <div class="cs-wrap cs-wrap-wide">
+      <div class="cs-edge cs-edge-wide">
+        <div class="cs-edge-shots">
+          <img src="../assets/airborder/edge-t2.webp" width="560" height="1089" loading="lazy" decoding="async"
+               alt="T2 Observation Deck: 30 minutes from Terminal 3 by an 11 minute walk, 4 minute wait and 15 minute free shuttle. Leave Terminal 2 by 15:53, allowing 30 min back to Terminal 3, 30 min for security and 12 min to the gate. Buttons to add a 30-minute visit or view the shuttle route.">
+          <img src="../assets/airborder/edge-t2-late.webp" width="560" height="634" loading="lazy" decoding="async"
+               alt="Return to your gate: a red tag reads “Not enough time for Terminal 2,” followed by “Head to your gate” with shuttle, security and gate walk listed, and Gate 105 closes 17:25.">
+        </div>
+        <div class="cs-edge-text">
+          <h3 class="cs-card-title">Too far for the time you have</h3>
+          <p>A trip to another terminal shows its whole cost before you commit: the shuttle there, then the shuttle back, security again and the walk to the gate, which add up to “leave Terminal 2 by 15:53.” When there isn't enough time left, the return screen says so plainly: <em>not enough time for Terminal 2</em>.</p>
+          <p>Leaving the airside area is treated as its own question too. The screen tells you to ask staff about exiting before you take the shuttle.</p>
+        </div>
+      </div>
+
+      <div class="cs-edges">
+        <div class="cs-edge">
+          <img src="../assets/airborder/edge-closed.webp" width="560" height="755" loading="lazy" decoding="async"
+               alt="Observation Deck on 20 October at 01:00: a red tag reads “Closed 00:00–04:00,” then “Reopens at 04:00,” a note about a partial closure from 19 to 31 October, and the source, an airport notice from 16 October. Buttons to choose another time or open the airport closure notice.">
+          <div class="cs-edge-text">
+            <h3 class="cs-card-title">Closed when you'd arrive</h3>
+            <p>A planned stop that turns out to be closed shows when it reopens and where that information came from (an airport notice, dated), plus a way to pick another time. It's the “show where information came from and when” rule from our research, applied to a closure.</p>
+          </div>
+        </div>
+        <div class="cs-edge">
+          <img src="../assets/airborder/edge-alert.webp" width="560" height="780" loading="lazy" decoding="async"
+               alt="Alerts, 15 October 12:00: Gate changed to 108A, Gate 108A closes 17:25, 12 minute walk, a Get help link and a Route button.">
+          <div class="cs-edge-text">
+            <h3 class="cs-card-title">You missed the banner</h3>
+            <p>Every change also lands in Alerts with the time it happened, the new deadline and the walk, so “what changed and when” is still there after the banner is gone.</p>
+          </div>
+        </div>
+        <div class="cs-edge">
+          <img src="../assets/airborder/edge-gmail.webp" width="560" height="641" loading="lazy" decoding="async"
+               alt="Connect Gmail: three promises before connecting. Reads booking emails only. You choose what to add. Disconnect any time, in Profile. Then a Continue with Google button.">
+          <div class="cs-edge-text">
+            <h3 class="cs-card-title">Bringing in your tickets</h3>
+            <p>Flights can come in from a PDF, Apple or Google Wallet, Gmail or Google Calendar, or be typed in by hand. Connecting an account says what it reads before you agree, and you can disconnect it later. Our report called for imported information the traveler reviews and can remove; this is where that starts.</p>
+          </div>
+        </div>
+        <div class="cs-edge">
+          <img src="../assets/airborder/edge-lang.webp" width="560" height="490" loading="lazy" decoding="async"
+               alt="The language setting shown in Japanese, titled 言語, with English, 日本語 (selected) and Français.">
+          <div class="cs-edge-text">
+            <h3 class="cs-card-title">Language, routes and color</h3>
+            <p>The language setting offers English, Japanese and French, and sign text appears in both Japanese and English so it matches what's on the wall. Profile has a step-free routes switch for anyone who can't take stairs or escalators. Warnings don't rely on color alone. Each state also has words and numbers, like “Boarding at risk” or “Closed 00:00–04:00.”</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. EVALUATION -->
+  <section class="cs-section cs-reveal" aria-labelledby="cs-eval">
+    <div class="cs-wrap">
+      <p class="cs-num">06 · Evaluation</p>
+      <h2 id="cs-eval" class="cs-h2">What classmates said after using it</h2>
+      <p>Classmates walked through the whole prototype and wrote a critique in the hamburger format: a strength, something to improve, then another strength. We got 14 written critiques. We haven't changed the design based on them yet; this is what they said and what we'd do next.</p>
+
+      <div class="cs-eval">
+        <div>
+          <h3 class="cs-h3">What worked</h3>
+          <ul class="cs-tally">
+            <li><span>6</span>A clean, calm look. One reviewer said calm matters “when traveling is sort of stressful.”</li>
+            <li><span>5</span>The leave-by time and the timeline, for judging whether there's time for a stop</li>
+            <li><span>4</span>Camera guidance as an alternative to reading a map</li>
+            <li><span>2</span>The many ways to bring in a ticket</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="cs-h3">What didn't</h3>
+          <ul class="cs-tally cs-tally-warn">
+            <li><span>3</span>Asking for features the prototype already has: a route to the gate, a route back from a planned stop, a shuttle transfer between terminals</li>
+            <li><span>3</span>Wanting live crowding: how busy a café is, or crowds slowing you down</li>
+            <li><span>2</span>The plan was hard to find and check: “I could not tell if the cafe visit was registered in my plan and when.”</li>
+            <li><span>2</span>Back buttons were hard to spot (one also found the + button unclear)</li>
+            <li><span>2</span>Wanting to scan a ticket with the camera instead of uploading a PDF</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cs-insight-lead">
+        <p class="cs-card-label">The pattern</p>
+        <h3 class="cs-card-title">The interview finding showed up again</h3>
+        <p>Our interviews found that rating something easy didn't mean finding it. In the critiques, three people asked for routes and transfers the prototype already had, and two had trouble finding or checking their plan. The features were there; they weren't visible enough.</p>
+      </div>
+
+      <h3 class="cs-h3 cs-sub">What we'd change next</h3>
+      <ul class="cs-list">
+        <li><strong>Give the plan its own view</strong>: a list of your stops with times, so adding, checking and removing one is obvious.</li>
+        <li><strong>Put the route on the plan</strong>: make the route from each stop back to the gate one tap from the stop itself.</li>
+        <li><strong>Make navigation controls readable</strong>: a labeled + button and a back button that stands out.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="cs-sources" aria-labelledby="cs-src">
+    <div class="cs-wrap">
+      <h2 id="cs-src" class="cs-card-label">Sources</h2>
+      <ol>
+        <li id="src-dot">U.S. Department of Transportation, <a href="https://rosap.ntl.bts.gov/view/dot/82026/dot_82026_DS1.pdf">Air Travel Consumer Report, February 2025</a>, Table 1C (January–December 2024).</li>
+      </ol>
+    </div>
+  </section>
+</main>
+
+<footer class="cs-foot">
+  <a class="cs-back" href="../#projects">← Back to all projects</a>
+</footer>
+
+<script>
+  // ponytail: the homepage's GSAP fade-up (opacity 0 → 1, 15px rise, 0.3s) without loading
+  // GSAP for one effect. JS adds the hidden state, so with no JS everything just shows.
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    }));
+    document.querySelectorAll('.cs-reveal').forEach((el) => { el.classList.add('pre'); io.observe(el); });
+  }
+</script>
+</body>
+</html>
