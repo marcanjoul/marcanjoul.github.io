@@ -665,6 +665,10 @@ nav {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* overflow: hidden (for the ellipsis) would clip descenders at line-height 1.1, so the box
+     gets room below the baseline and gives it back, leaving the grid row unchanged */
+  padding-bottom: 0.15em;
+  margin-bottom: -0.15em;
 }
 .proj-tagline {
   font-size: 0.86rem;
