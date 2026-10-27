@@ -61,14 +61,15 @@
         "image": "assets/appnest/screens/01-applications.webp"
       },
       "size": "lg",
-      "about": "An iOS job application tracker I designed and built end to end. Paste a confirmation email and Apple's on-device NaturalLanguage framework pulls out the company, role, status and pay, with no API calls and no account. Paste a Greenhouse, Lever, Ashby or Workday link and it fills itself in. Everything is stored locally with SwiftData. The UI runs on a token-based design system that I mirrored in Figma (light and dark modes as one variable switch, components mapped to their Swift views).",
+      "about": "An iOS job application tracker I designed and built end to end. Paste a confirmation email and Apple's on-device NaturalLanguage framework pulls out the company, role, status and pay, with no API calls and no account. Paste a Greenhouse, Lever or Ashby link and it looks the posting up on that board's public API to fill in the real job title. Everything is stored locally with SwiftData. The UI runs on a token-based design system that I mirrored in Figma: light and dark modes as one variable switch, a six-step type scale (DM Sans for headlines over SF Pro), and components mapped to their Swift views.",
       "features": [
         "On-device email parsing with NLTagger, regex and NSDataDetector: nothing leaves the phone",
-        "ATS link parsing for Greenhouse, Lever, Ashby and Workday",
+        "ATS link parsing: Greenhouse, Lever and Ashby pull the job title from each board's public API; Workday reads it from the URL",
         "CSV import with a forgiving column mapper and an editable preview, plus CSV export",
         "Search cycles (\"Summer 2026\") with bulk edit, move and delete",
         "Per-application interview prep notes and follow-up reminders",
-        "Figma design system: semantic color tokens with light/dark modes, components mapped 1:1 to SwiftUI views",
+        "Figma design system: semantic color tokens with light/dark modes, six type roles as text styles, components mapped 1:1 to SwiftUI views",
+        "Native iOS 26 chrome: Liquid Glass, system search and toolbar close buttons, tinted to the app's green",
         "Dynamic Type throughout and 44pt minimum touch targets"
       ],
       "links": [
