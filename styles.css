@@ -739,7 +739,7 @@ nav {
 }
 .hero-label-wrapper li + li::before {
   content: "✦";
-  color: var(--ink);
+  color: var(--yellow);
   font-size: 0.65em;
   margin: 0 0.6em;
   vertical-align: 0.2em;
