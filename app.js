@@ -1730,11 +1730,15 @@ document.fonts.ready.then(() => {
 });
 
 /* ---------- nav: highlight the section on screen ---------- */
+// The current section is the last one whose top has passed the middle of the viewport;
+// at the very bottom the short Contact chapter can't reach the middle, so it wins there.
 const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
-const navObserver = new IntersectionObserver((entries) => {
-  entries.forEach((e) => {
-    if (!e.isIntersecting) return;
-    navLinks.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === `#${e.target.id}`));
-  });
-}, { rootMargin: '-50% 0px -50% 0px' }); // a section is "current" when it crosses the middle of the viewport
-document.querySelectorAll('section[id]').forEach((s) => navObserver.observe(s));
+const navSections = [...document.querySelectorAll('section[id]')];
+function updateActiveNav() {
+  const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+  let current = atBottom ? navSections[navSections.length - 1] : null;
+  if (!current) navSections.forEach((sec) => { if (sec.getBoundingClientRect().top <= window.innerHeight / 2) current = sec; });
+  navLinks.forEach((a) => a.classList.toggle('active', !!current && a.getAttribute('href') === `#${current.id}`));
+}
+window.addEventListener('scroll', updateActiveNav, { passive: true });
+updateActiveNav();
