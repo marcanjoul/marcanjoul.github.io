@@ -296,26 +296,26 @@ nav {
   background: var(--paper);
   border: 1.5px solid transparent !important; /* reserves the 1.5px, paints nothing */
   border-radius: 999px;
-  padding: 0.5rem 1.4rem;
+  padding: 0.5rem; /* the links carry their own horizontal padding now */
   pointer-events: auto;
   opacity: 0;
   transform: translateY(-15px);
   transition: background-color 0.25s ease, border-color 0.3s ease, box-shadow 0.3s ease, border-radius 0.5s ease;
   margin-left: auto;
 }
-.nav-links { list-style: none; display: flex; align-items: center; gap: 1.6rem; }
-.nav-links a { font-size: 0.92rem; color: var(--ink-2); transition: color 0.2s, transform 160ms var(--ease-expo); }
-.nav-links a:hover { color: var(--accent); }
-.nav-cta {
-  background: var(--yellow);
-  color: var(--ink) !important;
+.nav-links { list-style: none; display: flex; align-items: center; gap: 0.5rem; }
+/* every link carries the pill's padding, so the yellow can move between them without a reflow */
+.nav-links a {
+  font-size: 0.92rem; color: var(--ink-2);
   padding: 0.55rem 1.1rem;
   border-radius: 999px;
-  font-weight: 600;
-  border: 1.5px solid transparent !important; /* reserves the 1.5px, paints nothing */
-  transition: color 0.2s, transform 160ms var(--ease-expo);
+  border: 1.5px solid transparent; /* reserves the 1.5px, paints nothing */
+  transition: color 0.2s, background-color 0.25s ease, transform 160ms var(--ease-expo);
 }
-.nav-cta:active { transform: scale(0.96); }
+.nav-links a:hover { color: var(--accent); }
+/* the pill follows whichever section is on screen (set in app.js) */
+.nav-links a.active { background: var(--yellow); color: var(--ink); }
+.nav-links a.active:active { transform: scale(0.96); }
 
 .mobile-menu-btn {
   display: none;
@@ -413,9 +413,9 @@ nav {
 /* the wrapper's reserve below already clears the lawn — this only needs breathing room */
 #contact { padding-bottom: 3rem; }
 
-/* The hero is 85vh, so the projects title used to peek in under it on first paint.
+/* The hero is 85vh, so the first chapter's title used to peek in under it on first paint.
    vh-based padding keeps it below the fold at any viewport height. */
-#projects { padding-top: 20vh; }
+#about { padding-top: 20vh; }
 
 .chapter-wide {
   align-items: flex-start;

@@ -1728,3 +1728,13 @@ function draw(rafTime) {
 document.fonts.ready.then(() => {
   requestAnimationFrame(draw);
 });
+
+/* ---------- nav: highlight the section on screen ---------- */
+const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+const navObserver = new IntersectionObserver((entries) => {
+  entries.forEach((e) => {
+    if (!e.isIntersecting) return;
+    navLinks.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === `#${e.target.id}`));
+  });
+}, { rootMargin: '-50% 0px -50% 0px' }); // a section is "current" when it crosses the middle of the viewport
+document.querySelectorAll('section[id]').forEach((s) => navObserver.observe(s));
