@@ -16,8 +16,8 @@
     {
       "id": "airborder",
       "title": "AirBorder",
-      "type": "UX case study",
-      "stack": "Figma · Interviews",
+      "type": "UX research, product design",
+      "stack": "Figma, Interviews",
       "tags": [
         "UI/UX"
       ],
@@ -50,8 +50,9 @@
     {
       "id": "appnest",
       "title": "AppNest",
-      "type": "Mobile app",
-      "stack": "SwiftUI · SwiftData · NaturalLanguage · Figma",
+      "type": "iOS, software engineering, interaction design",
+      "shortType": "iOS, interaction design",
+      "stack": "SwiftUI, SwiftData, NaturalLanguage, Figma",
       "tags": [
         "UI/UX",
         "SWE"
@@ -135,7 +136,7 @@
       "title": "OIS Competition",
       "shortTitle": "OIS Competition",
       "type": "Web app",
-      "stack": "JavaScript · Vite · Firebase",
+      "stack": "JavaScript, Vite, Firebase",
       "tags": [
         "SWE",
         "UI/UX"
@@ -218,7 +219,7 @@
       "id": "groov",
       "title": "Groov",
       "type": "Mobile app",
-      "stack": "Swift · UIKit · Last.fm API",
+      "stack": "Swift, UIKit, Last.fm API",
       "tags": [
         "UI/UX"
       ],
@@ -286,13 +287,13 @@
     {
       "id": "noteweb",
       "title": "NoteWeb",
-      "type": "RAG / AI",
-      "stack": "LLaMA 3 · Embeddings",
+      "type": "AI/ML, Python, RAG",
+      "stack": "LLaMA 3, Embeddings",
       "tags": [
         "AI",
         "SWE"
       ],
-      "tagline": "Local-first semantic search. Nothing leaves your machine.",
+      "tagline": "Searches your notes by meaning, with everything running on your own machine.",
       "thumbnail": {
         "image": "assets/placeholder/noteweb.svg",
         "placeholder": true
@@ -331,9 +332,9 @@
       "id": "spotify",
       "title": "Spotify Hit Song Predictor",
       "shortTitle": "Hit Song Predictor",
-      "type": "Data Science / ML",
-      "shortType": "Data science",
-      "stack": "Python · scikit-learn",
+      "type": "Machine learning, data visualization",
+      "shortType": "ML, data visualization",
+      "stack": "Python, scikit-learn",
       "tags": [
         "ML"
       ],

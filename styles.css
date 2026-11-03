@@ -721,19 +721,24 @@ nav {
   margin-bottom: 0.4rem;
 }
 
+/* The roles are pencilled in like the margin notes on the project cards: each its own
+   slightly tilted label, so the spacing and the tilt separate them, not punctuation. */
 .hero-label-wrapper {
   order: 2;
-  display: inline-flex;
-  align-items: center;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  font-size: 1.3rem;
+  gap: 0.2rem 1.6rem;
   font-family: var(--font-head);
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: 1.3rem;
   color: var(--accent);
-  margin: 0.1rem 0 0;
+  margin: 0.4rem 0 0;
 }
+.hero-label-wrapper li { transform: rotate(-3deg); }
+.hero-label-wrapper li:nth-child(2) { transform: rotate(2deg) translateY(0.15em); }
+.hero-label-wrapper li:nth-child(3) { transform: rotate(-1.5deg); }
 
 /* The projects heading has a screen-per-project of scroll underneath it, so it sticks to
    the top of that run instead of scrolling away on the first swipe. Only there — the other
@@ -795,6 +800,15 @@ nav {
   gap: 1.3rem;
   margin-top: 2rem;
 }
+/* the four group names sit over their rows; concepts without a logo follow as plain text */
+.skill-group-title {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0.8rem 0 -0.4rem;
+}
+.skill-also { font-size: 0.95rem !important; text-align: center; margin: -0.6rem auto 0 !important; }
 .stack-row {
   display: flex;
   flex-wrap: wrap;
@@ -842,6 +856,8 @@ nav {
 .skill-item.java { --skill-color: #E76F00; }
 .skill-item.javascript { --skill-color: #d48806; }
 .skill-item.figma { --skill-color: #F24E1E; }
+.skill-item.miro { --skill-color: #050038; }
+.skill-item.notion { --skill-color: #000000; }
 .skill-item.react { --skill-color: #149ECA; }
 .skill-item.vite { --skill-color: #646CFF; }
 .skill-item.scikit-learn { --skill-color: #3499CD; }
@@ -1101,12 +1117,7 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   /* the circle is the whole nav here, so the container around it paints nothing */
   .nav-inner { padding: 0; background: none; border: none !important; box-shadow: none; }
   .mobile-menu-btn { display: flex; }
-  .hero-label-wrapper {
-    font-size: clamp(1.15rem, 0.950rem + 0.667vw, 1.45rem);
-    white-space: nowrap;
-    display: inline-flex;
-    align-items: center;
-  }
+  .hero-label-wrapper { font-size: clamp(1.05rem, 0.9rem + 0.6vw, 1.3rem); gap: 0.1rem 1.1rem; }
   .skill-icon-wrapper {
     width: 2.8rem;
     height: 2.8rem;
