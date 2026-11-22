@@ -1,16 +1,14 @@
 {
   "_readme": [
-    "Single source of truth for the Projects section. Edit this file and commit — there is no build step.",
-    "Order here is the order on the page; the 01-05 numbers on the cards are generated from it.",
-    "title / type show in the case-study modal. Add shortTitle / shortType only when the card should say something briefer.",
-    "thumbnail is one of:  { video, poster }  |  { image }  |  { color, glyph }   (color: yellow | ink | blue)",
-    "size sets the card width: lg | md | sm",
-    "about / features / links / gallery fill the case-study modal. gallery is optional.",
-    "tags are the domain labels that drift in on clouds beside the panel — keep to 1-2, they share the hero's vocabulary (UI/UX, AI, ML, SWE).",
-    "notes are the hand-drawn callouts on each screenshot: text (\\n for a line break), x/y are % positions of the label, from = which side the arrow reaches in.",
-    "logo is optional: an app icon shown beside the title on the card and in the case study.",
-    "gallery { type: images, frame: phone } shows screens in a phone; give an item a dark src to get a Light/Dark switch.",
-    "caseStudy is optional: a page path. The card then links there with a Read case study button instead of opening the modal."
+    "Single source of truth for the Projects section. No build step: edit and reload.",
+    "Order here is the order on the page. format: lp (flagship, big sleeve) | single (smaller sleeve) | test-pressing (research, white label).",
+    "catalog is printed on the sleeve edge and record label only; it never appears in page copy.",
+    "sleeve.layout: phone (one screen in front of the color) | type (title-led cover) | crop (full-bleed detail, duotoned into the color). sleeve.position sets the crop focus.",
+    "sleeve.tone: invert flips a dark screenshot to light before it's tinted, so crop covers of dark UIs don't go black.",
+    "sticker is the hype sticker on the shrink-wrap: five words max. label.color is the record's center label.",
+    "role / team / timeline / status / stack fill the credits in the Details panel. Values in [brackets] are placeholders waiting on Mark.",
+    "intersects lists personal interests a project genuinely touches. Omit it when there are none.",
+    "about / features / gallery / notes / links fill the Details panel. caseStudy adds a Case study link. gallery items with a dark src get a Light/Dark switch."
   ],
   "projects": [
     {
@@ -18,14 +16,7 @@
       "title": "AirBorder",
       "type": "UX research, product design",
       "stack": "Figma, Interviews",
-      "tags": [
-        "UI/UX"
-      ],
       "tagline": "Shows how much free time you have before your next gate closes.",
-      "thumbnail": {
-        "image": "assets/airborder/main-flight.webp"
-      },
-      "size": "lg",
       "caseStudy": "airborder/",
       "logo": "assets/airborder/icon.webp",
       "gallery": {
@@ -45,7 +36,24 @@
             "src": "assets/airborder/main-route.webp"
           }
         ]
-      }
+      },
+      "links": [],
+      "format": "lp",
+      "year": "2026",
+      "role": "Interview analysis and co-design",
+      "team": "3 people",
+      "timeline": "Fall 2026",
+      "status": "Prototype, not built yet",
+      "sticker": "UX case study inside",
+      "sleeve": {
+        "layout": "phone",
+        "image": "assets/airborder/main-flight.webp",
+        "color": "oklch(58% 0.09 232)"
+      },
+      "label": {
+        "color": "oklch(86% 0.05 220)"
+      },
+      "catalog": "MA-001"
     },
     {
       "id": "appnest",
@@ -53,15 +61,7 @@
       "type": "iOS, software engineering, interaction design",
       "shortType": "iOS, interaction design",
       "stack": "SwiftUI, SwiftData, NaturalLanguage, Figma",
-      "tags": [
-        "UI/UX",
-        "SWE"
-      ],
       "tagline": "Job tracker that parses emails on-device. Designed in Figma, built in SwiftUI.",
-      "thumbnail": {
-        "image": "assets/appnest/screens/01-applications.webp"
-      },
-      "size": "lg",
       "about": "An iOS job application tracker I designed and built end to end. Paste a confirmation email and Apple's on-device NaturalLanguage framework pulls out the company, role, status and pay, with no API calls and no account. Paste a Greenhouse, Lever or Ashby link and it looks the posting up on that board's public API to fill in the real job title. Everything is stored locally with SwiftData. The UI runs on a token-based design system that I mirrored in Figma: light and dark modes as one variable switch, a six-step type scale (DM Sans for headlines over SF Pro), and components mapped to their Swift views.",
       "features": [
         "On-device email parsing with NLTagger, regex and NSDataDetector: nothing leaves the phone",
@@ -75,7 +75,7 @@
       ],
       "links": [
         {
-          "label": "View on GitHub →",
+          "label": "View on GitHub",
           "href": "https://github.com/marcanjoul/AppNest"
         }
       ],
@@ -123,13 +123,26 @@
           "from": "right"
         },
         {
-          "text": "stored on-device —\nno server, no account",
+          "text": "stored on-device,\nno server, no account",
           "x": 14,
           "y": 80,
           "from": "left"
         }
       ],
-      "logo": "assets/appnest/icon.webp"
+      "logo": "assets/appnest/icon.webp",
+      "format": "lp",
+      "year": "[year]",
+      "role": "Design and engineering, end to end",
+      "sticker": "Figma to SwiftUI",
+      "sleeve": {
+        "layout": "phone",
+        "image": "assets/appnest/screens/01-applications.webp",
+        "color": "oklch(74% 0.1 165)"
+      },
+      "label": {
+        "color": "oklch(93% 0.05 165)"
+      },
+      "catalog": "MA-002"
     },
     {
       "id": "ois",
@@ -137,15 +150,7 @@
       "shortTitle": "OIS Competition",
       "type": "Web app",
       "stack": "JavaScript, Vite, Firebase",
-      "tags": [
-        "SWE",
-        "UI/UX"
-      ],
       "tagline": "Turns a store sales metric into a live team competition.",
-      "thumbnail": {
-        "image": "assets/hco-ois/screen-leaderboard.png"
-      },
-      "size": "md",
       "about": "A game-like web app I built for my retail job at Hollister. Associates log their daily OIS (orders in store), the app computes sales per hour, and the whole team watches a live leaderboard. It now runs multiple stores, each with its own roster, competitions and manager PIN. Teammates' names are blurred in these screenshots.",
       "features": [
         "Multi-store: each store has its own data, roster and manager PIN",
@@ -157,11 +162,11 @@
       ],
       "links": [
         {
-          "label": "View Live Site →",
+          "label": "View Live Site",
           "href": "https://ois-comp.vercel.app/"
         },
         {
-          "label": "View on GitHub →",
+          "label": "View on GitHub",
           "href": "https://github.com/marcanjoul/hco-ois-competition"
         }
       ],
@@ -213,21 +218,30 @@
           "label": "Manager gate",
           "src": "assets/hco-ois/mobile-manager.webp"
         }
-      ]
+      ],
+      "format": "lp",
+      "year": "[year]",
+      "role": "Design and engineering",
+      "status": "Live",
+      "sticker": "Live in [N] stores",
+      "sleeve": {
+        "layout": "crop",
+        "image": "assets/hco-ois/screen-leaderboard.png",
+        "color": "oklch(56% 0.17 318)",
+        "position": "50% 30%",
+        "tone": "invert"
+      },
+      "label": {
+        "color": "oklch(84% 0.1 318)"
+      },
+      "catalog": "MA-003"
     },
     {
       "id": "groov",
       "title": "Groov",
       "type": "Mobile app",
       "stack": "Swift, UIKit, Last.fm API",
-      "tags": [
-        "UI/UX"
-      ],
       "tagline": "Letterboxd for albums: discover, rate and shelve what you hear.",
-      "thumbnail": {
-        "image": "assets/groov/discover.webp"
-      },
-      "size": "sm",
       "about": "An iOS app for logging the albums you listen to, built as my capstone for CodePath's iOS 101. Discover pulls trending albums from the Last.fm API, search covers albums and artists, and every album gets a detail page with a five-star rating and a To Listen button. Your library persists on-device.",
       "features": [
         "Trending albums from the Last.fm API in a Discover grid",
@@ -239,7 +253,7 @@
       ],
       "links": [
         {
-          "label": "View on GitHub →",
+          "label": "View on GitHub",
           "href": "https://github.com/marcanjoul/Groov-Codepath"
         }
       ],
@@ -282,51 +296,23 @@
             "src": "assets/groov/search.webp"
           }
         ]
-      }
-    },
-    {
-      "id": "noteweb",
-      "title": "NoteWeb",
-      "type": "AI/ML, Python, RAG",
-      "stack": "LLaMA 3, Embeddings",
-      "tags": [
-        "AI",
-        "SWE"
-      ],
-      "tagline": "Searches your notes by meaning, with everything running on your own machine.",
-      "thumbnail": {
-        "image": "assets/placeholder/noteweb.svg",
-        "placeholder": true
       },
-      "size": "md",
-      "about": "A local-first RAG tool that semantically indexes and searches your documents using LLaMA 3 and vector embeddings. Everything runs locally: no cloud, and no data leaves your machine.",
-      "features": [
-        "Semantic search across local documents",
-        "LLaMA 3 for local LLM inference",
-        "Vector embeddings for document indexing",
-        "Fully offline, no cloud dependencies",
-        "RAG pipeline from ingestion to query"
+      "format": "single",
+      "year": "[year]",
+      "role": "Design and engineering",
+      "sticker": "Letterboxd for albums",
+      "sleeve": {
+        "layout": "phone",
+        "image": "assets/groov/discover.webp",
+        "color": "oklch(66% 0.08 45)"
+      },
+      "label": {
+        "color": "oklch(88% 0.05 60)"
+      },
+      "intersects": [
+        "music"
       ],
-      "links": [
-        {
-          "label": "View on GitHub →",
-          "href": "https://github.com/marcanjoul/NoteWeb"
-        }
-      ],
-      "notes": [
-        {
-          "text": "ranked by meaning,\nnot keywords",
-          "x": 58,
-          "y": 20,
-          "from": "right"
-        },
-        {
-          "text": "runs fully offline —\nLLaMA 3, local",
-          "x": 14,
-          "y": 78,
-          "from": "left"
-        }
-      ]
+      "catalog": "MA-004"
     },
     {
       "id": "spotify",
@@ -335,14 +321,7 @@
       "type": "Machine learning, data visualization",
       "shortType": "ML, data visualization",
       "stack": "Python, scikit-learn",
-      "tags": [
-        "ML"
-      ],
       "tagline": "Can audio features predict a hit? Mostly no, and that was the finding.",
-      "thumbnail": {
-        "image": "assets/hit-predictor/feature-importance.webp"
-      },
-      "size": "sm",
       "about": "A logistic regression study of whether Spotify audio features (danceability, energy, valence, tempo and more) can predict a hit. They can't, at least not alone: no single feature correlates with hit status above 0.10, and even with engineered interaction terms the model lands at ROC AUC 0.53, barely above chance. Class imbalance pushed it to predict \"not a hit\" almost every time, which made accuracy a misleading metric.",
       "features": [
         "Full pipeline in a Jupyter notebook: cleaning, EDA, feature engineering, model, evaluation",
@@ -353,7 +332,7 @@
       ],
       "links": [
         {
-          "label": "View on GitHub →",
+          "label": "View on GitHub",
           "href": "https://github.com/marcanjoul/hit-song-predictor"
         }
       ],
@@ -392,7 +371,71 @@
             "src": "assets/hit-predictor/confusion-matrix.webp"
           }
         ]
-      }
+      },
+      "format": "single",
+      "year": "[year]",
+      "role": "Data analysis and modeling",
+      "sticker": "Spoiler: mostly no",
+      "sleeve": {
+        "layout": "crop",
+        "image": "assets/hit-predictor/feature-importance.webp",
+        "color": "oklch(60% 0.19 27)",
+        "position": "50% 50%"
+      },
+      "label": {
+        "color": "oklch(90% 0.04 60)"
+      },
+      "intersects": [
+        "music"
+      ],
+      "catalog": "MA-005"
+    },
+    {
+      "id": "noteweb",
+      "title": "NoteWeb",
+      "type": "AI/ML, Python, RAG",
+      "stack": "LLaMA 3, Embeddings",
+      "tagline": "Searches your notes by meaning, with everything running on your own machine.",
+      "about": "A local-first RAG tool that semantically indexes and searches your documents using LLaMA 3 and vector embeddings. Everything runs locally: no cloud, and no data leaves your machine.",
+      "features": [
+        "Semantic search across local documents",
+        "LLaMA 3 for local LLM inference",
+        "Vector embeddings for document indexing",
+        "Fully offline, no cloud dependencies",
+        "RAG pipeline from ingestion to query"
+      ],
+      "links": [
+        {
+          "label": "View on GitHub",
+          "href": "https://github.com/marcanjoul/NoteWeb"
+        }
+      ],
+      "notes": [
+        {
+          "text": "ranked by meaning,\nnot keywords",
+          "x": 58,
+          "y": 20,
+          "from": "right"
+        },
+        {
+          "text": "runs fully offline,\nLLaMA 3, local",
+          "x": 14,
+          "y": 78,
+          "from": "left"
+        }
+      ],
+      "format": "single",
+      "year": "[year]",
+      "role": "Engineering",
+      "sticker": "Runs fully offline",
+      "sleeve": {
+        "layout": "type",
+        "color": "oklch(72% 0.11 95)"
+      },
+      "label": {
+        "color": "oklch(30% 0.03 95)"
+      },
+      "catalog": "MA-006"
     }
   ]
 }

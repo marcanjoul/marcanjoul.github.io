@@ -1,1744 +1,339 @@
-document.getElementById('footer-year').textContent = new Date().getFullYear();
+/* The living room: TV credits, records on the wall, gatefolds. */
+(() => {
+  const { gsap, ScrollTrigger, Draggable } = window;
+  gsap.registerPlugin(ScrollTrigger, Draggable, window.InertiaPlugin);
 
-// ============================================================
-// Celestial Canvas Animation & Portfolio Logic
-// ============================================================
+  const root = document.documentElement;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const esc = (s = '') => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const lightness = (c = '') => parseFloat((c.match(/oklch\(\s*([\d.]+)%/) || [])[1] || 70);
+  const shade = (c, d) => c.replace(/oklch\(\s*([\d.]+)%/, (_, l) => `oklch(${Math.max(0, l - d)}%`);
 
-const { gsap, ScrollTrigger, Lenis, Splitting } = window;
-gsap.registerPlugin(ScrollTrigger);
-
-const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-
-const state = {
-  logoTransition: 0, // 0 = Centered Sun, 1 = Upper Moon navbar (docked by scrollTop = 600)
-  time: 0
-};
-
-const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-// Cache DOM elements globally to prevent layout thrashing inside the requestAnimationFrame draw loop
-const cachedHeroContent = document.getElementById('hero-content');
-const cachedTopBlur = document.getElementById('top-blur-header');
-const cachedNavInner = document.querySelector('.nav-inner');
-const cachedLogoLink = document.querySelector('.logo-link');
-const cachedFooter = document.querySelector('.site-footer');
-const cachedContactLinks = document.querySelector('#contact .contact-links');
-let lastFooterOn = -1;
-let lastHeroFade = -1, lastBlurOpacity = -1, lastNavFade = -1;
-
-/* ---------- smooth scroll (Lenis <-> GSAP ScrollTrigger) ---------- */
-let lenis;
-if (!reduceMotion && !isMobile) {
-  lenis = new Lenis({ duration: 0.85, smoothWheel: true });
-  window.lenis = lenis;
-  lenis.on('scroll', ScrollTrigger.update);
-  gsap.ticker.add((time) => lenis.raf(time * 1000));
-  gsap.ticker.lagSmoothing(0);
-}
-
-/* ---------- letter-by-letter reveal on scroll ---------- */
-Splitting({ target: '.split', by: 'chars' });
-document.querySelectorAll('.split').forEach((el) => {
-  gsap.fromTo(el.querySelectorAll('.char'), 
-    {
-      opacity: 0,
-      y: () => gsap.utils.random(-15, 15),
-      x: () => gsap.utils.random(-8, 8),
-      rotation: () => gsap.utils.random(-18, 18),
-      scale: () => gsap.utils.random(0.4, 0.7)
-    },
-    {
-      opacity: 1,
-      y: 0,
-      x: 0,
-      rotation: 0,
-      scale: 1,
-      duration: 0.5,
-      stagger: 0.012,
-      ease: 'back.out(1.2)',
-      scrollTrigger: { trigger: el, start: 'top 98%' },
-    }
-  );
-});
-
-/* ---------- hero intro text fades out on scroll ---------- */
-// ponytail: one tween over two elements. The old version animated blur + colour on ~97
-// per-character spans every scroll frame, which Safari cannot GPU-accelerate.
-// The canvas name reads this tween's own progress, so it fades on exactly the same curve
-// and scrub lag as the text under it. (logoTransition uses a different scrub and is left
-// alone — it still drives where the name travels, not how it fades.)
-const heroFadeTween = gsap.fromTo('#hero-label, #hero-subhead',
-  { opacity: 1 },
-  {
-    opacity: 0,
-    ease: 'none',
-    scrollTrigger: { trigger: document.documentElement, start: 'top top', end: 450, scrub: 0.5 },
-  });
-
-/* ---------- chapter scroll animations (entrance + hold + exit suction) ---------- */
-if (reduceMotion) {
-  // Simple entrance animations for reduced motion preference
-  gsap.utils.toArray('.chapter-inner').forEach((el) => {
-    const parentChapter = el.closest('.chapter');
-    if (!parentChapter) return;
-    gsap.from(el, {
-      opacity: 0,
-      y: 40,
-      duration: 0.8,
-      ease: 'power2.out',
-      scrollTrigger: { trigger: parentChapter, start: 'top 85%', toggleActions: 'play none none none' },
-    });
-  });
-} else {
-  // Standard card transition: smooth fade and slide-in as they enter the screen
-  gsap.utils.toArray('.chapter-inner').forEach((el) => {
-    const parentChapter = el.closest('.chapter');
-    if (!parentChapter) return;
-
-    // Skip entrance animation for the hero section so it is instantly readable on load
-    if (parentChapter.classList.contains('chapter-hero')) {
-      return;
-    }
-
-    const startState = { opacity: 0, y: 15 };
-    const endState = {
-      opacity: 1,
-      y: 0,
-      duration: 0.3,
-      ease: 'power2.out',
-      scrollTrigger: {
-        trigger: parentChapter,
-        start: 'top 98%', // Animates in right as it enters so fast scrolls don't outrun it
-        toggleActions: 'play none none none' // No reverse: avoids flicker on fast flicks
-      }
-    };
-
-    gsap.fromTo(el, startState, endState);
-  });
-
-}
-
-/* The skills grid is 30 icons that currently all land on the same frame, which reads as a
-   render flash rather than an entrance. Staggering them is the whole fix. The transform is
-   on .skill-item — its child carries the sketchy filter, so the filtered layer gets
-   transformed rather than re-rasterized 30 times. */
-if (!reduceMotion) {
-  const skillItems = gsap.utils.toArray('.skill-item');
-  if (skillItems.length) {
-    gsap.from(skillItems, {
-      opacity: 0,
-      y: 12,
-      duration: 0.32,
-      ease: 'power2.out',
-      stagger: 0.022,            // ~0.65s for the whole cascade
-      scrollTrigger: { trigger: '#skills', start: 'top 80%', toggleActions: 'play none none none' },
-    });
+  /* ---------- smooth scroll ---------- */
+  let lenis = null;
+  if (fine && !reduce && window.Lenis) {
+    lenis = window.lenis = new window.Lenis({ lerp: 0.1 });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((t) => lenis.raf(t * 1000));
+    gsap.ticker.lagSmoothing(0);
   }
-}
+  const scrollToY = (y, smooth = true) => (lenis ? lenis.scrollTo(y, { duration: smooth ? 1.2 : 0, immediate: !smooth }) : window.scrollTo({ top: y, behavior: smooth && !reduce ? 'smooth' : 'auto' }));
 
-function revealProjects() {
-  gsap.utils.toArray('.proj').forEach((el) => {
-  gsap.from(el, {
-    opacity: 0,
-    y: 24,
-    duration: 0.5,
-    ease: 'power3.out',
-    scrollTrigger: { trigger: el, start: 'top 95%' },
+  /* ---------- the lamp ---------- */
+  const lamp = $('.lamp');
+  lamp.addEventListener('click', () => {
+    const on = lamp.getAttribute('aria-pressed') !== 'true';
+    lamp.setAttribute('aria-pressed', String(on));
+    root.classList.toggle('is-dark', !on);
   });
-  });
-}
 
-/* ---------- project detail modal data ---------- */
-/* Modal content is loaded from projects.json — see initProjects() at the end of this script. */
-let projectData = {};
-
-const modal = document.getElementById('project-modal');
-const modalType = modal.querySelector('.project-modal-type');
-const modalTitle = modal.querySelector('.project-modal-title');
-const modalDesc = modal.querySelector('.project-modal-desc');
-const modalFeatures = modal.querySelector('.project-modal-features');
-const modalLinks = modal.querySelector('.project-modal-links');
-const modalMedia = modal.querySelector('.project-modal-media');
-
-// Fade the current frame out, swap the source, fade back in only once the new frame is
-// actually decoded — otherwise the fade-in lands on the old picture and the cut still shows.
-function fadeSwapMedia(el, apply, ready) {
-  el.classList.add('media-swapping');
-  const show = () => el.classList.remove('media-swapping');
-  setTimeout(() => {
-    apply();
-    ready(show);
-  }, 180);
-}
-
-// Every designed screen in one swipeable row, under the live demo. Shown as-is, no tabs:
-// the point is to see the whole set at once.
-function screensStrip(screens) {
-  if (!screens || !screens.length) return '';
-  return `<div class="screen-strip" tabindex="0" role="region" aria-label="All screens, scroll sideways">` +
-    screens.map((s) => `<figure><img src="${esc(s.src)}" alt="${esc(s.label)} screen" loading="lazy" decoding="async">` +
-      `<figcaption>${esc(s.label)}</figcaption></figure>`).join('') +
-  `</div>`;
-}
-
-function renderMedia(media, screens) {
-  if (!media) {
-    modalMedia.hidden = true;
-    modalMedia.innerHTML = '';
-    return;
+  /* ---------- credits roll forever: a second copy follows the first ---------- */
+  const roll = $('.credits-roll');
+  if (!reduce) {
+    const copy = $('.credits-list', roll).cloneNode(true);
+    copy.setAttribute('aria-hidden', 'true');
+    roll.append(copy);
   }
-  modalMedia.hidden = false;
-  const tabs = media.items
-    .map((it, i) => `<button class="media-tab${i === 0 ? ' active' : ''}" data-src="${it.src}">${it.label}</button>`)
-    .join('');
 
-  if (media.type === 'video') {
-    modalMedia.innerHTML = `
-      <div class="demo-phone">
-        <span class="demo-phone-notch"></span>
-        <video class="demo-phone-screen" poster="${media.poster}" muted loop playsinline preload="none" src="${media.items[0].src}"></video>
+  /* ---------- sleeves ---------- */
+  const sleeveHTML = (p, tag, extra = '') => {
+    const s = p.sleeve || {};
+    const ink = lightness(s.color) < 66 ? 'var(--paper)' : 'var(--ink)';
+    const title = esc(p.shortTitle || p.title);
+    let cover = `<span class="sleeve-title">${title}</span>`;
+    if (s.layout === 'phone') {
+      cover += `<img class="sleeve-shot" src="${esc(s.image)}" alt="" loading="lazy" decoding="async">` +
+        (p.logo ? `<img class="sleeve-icon" src="${esc(p.logo)}" alt="" loading="lazy">` : '');
+    } else if (s.layout === 'crop') {
+      cover = `<img class="sleeve-shot" src="${esc(s.image)}" alt="" loading="lazy" decoding="async" style="object-position:${esc(s.position || '50% 50%')}">` + cover;
+    }
+    return `<${tag} class="sleeve sleeve--${esc(s.layout || 'type')}${s.tone === 'invert' ? ' is-invert' : ''}" ${extra}
+      style="--c:${esc(s.color)};--c2:${esc(shade(s.color || '', 14))};--sleeve-ink:${ink}">
+      <span class="sleeve-cat">${esc(p.catalog)}</span>${cover}
+      ${p.sticker ? `<span class="sleeve-sticker">${esc(p.sticker)}</span>` : ''}
+      <span class="sleeve-mark">MA</span></${tag}>`;
+  };
+  const itemHTML = (p) => `
+    <li class="item" data-id="${esc(p.id)}" style="--label:${esc(p.label?.color || '')}">
+      <div class="item-art">
+        <span class="wall-record" aria-hidden="true"></span>
+        ${sleeveHTML(p, 'button', `type="button" aria-label="Open ${esc(p.title)}" aria-haspopup="dialog"`)}
       </div>
-      <div class="media-tabs">${tabs}</div>
-    `;
-    const video = modalMedia.querySelector('video');
-    video.play().catch(() => {});
-    modalMedia.querySelectorAll('.media-tab').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        modalMedia.querySelectorAll('.media-tab').forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-        fadeSwapMedia(video, () => {
-          video.src = btn.dataset.src;
-          video.load();
-          video.play().catch(() => {});
-        }, (show) => video.addEventListener('loadeddata', show, { once: true }));
-      });
+      <div class="item-caption">
+        <h3 class="item-title">${esc(p.title)}</h3>
+        <p class="item-meta">${esc(p.shortType || p.type)} · ${esc(p.year)}</p>
+      </div>
+    </li>`;
+
+  /* ---------- gatefold ---------- */
+  const layer = $('.gf-layer');
+  const gf = $('.gf', layer);
+  const cover = $('.gf-cover', gf);
+  const front = $('.gf-front', gf);
+  const inside = $('.gf-inside', gf);
+  const right = $('.gf-right', gf);
+  const gRecord = $('.gf-record', gf);
+  const gSpin = $('.record-spin', gf);
+  let open = null, spinTween = null, scratch = null;
+
+  const linkLabel = (l) => (/github/i.test(l.label) ? 'GitHub' : /live/i.test(l.label) ? 'Live site' : l.label);
+  const insideHTML = (p) => {
+    const credits = [['Role', p.role], ['Team', p.team], ['Timeline', p.timeline], ['Tools', p.stack], ['Status', p.status]]
+      .filter(([, v]) => v).map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('');
+    const links = [];
+    if (p.caseStudy) links.push(`<a class="btn btn-primary" href="${esc(p.caseStudy)}">Read the case study&nbsp;↗</a>`);
+    (p.links || []).forEach((l) => links.push(`<a class="btn btn-secondary" href="${esc(l.href)}" target="_blank" rel="noopener">${esc(linkLabel(l))}&nbsp;↗</a>`));
+    return `<p class="gf-meta">${esc(p.shortType || p.type)} · ${esc(p.year)}</p>
+      <h2 class="gf-title" id="gf-title">${esc(p.title)}</h2>
+      <p class="gf-tagline">${esc(p.tagline)}</p>
+      <dl class="gf-credits">${credits}</dl>
+      ${links.length ? `<div class="gf-links">${links.join('')}</div>` : ''}
+      ${fine && !reduce ? '<p class="gf-hint">Grab the record to spin it.</p>' : ''}`;
+  };
+  const rightHTML = (p) => {
+    const g = p.gallery || { items: [] };
+    const wide = g.frame !== 'phone';
+    const hasDark = g.items.some((it) => it.dark);
+    const shots = g.items.map((it) => `<figure class="${wide ? 'wide' : ''}"><img src="${esc(it.src)}" ${it.dark ? `data-light="${esc(it.src)}" data-dark="${esc(it.dark)}"` : ''} alt="${esc(p.title)}: ${esc(it.label)}" loading="lazy" decoding="async"><figcaption>${esc(it.label)}</figcaption></figure>`)
+      .concat((p.screens || []).map((it) => `<figure><img src="${esc(it.src)}" alt="${esc(p.title)}: ${esc(it.label)}" loading="lazy" decoding="async"><figcaption>${esc(it.label)}</figcaption></figure>`)).join('');
+    const about = p.about || `${p.tagline} The full process, from interviews to edge cases, is in the case study.`;
+    return `<h3 class="gf-h">About</h3><p>${esc(about)}</p>
+      ${p.features ? `<h3 class="gf-h">Features</h3><ol class="gf-features">${p.features.map((f) => `<li>${esc(f)}</li>`).join('')}</ol>` : ''}
+      ${shots ? `<div class="gf-screens-head"><h3 class="gf-h">Screens</h3>${hasDark ? `<button class="slide-switch" type="button" role="switch" aria-checked="false"><span class="track-sw"><span class="nub"></span></span>Dark mode</button>` : ''}</div><div class="gf-screens">${shots}</div>` : ''}`;
+  };
+
+  const vertical = () => innerWidth < 760 || innerWidth / innerHeight < 1;
+  const P = () => cover.offsetWidth;
+
+  const startSpin = () => {
+    spinTween && spinTween.kill();
+    spinTween = gsap.to(gSpin, { rotation: '+=360', duration: open?.format === 'single' ? 1.33 : 1.8, ease: 'none', repeat: -1 });
+  };
+
+  const openGatefold = (p, sleeve) => {
+    open = { ...p, sleeve };
+    front.innerHTML = sleeveHTML(p, 'div', 'aria-hidden="true"');
+    inside.innerHTML = insideHTML(p);
+    right.innerHTML = rightHTML(p);
+    const rec = $('.record', gf);
+    rec.style.setProperty('--label', p.label?.color || '');
+    rec.style.setProperty('--label-ink', lightness(p.label?.color) < 55 ? 'var(--paper)' : 'var(--ink)');
+    $('.label-title', gf).textContent = p.shortTitle || p.title;
+    $('.label-meta', gf).textContent = `${p.catalog} · ${p.format === 'single' ? '45' : '33⅓'} rpm`;
+    const sw = $('.slide-switch', right);
+    if (sw) sw.addEventListener('click', () => {
+      const dark = sw.getAttribute('aria-checked') !== 'true';
+      sw.setAttribute('aria-checked', String(dark));
+      $$('img[data-dark]', right).forEach((img) => { img.src = dark ? img.dataset.dark : img.dataset.light; });
     });
-  } else if (media.type === 'images') {
-    // A screen can carry a `dark` twin; if any do, a Light/Dark switch rides along with the tabs.
-    const hasDark = media.items.some((it) => it.dark);
-    let current = 0;
-    let dark = false;
-    const srcOf = (it) => (dark && it.dark) || it.src;
-    const first = `src="${srcOf(media.items[0])}" alt="${media.items[0].label} screenshot"`;
-    const toggle = hasDark
-      ? `<div class="mode-toggle" role="group" aria-label="Appearance">` +
-          `<button type="button" data-mode="light" aria-pressed="true">Light</button>` +
-          `<button type="button" data-mode="dark" aria-pressed="false">Dark</button></div>`
-      : '';
-    const phone = media.frame === 'phone';
-    modalMedia.innerHTML = phone
-      ? `<div class="demo-phone-layout">
-          <div class="demo-phone"><span class="demo-phone-notch"></span><img class="demo-phone-screen" ${first}></div>
-          <div class="demo-phone-controls">${toggle}<div class="media-tabs">${tabs}</div></div>
-        </div>`
-      : `<div class="demo-browser">
-          <div class="demo-browser-bar"><span></span><span></span><span></span></div>
-          <img class="demo-browser-screen" ${first}>
-        </div><div class="media-tabs">${tabs}</div>`;
-    const img = modalMedia.querySelector('img');
-    const show = () => {
-      const it = media.items[current];
-      fadeSwapMedia(img, () => {
-        img.src = srcOf(it);
-        img.alt = it.label + ' screenshot';
-      }, (done) => (img.decode ? img.decode().then(done, done) : img.addEventListener('load', done, { once: true })));
-    };
-    modalMedia.querySelectorAll('.media-tab').forEach((btn, i) => {
-      btn.addEventListener('click', () => {
-        modalMedia.querySelectorAll('.media-tab').forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-        current = i;
-        show();
-      });
-    });
-    modalMedia.querySelectorAll('.mode-toggle button').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        if ((btn.dataset.mode === 'dark') === dark) return;
-        dark = !dark;
-        modalMedia.querySelectorAll('.mode-toggle button').forEach((b) =>
-          b.setAttribute('aria-pressed', String(b === btn)));
-        show();
-      });
-    });
-  }
-  modalMedia.insertAdjacentHTML('beforeend', screensStrip(screens));
-}
 
-const modalPanel = modal.querySelector('.project-modal-panel');
-const siteNav = document.querySelector('nav');
-const scrollWrapperEl = document.querySelector('.scroll-wrapper');
-let modalTriggerEl = null;
+    const v = vertical();
+    gf.classList.toggle('is-vertical', v);
+    layer.hidden = false;
+    lenis && lenis.stop();
+    root.style.overflow = 'hidden';
+    right.scrollTop = inside.scrollTop = 0;
 
-function trapModalTab(e) {
-  if (e.key !== 'Tab') return;
-  const focusable = modalPanel.querySelectorAll('a[href], button:not([disabled])');
-  if (!focusable.length) return;
-  const first = focusable[0];
-  const last = focusable[focusable.length - 1];
-  if (e.shiftKey && document.activeElement === first) {
-    e.preventDefault();
-    last.focus();
-  } else if (!e.shiftKey && document.activeElement === last) {
-    e.preventDefault();
-    first.focus();
-  }
-}
+    const p0 = P();
+    const shut = v ? { x: 0, y: -p0 / 2 } : { x: -p0 / 2, y: 0 };
+    const axis = v ? 'rotationX' : 'rotationY';
+    gsap.set(gf, { transformOrigin: v ? '50% 75%' : '75% 50%', ...shut, scale: 1 });
+    gsap.set(cover, { rotationX: 0, rotationY: 0 });
+    gsap.set(gRecord, { yPercent: 0 });
+    const cr = cover.getBoundingClientRect();
+    const sr = sleeve.getBoundingClientRect();
+    const from = { x: shut.x + (sr.left + sr.width / 2) - (cr.left + cr.width / 2), y: shut.y + (sr.top + sr.height / 2) - (cr.top + cr.height / 2), scale: sr.width / cr.width };
+    sleeve.style.visibility = 'hidden';
 
-function openProjectModal(id, triggerEl) {
-  const data = projectData[id];
-  if (!data) return;
-  renderMedia(data.media, data.screens);
-  modalType.textContent = data.type;
-  modalTitle.innerHTML = data.logo + esc(data.title);
-  modalDesc.textContent = data.desc;
-  modalFeatures.innerHTML = data.features.map((f) => `<li>${f}</li>`).join('');
-  modalLinks.innerHTML = data.links
-    .map((l) => `<a href="${l.href}" target="_blank">${l.label}</a>`)
-    .join('');
-  modalPanel.scrollTop = 0;   // otherwise project B opens at wherever project A was left
-  modal.classList.add('active');
-  document.body.style.overflow = 'hidden';
-  if (lenis) lenis.stop();
-  modalTriggerEl = triggerEl || document.activeElement;
-  if (siteNav) siteNav.inert = true;
-  if (scrollWrapperEl) scrollWrapperEl.inert = true;
-  modal.querySelector('.project-modal-close').focus();
-  modal.addEventListener('keydown', trapModalTab);
-}
-function closeProjectModal() {
-  modal.classList.remove('active');
-  document.body.style.overflow = '';
-  if (lenis) lenis.start();
-  const video = modalMedia.querySelector('video');
-  if (video) video.pause();
-  if (siteNav) siteNav.inert = false;
-  if (scrollWrapperEl) scrollWrapperEl.inert = false;
-  modal.removeEventListener('keydown', trapModalTab);
-  if (modalTriggerEl) modalTriggerEl.focus();
-  modalTriggerEl = null;
-}
-
-// Each tile is one target: it opens the case study. Repo/live links live in the modal.
-function wireTiles() {
-  document.querySelectorAll('.proj').forEach((tile) => {
-  const name = tile.querySelector('h3').textContent.trim();
-  const href = tile.dataset.href;
-  tile.setAttribute('tabindex', '0');
-  tile.setAttribute('role', href ? 'link' : 'button');
-  tile.setAttribute('aria-label', `${name} — ${href ? 'read case study' : 'open case study'}`);
-  const open = () => (href ? location.assign(href) : openProjectModal(tile.dataset.project, tile));
-  tile.addEventListener('click', open);
-  // the badges are their own destinations — clicking one must not also open the case study
-  tile.querySelectorAll('.proj-badge, .proj-cta').forEach((b) => {
-    b.addEventListener('click', (e) => e.stopPropagation());
-  });
-  tile.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
-  });
-
-  // ponytail: play the demo clip on hover/focus only, so the section costs nothing at load
-  const video = tile.querySelector('video');
-  if (video && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const play = () => { video.play().catch(() => {}); };
-    const stop = () => { video.pause(); video.currentTime = 0; };
-    tile.addEventListener('mouseenter', play);
-    tile.addEventListener('mouseleave', stop);
-    tile.addEventListener('focus', play);
-    tile.addEventListener('blur', stop);
-  }
-  });
-}
-
-/* ---------- projects come from projects.json ----------
-   Edit projects.json and commit; nothing else to run. The cards and the modal
-   content both read from it, so the two can't drift apart. */
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-
-function projectThumb(t) {
-  if (t.video) {
-    return `<video src="${esc(t.video)}" poster="${esc(t.poster)}" muted loop playsinline` +
-           ` preload="none" aria-hidden="true"></video>`;
-  }
-  return `<img src="${esc(t.image)}" alt="" loading="lazy" decoding="async">`;
-}
-
-// Three screens beat one when the project has three. A still gallery becomes a lead shot
-// with two supporting views; anything else (a video demo, or a project with a single
-// screenshot) keeps the one frame, because three stills of a clip is worse than the clip.
-function projectShot(p) {
-  const g = p.gallery;
-  // charts don't survive being cropped into thirds, so a gallery can opt out with triptych: false
-  const canTriptych = g && g.type === 'images' && g.triptych !== false && Array.isArray(g.items) && g.items.length >= 3;
-  if (!canTriptych) {
-    return `<div class="proj-shot">${projectThumb(p.thumbnail)}</div>`;
-  }
-  const cell = (it, cls) =>
-    `<img class="${cls}" src="${esc(it.src)}" alt="${esc(p.title)} — ${esc(it.label)}"` +
-    ` loading="lazy" decoding="async">`;
-  if (g.frame === 'phone') {
-    return `<div class="proj-shot is-phones">` +
-      g.items.slice(0, 3).map((it) => cell(it, 'shot-phone')).join('') + `</div>`;
-  }
-  const [lead, ...rest] = g.items.slice(0, 3);
-  return `<div class="proj-shot is-triptych">` +
-    cell(lead, 'shot-lead') + rest.map((it) => cell(it, 'shot-aside')).join('') +
-  `</div>`;
-}
-
-const BADGE_ICON = {
-  github: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" fill="currentColor"/></svg>',
-  site: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.6" y="4.6" width="18.8" height="14.8" rx="2.6" stroke="currentColor" stroke-width="1.9"/><path d="M2.6 9.6H21.4" stroke="currentColor" stroke-width="1.9"/><circle cx="5.9" cy="7.1" r="0.85" fill="currentColor"/><circle cx="8.5" cy="7.1" r="0.85" fill="currentColor"/><circle cx="11.1" cy="7.1" r="0.85" fill="currentColor"/></svg>'
-};
-
-// The repo and the deployed site are worth reaching without opening the case study first,
-// so they come back as badges rather than as more pills in the action row.
-function projectBadges(links) {
-  return (links || []).map((l) => {
-    const isRepo = /github\.com/i.test(l.href);
-    const kind = isRepo ? 'github' : 'site';
-    const label = isRepo ? 'Open the repository on GitHub' : 'Open the live site';
-    return `<a class="proj-badge proj-badge-${kind}" href="${esc(l.href)}" target="_blank"` +
-      ` rel="noopener" aria-label="${label}" title="${label}">${BADGE_ICON[kind]}</a>`;
-  }).join('');
-}
-
-// the app's own icon beside its name, when it has one
-// the category is a hand-written margin note whose arrow points down at the title
-const projectKicker = (p) => `<span class="proj-kicker"><span class="hand-note">` +
-  `<svg class="hand-note-arrow" viewBox="0 0 46 40" aria-hidden="true"><path d="M44 4 C 30 2, 20 8, 22 18 C 24 26, 12 30, 6 34 M6 34 l 8 -1 M6 34 l 2 -8"/></svg>` +
-  `${esc(p.shortType || p.type)}</span></span>`;
-
-const projectLogo = (p) => (p.logo ? `<img class="proj-logo" src="${esc(p.logo)}" alt="" width="40" height="40">` : '');
-
-// a project with its own page gets a real link, not a modal
-const projectCta = (p) => (p.caseStudy
-  ? `<a class="proj-cta" href="${esc(p.caseStudy)}">Read case study →</a>` : '');
-
-function projectCard(p, i) {
-  // shortTitle / shortType are card-only overrides; everything else is shared with the modal
-  // Five slots, always the same five, always in the same place. The repo and live links
-  // live in the case study, which is one click away and where someone goes to act on them;
-  // keeping them here made the action row wrap and shoved the whole column around.
-  return `<article class="proj proj-panel" data-project="${esc(p.id)}"` +
-    (p.caseStudy ? ` data-href="${esc(p.caseStudy)}"` : '') + `>` +
-    `<div class="proj-body">` +
-    `<div class="proj-info">` +
-      projectKicker(p) +
-      `<h3>${projectLogo(p)}${esc(p.shortTitle || p.title)}</h3>` +
-      `<p class="proj-tagline">${esc(p.tagline)}</p>` +
-      `<div class="proj-actions">` + projectBadges(p.links) + projectCta(p) + `</div>` +
-    `</div>` +
-    projectShot(p) +
-    `</div>` +
-  `</article>`;
-}
-
-// the modal reads its own field names, so map once here
-function projectModal(p) {
-  return { type: p.type, title: p.title, desc: p.about,
-           features: p.features, links: p.links, media: p.gallery, screens: p.screens,
-           logo: projectLogo(p) };
-}
-
-/* ---------- the box holds still; its contents change ----------
-   The panel is the fixed thing on the page. What travels is `.proj-body` — the text column
-   and the screenshot — swapping inside a box that never moves, never resizes and never
-   leaves. That also means the transition can be soft-edged without the box's outline
-   flickering, because the outline is not part of the animation. */
-let projectList = [];
-let projectIndex = -1;
-let outgoingIndex = -1;
-
-const WIPE_ZONE = 0.30;   // share of each project's scroll segment spent changing over
-
-/* Scrubbed, not timed: the scroll IS the timeline, so a strong ease-out would front-load
-   the whole change into the first fifth of the gesture. Smoothstep tracks the hand in the
-   middle and only softens the two ends. */
-const ease = (x) => { const c = Math.min(Math.max(x, 0), 1); return c * c * (3 - 2 * c); };
-const clamp01 = (x) => Math.min(Math.max(x, 0), 1);
-
-function layerHTML(i) {
-  return projectCard(projectList[i], i);
-}
-
-// just the contents of the box — the part that actually changes
-function bodyHTML(i) {
-  const p = projectList[i];
-  return `<div class="proj-info">` +
-      projectKicker(p) +
-      `<h3>${projectLogo(p)}${esc(p.shortTitle || p.title)}</h3>` +
-      `<p class="proj-tagline">${esc(p.tagline)}</p>` +
-      `<div class="proj-actions">` + projectBadges(p.links) + projectCta(p) + `</div>` +
-    `</div>` + projectShot(p);
-}
-
-function renderBase(i) {
-  if (i === projectIndex) return;
-  projectIndex = i;
-  const holder = document.querySelector('.proj-holder');
-  const out = holder.querySelector('.proj-layer-out');
-  holder.innerHTML = layerHTML(i);
-  if (out) holder.querySelector(':scope > .proj-panel').appendChild(out);
-  const count = document.querySelector('.proj-count');
-  if (count) count.textContent = `${String(i + 1).padStart(2, '0')} / ${String(projectList.length).padStart(2, '0')}`;
-  document.querySelectorAll('.proj-tick').forEach((t, k) => t.classList.toggle('on', k === i));
-  wireTiles();
-}
-
-// the departing contents, laid over the arriving ones inside the same box
-function setOutgoing(i) {
-  const holder = document.querySelector('.proj-holder');
-  const panel = holder.querySelector(':scope > .proj-panel');
-  let out = holder.querySelector('.proj-layer-out');
-  if (i === -1) { if (out) out.remove(); outgoingIndex = -1; return null; }
-  if (i !== outgoingIndex) {
-    if (out) out.remove();
-    out = document.createElement('div');
-    out.className = 'proj-layer-out';
-    out.innerHTML = `<div class="proj-body">${bodyHTML(i)}</div>`;
-    if (panel) panel.appendChild(out);
-    outgoingIndex = i;
-  }
-  return out;
-}
-
-/* Every piece of the contents leaves on its own beat and the next set arrives the same
-   way — the text column is five separate pieces plus the screenshot. */
-
-// in reading order — the order they leave in, and the order they come back in
-function bodyPieces(body) {
-  if (!body) return [];
-  return ['.proj-kicker', 'h3', '.proj-tagline', '.proj-actions', '.proj-shot']
-    .map((s) => body.querySelector(s)).filter(Boolean);
-}
-
-function resetPieces(body) {
-  bodyPieces(body).forEach((el) => { el.style.cssText = ''; });
-  if (body) body.style.cssText = '';
-}
-
-/* w: 0 = the departing contents are untouched, 1 = the arriving ones are fully in place. */
-function applyTransition(w) {
-  const holder = document.querySelector('.proj-holder');
-  const out = holder.querySelector('.proj-layer-out > .proj-body');
-  const base = holder.querySelector(':scope > .proj-panel > .proj-body');
-  resetPieces(out);
-  resetPieces(base);
-  if (!out) return;
-  const outs = bodyPieces(out);
-  const ins = bodyPieces(base);
-
-  const leaveEnd = 0.58;                       // the old is gone by here, the new starts after
-  const L = clamp01(w / leaveEnd);
-  const A = clamp01((w - (1 - leaveEnd)) / leaveEnd);
-
-  outs.forEach((el, k) => {
-    const l = ease(clamp01((L - k * 0.09) / (1 - 0.09 * (outs.length - 1))));
-    el.style.transform = `translate3d(0, ${(-l * 34).toFixed(1)}px, 0)`;
-    el.style.opacity = (1 - l).toFixed(3);
-  });
-  ins.forEach((el, k) => {
-    const a = ease(clamp01((A - k * 0.09) / (1 - 0.09 * (ins.length - 1))));
-    el.style.transform = `translate3d(0, ${((1 - a) * 34).toFixed(1)}px, 0)`;
-    el.style.opacity = a.toFixed(3);
-  });
-}
-
-function clearTransition() {
-  const holder = document.querySelector('.proj-holder');
-  if (!holder) return;
-  resetPieces(holder.querySelector(':scope > .proj-panel > .proj-body'));
-}
-
-function wireProjectScroll() {
-  const track = document.querySelector('.proj-scroll');
-  const ticks = document.querySelector('.proj-ticks');
-  if (!track) return;
-  const n = projectList.length;
-
-  track.style.height = `${n * 100}vh`;
-  if (ticks) ticks.innerHTML = projectList.map(() => '<span class="proj-tick"></span>').join('');
-  renderBase(0);
-
-  if (reduceMotion) {
-    ScrollTrigger.create({ trigger: track, start: 'top top', end: 'bottom bottom', scrub: true,
-      onUpdate: (s) => renderBase(Math.min(Math.floor(s.progress * n), n - 1)) });
-    return;
-  }
-
-  ScrollTrigger.create({
-    trigger: track,
-    start: 'top top',
-    end: 'bottom bottom',
-    scrub: true,
-    onUpdate: (self) => {
-      const p = Math.min(self.progress, 0.9999) * n;
-      const i = Math.floor(p);
-      const frac = p - i;
-      const wipeStart = 1 - WIPE_ZONE;
-      if (frac > wipeStart && i < n - 1) {
-        renderBase(i + 1);
-        setOutgoing(i);
-        applyTransition((frac - wipeStart) / WIPE_ZONE);
-      } else {
-        renderBase(i);
-        setOutgoing(-1);
-        clearTransition();
-      }
-    },
-  });
-}
-
-async function initProjects() {
-  const holder = document.querySelector('.proj-holder');
-  if (!holder) return;
-  try {
-    const res = await fetch('projects.json', { cache: 'no-cache' });
-    if (!res.ok) throw new Error(`projects.json ${res.status}`);
-    const { projects } = await res.json();
-    projectData = Object.fromEntries(projects.map((p) => [p.id, projectModal(p)]));
-    projectList = projects;
-    wireProjectScroll();
-    ScrollTrigger.refresh();
-  } catch (err) {
-    // Leave the rail empty rather than half-built, and say why in the console.
-    console.error('Could not load projects.json —', err.message);
-  }
-}
-initProjects();
-
-// Dynamically assign brand class names to skill items based on their label text
-document.querySelectorAll('.skill-item').forEach(item => {
-  const label = item.querySelector('.skill-label');
-  if (label) {
-    let text = label.textContent.trim().toLowerCase()
-      .replace(' / ', '-')
-      .replace('/', '-')
-      .replace(' ', '-');
-    if (text === 'c-c++') text = 'cpp';
-    item.classList.add(text);
-  }
-});
-
-modal.querySelector('.project-modal-close').addEventListener('click', closeProjectModal);
-modal.addEventListener('click', (e) => {
-  if (e.target === modal) closeProjectModal();
-});
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeProjectModal();
-});
-
-/* ---------- mobile nav trigger ---------- */
-const menuBtn = document.querySelector('.mobile-menu-btn');
-const mobileNav = document.querySelector('.mobile-nav');
-mobileNav.inert = true;
-// The popover hangs off the button rather than covering the page, so it takes its position
-// from the button itself: wherever the bar puts the circle, the links land under it.
-function anchorMobileNav() {
-  const r = menuBtn.getBoundingClientRect();
-  if (!r.width) return;   // the bar is showing its links instead; leave the defaults alone
-  mobileNav.style.setProperty('--menu-top', `${Math.round(r.bottom + 12)}px`);
-  mobileNav.style.setProperty('--menu-right', `${Math.round(window.innerWidth - r.right)}px`);
-}
-function openMobileNav() {
-  anchorMobileNav();
-  mobileNav.classList.add('active');
-  document.documentElement.classList.add('menu-open');
-  mobileNav.inert = false;
-  mobileNav.querySelector('a').focus();
-}
-function closeMobileNav() {
-  mobileNav.classList.remove('active');
-  document.documentElement.classList.remove('menu-open');
-  mobileNav.inert = true;
-  menuBtn.focus();
-}
-window.addEventListener('resize', () => {
-  if (mobileNav.classList.contains('active')) anchorMobileNav();
-});
-/* Anchor links were doing a native jump — measured 0 -> 5701px in a single frame. That
-   skips the whole scroll choreography and leaves Lenis's internal position out of sync with
-   the real scrollY, so the next wheel event lurches. Route them through Lenis instead.
-   Page travel is spatial explanation, not UI chrome, so it gets a longer curve than 300ms. */
-document.querySelectorAll('a[href^="#"]').forEach((link) => {
-  link.addEventListener('click', (e) => {
-    const id = link.getAttribute('href');
-    if (!id || id.length < 2) return;
-    const target = document.querySelector(id);
-    if (!target) return;
-    e.preventDefault();
-    if (lenis && !reduceMotion) {
-      lenis.scrollTo(target, { offset: -24, duration: 1.1 });
+    if (reduce) {
+      gsap.set(cover, { [axis]: v ? 180 : -180 });
+      gsap.set(gf, { x: 0, y: 0 });
+      gsap.fromTo(layer, { opacity: 0 }, { opacity: 1, duration: 0.15 });
     } else {
-      target.scrollIntoView();
+      gsap.timeline()
+        .fromTo('.gf-backdrop', { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'quart.out' }, 0)
+        .fromTo(gf, from, { ...shut, scale: 1, duration: 0.65, ease: 'expo.out' }, 0)
+        .to(cover, { [axis]: v ? 180 : -180, duration: 0.95, ease: 'quart.inOut' }, 0.5)
+        .to(gf, { x: 0, y: 0, duration: 0.95, ease: 'quart.inOut' }, 0.5)
+        .to(gRecord, { yPercent: -30, duration: 0.7, ease: 'expo.out' }, 1.2)
+        .call(startSpin, null, 1.2);
     }
-    history.replaceState(null, '', id);   // keep the URL honest without a second jump
-  });
-});
-
-menuBtn.addEventListener('click', () => {
-  if (mobileNav.classList.contains('active')) closeMobileNav(); else openMobileNav();
-});
-// the menu is a popover, so tapping back on the page closes it
-document.addEventListener('pointerdown', (e) => {
-  if (!mobileNav.classList.contains('active')) return;
-  if (mobileNav.contains(e.target) || menuBtn.contains(e.target)) return;
-  closeMobileNav();
-});
-mobileNav.querySelectorAll('a').forEach((link) => {
-  link.addEventListener('click', closeMobileNav);
-});
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && mobileNav.classList.contains('active')) closeMobileNav();
-});
-
-/* ---------- scroll progress bar & celestial canvas drawing logic ---------- */
-
-const canvas = document.getElementById('celestial-canvas');
-let ctx = canvas.getContext('2d');
-const decorCanvas = document.getElementById('decor-canvas');
-const decorCtx = decorCanvas.getContext('2d');
-let lastDecorBlur = -1;
-// Must match --font-head in the CSS. The fallback is the site's own face, never the
-// platform `cursive` default — that is Apple Chancery on macOS and it flashed on every
-// slow load. logoFontReady gates the name so even that fallback is not painted.
-const LOGO_FONT = '"Llewie", "Winky Rough", sans-serif';
-let logoFontReady = document.fonts.check('bold 105px "Llewie"');
-let logoRepaint = false;
-Promise.all([
-  document.fonts.load('bold 105px "Llewie"'),
-  document.fonts.load('bold 86px "Share Tech Mono"'),
-]).catch(() => {}).then(() => { logoFontReady = true; logoRepaint = true; });
-const logoCanvas = document.getElementById('logo-canvas');
-const logoCtx = logoCanvas.getContext('2d');
-
-let dpr = Math.min(window.devicePixelRatio || 1, 2);
-let width = window.innerWidth;
-let height = window.innerHeight;
-
-// Optimization caches to avoid DOM writes / layout thrashing
-let lastLogoX = -1;
-let lastLogoY = -1;
-let lastLogoSize = -1;
-let lastLogoTransition = -1;
-
-let mouseX = -1000;
-let mouseY = -1000;
-let lastMouseX = -1000;
-let lastMouseY = -1000;
-let logoHoverScale = 1.0;
-let logoTilt = 0;
-let lastLogoHoverScale = 1.0;
-let lastLogoTilt = 0;
-const hoverPointer = matchMedia('(hover: hover) and (pointer: fine)');
-const wideEnough = matchMedia('(min-width: 761px)');
-let poofT = 0;          // how far along the name the burn has reached, 0..1
-let lastPoofT = 0;
-/* When each letter caught, keyed by index: the name's letters in nameBurnAt, the code's in
-   codeBurnAt. Timestamps, so the scorch and the smoke can age per letter instead of every
-   letter animating on the same clock. */
-let lastHoverState = false;
-let lastBurnTime = -1e9;
-let nameBurnAt = [];
-let codeBurnAt = [];
-
-// Pseudo-random seeded generator for organic, 12fps sketch jitter
-let seed = 1;
-let jitterSeed = 0;
-// The horizon is generated once per viewport size with a fixed seed, so it never
-// joins the 12fps sketch boil the rest of the scene runs on.
-let horizonStrokeCache = null;
-let horizonStrokeKey = '';
-
-// The sun's path on the water is a fixed constellation of marker strokes, laid out once
-// per viewport. Re-rolling it every frame is what made it strobe; now each glint only
-// sways on its own slow phase, the way light actually sits on a swell.
-let glintCache = null;
-let glintKey = '';
-function buildGlints(width, seaHeight) {
-  const glints = [];
-  seed = 90210;                                  // repeatable layout, not frame noise
-  const rows = Math.max(6, Math.floor(seaHeight / 12));
-  for (let i = 0; i < rows; i++) {
-    // rows drift off a perfect ladder — an even grid is what reads as machine-made
-    const depth = Math.min(1, Math.max(0, i / (rows - 1) + (seededRandom() - 0.5) * 0.09));
-    const spread = 20 + depth * 200;             // narrow at the horizon, fanning toward you
-    const count = 2 + Math.floor(seededRandom() * (2 + depth * 6));
-    for (let d = 0; d < count; d++) {
-      const bias = (seededRandom() + seededRandom() - 1);   // clusters near the centre line
-      glints.push({
-        depth,
-        x: bias * spread,
-        len: (12 + depth * 42) * (0.45 + seededRandom() * 0.85),
-        tilt: (seededRandom() - 0.5) * 0.13,     // no two marker dashes sit perfectly level
-        kink: (seededRandom() - 0.5) * 3.4,      // the stroke bends, it isn't a ruled line
-        phase: seededRandom() * 6.283,
-        speed: 0.00035 + seededRandom() * 0.0007,
-        sway: 4 + seededRandom() * 13
+    if (fine && !reduce && !scratch) {
+      [scratch] = Draggable.create(gSpin, {
+        type: 'rotation', inertia: true,
+        onPress: () => spinTween && spinTween.kill(),
+        onRelease() { if (!this.isThrowing) startSpin(); },
+        onThrowComplete: startSpin,
       });
     }
-  }
-  return glints;
-}
-let lastJitterUpdate = 0;
+    const title = $('#gf-title');
+    title.setAttribute('tabindex', '-1');
+    setTimeout(() => title.focus({ preventScroll: true }), reduce ? 0 : 900);
+  };
 
-function seededRandom() {
-  const x = Math.sin(seed++) * 10000;
-  return x - Math.floor(x);
-}
-
-// Static watercolor sky gradient stops
-const skyStops = ['#8cb5e1', '#b9d5f3', '#f3ede0'];
-// Late-afternoon Mediterranean: pink into peach into warm sand. Deliberately light —
-// this is Anfeh at golden hour, not night.
-const sunsetStops = ['#eda3b0', '#f9c6a4', '#ffe8d2'];
-const seaStops = ['#7fb3bd', '#3f8aa6', '#256781'];
-const mix = (a, b, k) => {
-  const A = parseColor(a), B = parseColor(b);
-  return `rgb(${Math.round(A.r + (B.r - A.r) * k)}, ${Math.round(A.g + (B.g - A.g) * k)}, ${Math.round(A.b + (B.b - A.b) * k)})`;
-};
-
-function parseColor(color) {
-  if (color.startsWith('#')) {
-    let hex = color.substring(1);
-    if (hex.length === 3) hex = hex.split('').map(x => x + x).join('');
-    const num = parseInt(hex, 16);
-    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
-  }
-  const match = color.match(/\d+/g);
-  if (match) return { r: parseInt(match[0]), g: parseInt(match[1]), b: parseInt(match[2]) };
-  return { r: 255, g: 255, b: 255 };
-}
-
-// Static cloud colors (previously interpolated between day/night states)
-const cloudFillColor = parseColor('#ffffff');
-const cloudStrokeColor = parseColor('#1c1812');
-
-// Sketched path generator (used to pre-calculate paths)
-function generateSketchedPath(points, jitter = 1.2, strokeCount = 2, close = false) {
-  const strokes = [];
-  for (let s = 0; s < strokeCount; s++) {
-    const strokePoints = [];
-    if (points.length < 2) continue;
-
-    seed = jitterSeed + s * 300;
-
-    const startJitterX = (seededRandom() - 0.5) * jitter;
-    const startJitterY = (seededRandom() - 0.5) * jitter;
-    strokePoints.push({ x: points[0].x + startJitterX, y: points[0].y + startJitterY });
-
-    for (let i = 1; i < points.length; i++) {
-      const p1 = points[i - 1];
-      const p2 = points[i];
-
-      const dx = p2.x - p1.x;
-      const dy = p2.y - p1.y;
-      const len = Math.hypot(dx, dy);
-      const steps = Math.max(1, Math.floor(len / 36));
-
-      for (let k = 1; k <= steps; k++) {
-        const t = k / steps;
-        const px = p1.x + dx * t;
-        const py = p1.y + dy * t;
-        const jx = (seededRandom() - 0.5) * jitter;
-        const jy = (seededRandom() - 0.5) * jitter;
-        strokePoints.push({ x: px + jx, y: py + jy });
-      }
-    }
-
-    if (close) {
-      const p1 = points[points.length - 1];
-      const p2 = points[0];
-      const dx = p2.x - p1.x;
-      const dy = p2.y - p1.y;
-      const len = Math.hypot(dx, dy);
-      const steps = Math.max(1, Math.floor(len / 12));
-      for (let k = 1; k <= steps; k++) {
-        const t = k / steps;
-        const px = p1.x + dx * t;
-        const py = p1.y + dy * t;
-        const jx = (seededRandom() - 0.5) * jitter;
-        const jy = (seededRandom() - 0.5) * jitter;
-        strokePoints.push({ x: px + jx, y: py + jy });
-      }
-    }
-    strokes.push(strokePoints);
-  }
-  return strokes;
-}
-
-// Sketched path renderer for pre-calculated paths
-function drawCachedStrokes(strokes, color, width, targetCtx = ctx, close = false) {
-  targetCtx.strokeStyle = color;
-  targetCtx.lineWidth = width;
-  targetCtx.lineCap = 'round';
-  targetCtx.lineJoin = 'round';
-  
-  strokes.forEach(strokePoints => {
-    targetCtx.beginPath();
-    if (strokePoints.length < 2) return;
-    targetCtx.moveTo(strokePoints[0].x, strokePoints[0].y);
-    for (let i = 1; i < strokePoints.length; i++) {
-      targetCtx.lineTo(strokePoints[i].x, strokePoints[i].y);
-    }
-    if (close) {
-      targetCtx.closePath();
-    }
-    targetCtx.stroke();
-  });
-}
-
-// Dynamic sketched path drawing function
-function drawSketchedPath(points, color, width, jitter = 1.2, strokeCount = 2, close = false, targetCtx = ctx) {
-  targetCtx.strokeStyle = color;
-  targetCtx.lineWidth = width;
-  targetCtx.lineCap = 'round';
-  targetCtx.lineJoin = 'round';
-
-  for (let s = 0; s < strokeCount; s++) {
-    targetCtx.beginPath();
-    if (points.length < 2) return;
-
-    seed = jitterSeed + s * 300;
-
-    const startJitterX = (seededRandom() - 0.5) * jitter;
-    const startJitterY = (seededRandom() - 0.5) * jitter;
-    targetCtx.moveTo(points[0].x + startJitterX, points[0].y + startJitterY);
-
-    for (let i = 1; i < points.length; i++) {
-      const p1 = points[i - 1];
-      const p2 = points[i];
-
-      const dx = p2.x - p1.x;
-      const dy = p2.y - p1.y;
-      const len = Math.hypot(dx, dy);
-      const steps = Math.max(1, Math.floor(len / 36));
-
-      for (let k = 1; k <= steps; k++) {
-        const t = k / steps;
-        const px = p1.x + dx * t;
-        const py = p1.y + dy * t;
-        const jx = (seededRandom() - 0.5) * jitter;
-        const jy = (seededRandom() - 0.5) * jitter;
-        targetCtx.lineTo(px + jx, py + jy);
-      }
-    }
-
-    if (close) {
-      const p1 = points[points.length - 1];
-      const p2 = points[0];
-      const dx = p2.x - p1.x;
-      const dy = p2.y - p1.y;
-      const len = Math.hypot(dx, dy);
-      const steps = Math.max(1, Math.floor(len / 12));
-      for (let k = 1; k <= steps; k++) {
-        const t = k / steps;
-        const px = p1.x + dx * t;
-        const py = p1.y + dy * t;
-        const jx = (seededRandom() - 0.5) * jitter;
-        const jy = (seededRandom() - 0.5) * jitter;
-        targetCtx.lineTo(px + jx, py + jy);
-      }
-      targetCtx.closePath();
-    }
-    targetCtx.stroke();
-  }
-}
-
-// Drifting Clouds Config
-// bx/by are resting positions as fractions of the viewport, so resize can restore them
-const cloudSpec = [
-  { bx: 0.30, by: 0.09, scale: 1.32, speed: 0.19 },
-  { bx: 0.03, by: 0.04, scale: 0.92, speed: 0.15 },
-  { bx: 0.54, by: 0.22, scale: 1.46, speed: 0.11 },
-  { bx: 0.42, by: 0.03, scale: 0.86, speed: 0.27 },
-  { bx: 0.83, by: 0.08, scale: 1.34, speed: 0.17 },
-  { bx: 0.67, by: 0.33, scale: 1.30, speed: 0.13 },
-  { bx: 0.97, by: 0.26, scale: 0.90, speed: 0.24 },
-  { bx: 0.18, by: 0.29, scale: 0.84, speed: 0.29 },
-  { bx: 0.90, by: 0.02, scale: 1.00, speed: 0.21 },
-  { bx: 0.09, by: 0.18, scale: 0.78, speed: 0.31 },
-];
-const clouds = cloudSpec.map((c) => ({ ...c, x: width * c.bx, y: height * c.by }));
-
-// Hand-drawn sketched sun, parked in the upper sky
-const sun = { x: width * 0.15, y: height * 0.24, radius: 46 };
-let sunScreenX = sun.x;
-let sunScreenY = sun.y;
-
-/* ---------- sky-to-ground scroll scene ---------- */
-const easeInOutQuad = (t) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
-
-
-
-
-// Dynamic Sketch Path Cache definition
-const pathCache = {
-  clouds: [],
-  sun: { circle: [], rays: [] }
-};
-
-// Generates wobbly lines/circles once and stores them, updating only on resize or at 12fps
-function updateCachedPaths() {
-  // Clouds pre-rendering (local coordinates)
-  pathCache.clouds = clouds.map(cloud => {
-    const circles = [
-      { dx: -58, dy: 10, r: 27 },
-      { dx: -34, dy: -8, r: 35 },
-      { dx: -8,  dy: -20, r: 40 },
-      { dx: 20,  dy: -11, r: 35 },
-      { dx: 46,  dy: 4,  r: 29 },
-      { dx: 66,  dy: 14, r: 22 },
-      { dx: 12,  dy: 16, r: 31 },
-      { dx: -22, dy: 18, r: 29 }
-    ];
-    
-    const isMobile = width < 760;
-    const finalScale = isMobile ? cloud.scale * 0.52 : cloud.scale;
-    
-    return {
-      scale: finalScale,
-      circles: circles.map(c => {
-        // no outline any more, so no sketched path to generate
-        return { dx: c.dx, dy: c.dy, r: c.r };
-      })
+  const closeGatefold = () => {
+    if (!open) return;
+    const { sleeve } = open;
+    const v = gf.classList.contains('is-vertical');
+    const axis = v ? 'rotationX' : 'rotationY';
+    const done = () => {
+      layer.hidden = true;
+      sleeve.style.visibility = '';
+      spinTween && spinTween.kill();
+      root.style.overflow = '';
+      lenis && lenis.start();
+      sleeve.focus({ preventScroll: true });
+      open = null;
     };
+    if (reduce) return done();
+    const p0 = P();
+    const shut = v ? { x: 0, y: -p0 / 2 } : { x: -p0 / 2, y: 0 };
+    const sr = sleeve.getBoundingClientRect();
+    gsap.timeline({ onComplete: done })
+      .to(gRecord, { yPercent: 0, duration: 0.35, ease: 'quart.in' }, 0)
+      .to(cover, { [axis]: 0, duration: 0.7, ease: 'quart.inOut' }, 0.15)
+      .to(gf, { ...shut, duration: 0.7, ease: 'quart.inOut' }, 0.15)
+      .add(() => {
+        const cr = cover.getBoundingClientRect();
+        gsap.to(gf, { x: shut.x + (sr.left + sr.width / 2) - (cr.left + cr.width / 2), y: shut.y + (sr.top + sr.height / 2) - (cr.top + cr.height / 2), scale: sr.width / cr.width, duration: 0.5, ease: 'expo.inOut' });
+      }, 0.85)
+      .to('.gf-backdrop', { opacity: 0, duration: 0.4 }, 0.95)
+      .to({}, { duration: 0.01 }, 1.35);
+  };
+
+  $('.gf-close').addEventListener('click', closeGatefold);
+  $('.gf-backdrop').addEventListener('click', closeGatefold);
+  layer.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') return closeGatefold();
+    if (e.key !== 'Tab') return;
+    const f = $$('a, button, [tabindex="0"]', layer).filter((el) => el.offsetParent !== null);
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 
-  // Sun: sketchy disc outline + radiating rays (local coordinates, drawn around 0,0)
-  const sunCirclePoints = [];
-  const sunSteps = Math.max(12, Math.floor(2 * Math.PI * sun.radius / 30));
-  for (let i = 0; i <= sunSteps; i++) {
-    const angle = (i / sunSteps) * Math.PI * 2;
-    sunCirclePoints.push({ x: Math.cos(angle) * sun.radius, y: Math.sin(angle) * sun.radius });
-  }
-  pathCache.sun.circle = generateSketchedPath(sunCirclePoints, 1.4, 1, true);
+  /* ---------- the room: TV down, records up, browse sideways, TV back up ---------- */
+  const room = $('.room');
+  const tv = $('.tv');
+  const track = $('.track');
+  const intro = $('.screen--intro');
+  const end = $('.screen--end');
+  end.inert = true;
+  let st = null, marks = {}, items = [];
 
-  const rayCount = 10;
-  pathCache.sun.rays = [];
-  for (let i = 0; i < rayCount; i++) {
-    const angle = (i / rayCount) * Math.PI * 2;
-    const innerR = sun.radius + 8;
-    const outerR = sun.radius + 20;
-    pathCache.sun.rays.push(generateSketchedPath([
-      { x: Math.cos(angle) * innerR, y: Math.sin(angle) * innerR },
-      { x: Math.cos(angle) * outerR, y: Math.sin(angle) * outerR }
-    ], 1.0, 1)[0]);
-  }
-}
+  const build = () => {
+    if (st) { st.scrollTrigger.kill(true); st.kill(); }
+    gsap.set([tv, track, '.scroll-cue', '.vinyls-title', '.vinyl-hint', '.ledge', intro, end], { clearProps: 'transform,opacity,visibility' });
+    items.forEach((it) => gsap.set([it, $('.item-art', it), $('.wall-record', it), $('.item-caption', it)], { clearProps: 'transform,opacity,visibility' }));
+    room.classList.add('is-cinema');
 
-function drawSketchedCloudCached(cloudIndex, cx, cy, opacity) {
-  const fillParsed = cloudFillColor;
-  ctx.fillStyle = `rgba(${fillParsed.r}, ${fillParsed.g}, ${fillParsed.b}, ${Math.min(opacity * 1.2, 1) * 0.97})`;
+    const vh = innerHeight;
+    const dist = Math.max(0, track.scrollWidth - innerWidth);
+    const A = 0.9, B = 0.6, C = dist / vh, D = 0.9;
+    const tD = A + B + C;
+    const focus = () => {
+      const cx = innerWidth / 2;
+      items.forEach((it) => {
+        const art = $('.item-art', it);
+        const r = art.getBoundingClientRect();
+        const f = Math.max(0, 1 - Math.abs(r.left + r.width / 2 - cx) / (r.width * 1.25));
+        gsap.set(art, { scale: 0.9 + 0.14 * f });
+        gsap.set($('.wall-record', it), { xPercent: 34 * f, rotation: 120 * f });
+        gsap.set($('.item-caption', it), { opacity: 0.45 + 0.55 * f });
+      });
+    };
 
-  const cachedCloud = pathCache.clouds[cloudIndex];
-  if (!cachedCloud) return;
+    st = gsap.timeline({
+      scrollTrigger: {
+        trigger: room, pin: true, start: 'top top', end: () => '+=' + (tD + D + 0.3) * vh, scrub: 0.6, anticipatePin: 1,
+        onUpdate: (self) => {
+          const t = self.progress * st.duration();
+          end.inert = t < tD + 0.5;
+          if (t > A - 0.2 && t < tD + 0.4) focus();
+        },
+      },
+    })
+      .to('.scroll-cue', { autoAlpha: 0, duration: 0.15 }, 0)
+      .to(tv, { yPercent: 100, duration: A, ease: 'power2.inOut' }, 0)
+      .fromTo('.ledge', { scaleX: 0, autoAlpha: 0 }, { scaleX: 1, autoAlpha: 1, duration: 0.35, ease: 'expo.out' }, A - 0.15)
+      .fromTo(items, { y: 70, scale: 0.72, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 0.4, stagger: 0.05, ease: 'expo.out' }, A - 0.1)
+      .fromTo(['.vinyls-title', '.vinyl-hint'], { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.25 }, A)
+      .to(track, { x: -dist, duration: C, ease: 'none' }, A + B)
+      .to(items, { y: -40, autoAlpha: 0, duration: 0.3, stagger: 0.02, ease: 'quart.in' }, tD)
+      .to(['.vinyls-title', '.vinyl-hint', '.ledge'], { autoAlpha: 0, duration: 0.25 }, tD)
+      .set(intro, { autoAlpha: 0 }, tD + 0.3)
+      .set(end, { autoAlpha: 1 }, tD + 0.3)
+      .to(tv, { yPercent: 0, duration: D - 0.3, ease: 'power2.inOut' }, tD + 0.3)
+      .to({}, { duration: 0.3 });
 
-  // Clean silhouettes — no outlines at all, so there is no interior lattice to see.
-  ctx.beginPath();
-  cachedCloud.circles.forEach(c => {
-    ctx.arc(cx + c.dx * cachedCloud.scale, cy + c.dy * cachedCloud.scale, c.r * cachedCloud.scale, 0, Math.PI * 2);
+    marks = {
+      projects: () => st.scrollTrigger.start + (A + B) * vh,
+      contact: () => st.scrollTrigger.end,
+      item: (i) => st.scrollTrigger.start + (A + B + (items.length > 1 ? (C * i) / (items.length - 1) : 0)) * vh,
+    };
+  };
+
+  /* nav jumps land on the right moment in the room */
+  const cinema = () => room.classList.contains('is-cinema') && st;
+  $$('[data-jump]').forEach((a) => a.addEventListener('click', (e) => {
+    if (!cinema()) return;
+    e.preventDefault();
+    scrollToY(marks[a.dataset.jump]());
+  }));
+  $('.nav-mark').addEventListener('click', (e) => { e.preventDefault(); scrollToY(0); });
+  $('.skip').addEventListener('click', (e) => {
+    if (!cinema() || !items[0]) return;
+    e.preventDefault();
+    scrollToY(marks.projects(), false);
+    setTimeout(() => $('.sleeve', items[0]).focus({ preventScroll: true }), 50);
   });
-  ctx.fill();
-}
 
-function drawSun(targetCtx, cx, cy, opacity, time, scale = 1) {
-  if (opacity < 0.01) return;
-  const pulse = (0.85 + Math.sin(time * 0.0012) * 0.15) * scale; // slow gentle breathing glow, scaled when docking
-
-  targetCtx.save();
-  targetCtx.translate(cx, cy);
-
-  // Soft radial glow behind the disc
-  const glowR = sun.radius * 2.6 * pulse;
-  const glow = targetCtx.createRadialGradient(0, 0, sun.radius * 0.4 * scale, 0, 0, glowR);
-  glow.addColorStop(0, `rgba(255, 212, 0, ${0.35 * opacity})`);
-  glow.addColorStop(1, 'rgba(255, 212, 0, 0)');
-  targetCtx.fillStyle = glow;
-  targetCtx.beginPath();
-  targetCtx.arc(0, 0, glowR, 0, Math.PI * 2);
-  targetCtx.fill();
-
-  // Sketchy radiating rays, slowly rotating
-  targetCtx.save();
-  targetCtx.rotate(time * 0.00006);
-  targetCtx.scale(scale, scale);
-  pathCache.sun.rays.forEach(ray => {
-    drawCachedStrokes([ray], `rgba(243, 94, 7, ${opacity * 0.55})`, 2 / scale, targetCtx);
-  });
-  targetCtx.restore();
-
-  // Sun disc fill + sketchy outline (scaled together so they breathe in sync)
-  targetCtx.save();
-  targetCtx.scale(pulse, pulse);
-  targetCtx.beginPath();
-  targetCtx.arc(0, 0, sun.radius, 0, Math.PI * 2);
-  targetCtx.fillStyle = `rgba(255, 212, 0, ${opacity})`;
-  targetCtx.fill();
-  drawCachedStrokes(pathCache.sun.circle, `rgba(28, 24, 18, ${opacity * 0.7})`, 1.6 / pulse, targetCtx, true);
-  targetCtx.restore();
-
-  targetCtx.restore();
-}
-
-// ScrollTrigger state management variable
-let scrollTriggerLogoTransition;
-
-function setupScrollTriggers() {
-  if (scrollTriggerLogoTransition) scrollTriggerLogoTransition.kill();
-
-  // Name logo transition (Centered sun -> docked moon)
-  scrollTriggerLogoTransition = ScrollTrigger.create({
-    trigger: document.documentElement,
-    start: "top top",
-    end: 450,
-    scrub: 0.85,
-    onUpdate: (self) => {
-      state.logoTransition = self.progress;
-    }
-  });
-}
-
-// Resize recalculates coordinates & rebuilds caches/triggers
-function resize() {
-  dpr = Math.min(window.devicePixelRatio || 1, 2);
-  width = window.innerWidth;
-  height = window.innerHeight;
-
-  decorCanvas.width = width * dpr;
-  decorCanvas.height = height * dpr;
-  decorCtx.setTransform(1, 0, 0, 1, 0, 0);
-  decorCtx.scale(dpr, dpr);
-
-  canvas.width = width * dpr;
-  canvas.height = height * dpr;
-  ctx.scale(dpr, dpr);
-
-  logoCanvas.width = width * dpr;
-  logoCanvas.height = height * dpr;
-  logoCtx.scale(dpr, dpr);
-
-  
-  clouds.forEach((c) => { c.x = width * c.bx; c.y = height * c.by; });
-  sun.x = width * 0.15;
-  sun.y = height * 0.24;
-
-  updateCachedPaths();
-  setupScrollTriggers();
-}
-
-let resizeDebounceId;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeDebounceId);
-  resizeDebounceId = setTimeout(resize, 150);
-});
-
-window.addEventListener('pointermove', (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-});
-window.addEventListener('pointerleave', () => {
-  mouseX = -1000;
-  mouseY = -1000;
-});
-logoCanvas.addEventListener('click', () => {
-  if (window.lenis) {
-    window.lenis.scrollTo(0);
-  } else {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-});
-
-document.fonts.ready.then(() => {
-  resize();
-});
-
-
-// Main Draw Loop
-/* No leading "<": every glyph up to the tail now has a name letter directly under it —
-   m·a·r·k·_·a·n·j·o·u·l against M·a·r·k· ·A·n·j·o·u·l — so a letter is replaced in place
-   rather than the whole string being squeezed to fit. */
-const CODE_TEXT = 'mark_anjoul />';
-
-
-/* The puff art spans about 175 units wide and 110 tall, so a caller asks for a pixel width
-   and gets that; squash flattens it, because an unsquashed puff wide enough to cover the
-   name is also tall enough to swallow the subhead under it. */
-/* The sun sits in the top-left of the sky, so the hover is the sun burning the name into
-   its code form. The cursor is the lens: how far right you have dragged it across the name
-   is how far the burn has got, letter by letter, and it never runs backwards within a pass.
-   No flame anywhere — rays, scorch and smoke only. */
-
-const BURN_MS = 340;        // how long one letter takes to char through
-/* How far through the exchange a letter is. Raised cosine so both ends ease, and it reaches
-   1 at 62% of the char — the old letter is gone well before the ember and smoke finish, but
-   the new one is at full ink by exactly the same moment. */
-const swapAt = (p) => 0.5 - Math.cos(Math.min(1, p * 1.6) * Math.PI) * 0.5;
-const SMOKE_MS = 1400;      // how long a burnt letter keeps smoking
-
-/* One wisp of smoke: a soft grey bloom, no hard edge. */
-function drawSmoke(x, y, r, alpha) {
-  if (alpha <= 0.004 || r <= 0.5) return;
-  const g = logoCtx.createRadialGradient(x, y, 0, x, y, r);
-  g.addColorStop(0, `rgba(228, 224, 216, ${Math.min(alpha, 1)})`);
-  g.addColorStop(0.55, `rgba(216, 212, 204, ${Math.min(alpha, 1) * 0.5})`);
-  g.addColorStop(1, 'rgba(210, 206, 198, 0)');
-  logoCtx.fillStyle = g;
-  logoCtx.beginPath();
-  logoCtx.arc(x, y, r, 0, Math.PI * 2);
-  logoCtx.fill();
-}
-
-/* Per-letter boxes for a string, so every glyph can be burned on its own clock. */
-function letterBoxes(str, font, centreX, targetW) {
-  logoCtx.font = font;
-  const chars = [...str];
-  const widths = chars.map((c) => logoCtx.measureText(c).width);
-  const total = widths.reduce((a, b) => a + b, 0);
-  // squeeze the code to the name's width so the two line up letter for letter
-  const k = targetW ? targetW / total : 1;
-  let x = centreX - (total * k) / 2;
-  return chars.map((c, i) => {
-    const w = widths[i] * k;
-    const box = { ch: c, x, w, mid: x + w / 2, scale: k };
-    x += w;
-    return box;
-  });
-}
-
-/* Lay the code over the name one cell per letter: each code glyph is squeezed into the
-   width of the name letter it replaces, so the swap happens in place. Anything past the
-   end of the name — the " />" tail — carries on at its own width. */
-function codeBoxesOver(nameBoxes, font) {
-  logoCtx.font = font;
-  const chars = [...CODE_TEXT];
-  const boxes = [];
-  let x = 0;
-  chars.forEach((ch, i) => {
-    const natural = logoCtx.measureText(ch).width;
-    const over = nameBoxes[i];
-    if (over) {
-      boxes.push({ ch, x: over.x, w: over.w, mid: over.mid, scale: over.w / natural });
-      x = over.x + over.w;
-    } else {
-      boxes.push({ ch, x, w: natural, mid: x + natural / 2, scale: 1 });
-      x += natural;
-    }
-  });
-  return boxes;
-}
-
-/* The beam: three thin rays converging from the sun onto the letter being worked, plus the
-   bright focus where they land. This is the whole point of the effect, so it is drawn on
-   top of everything else. */
-function drawSunBeam(hx, hy, time, alpha) {
-  // the contact point never sits perfectly still — heat haze, not a laser sight
-  hx += Math.sin(time * 0.017) * 1.6;
-  hy += Math.cos(time * 0.021) * 1.2;
-  const dx = hx - sunScreenX;
-  const dy = hy - sunScreenY;
-  const len = Math.hypot(dx, dy) || 1;
-  const nx = -dy / len;            // unit normal, to fan the rays out
-  const ny = dx / len;
-
-  logoCtx.save();
-  logoCtx.globalCompositeOperation = 'lighter';
-  for (let i = -1; i <= 1; i++) {
-    const flick = 0.75 + Math.sin(time * 0.012 + i * 2.1) * 0.25;
-    const spread = i * Math.min(34, len * 0.065);
-    const g = logoCtx.createLinearGradient(sunScreenX, sunScreenY, hx, hy);
-    g.addColorStop(0, `rgba(255, 228, 120, ${0.05 * alpha * flick})`);
-    g.addColorStop(0.75, `rgba(255, 236, 160, ${0.5 * alpha * flick})`);
-    g.addColorStop(1, `rgba(255, 252, 226, ${0.95 * alpha * flick})`);
-    logoCtx.strokeStyle = g;
-    logoCtx.lineWidth = i === 0 ? 7.5 : 3.6;
-    logoCtx.beginPath();
-    logoCtx.moveTo(sunScreenX + nx * spread * 0.35, sunScreenY + ny * spread * 0.35);
-    logoCtx.lineTo(hx, hy);
-    logoCtx.stroke();
-  }
-  // a hot core down the middle of the beam
-  const core = logoCtx.createLinearGradient(sunScreenX, sunScreenY, hx, hy);
-  core.addColorStop(0, 'rgba(255, 255, 255, 0)');
-  core.addColorStop(1, `rgba(255, 255, 250, ${0.8 * alpha})`);
-  logoCtx.strokeStyle = core;
-  logoCtx.lineWidth = 2.8;
-  logoCtx.beginPath();
-  logoCtx.moveTo(sunScreenX, sunScreenY);
-  logoCtx.lineTo(hx, hy);
-  logoCtx.stroke();
-
-  // the focus itself
-  const pulse = 0.85 + Math.sin(time * 0.02) * 0.15;
-  const fg = logoCtx.createRadialGradient(hx, hy, 0, hx, hy, 26 * pulse);
-  fg.addColorStop(0, `rgba(255, 255, 245, ${0.95 * alpha})`);
-  fg.addColorStop(0.4, `rgba(255, 226, 130, ${0.55 * alpha})`);
-  fg.addColorStop(1, 'rgba(255, 210, 90, 0)');
-  logoCtx.fillStyle = fg;
-  logoCtx.beginPath();
-  logoCtx.arc(hx, hy, 26 * pulse, 0, Math.PI * 2);
-  logoCtx.fill();
-  logoCtx.restore();
-}
-
-/* Smoke off a letter, thickest just after it caught and trailing away as it ages. */
-function drawLetterSmoke(box, cy, h, age, time, alpha) {
-  const life = 1 - Math.min(1, age / SMOKE_MS);
-  if (life <= 0.01) return;
-  for (let i = 0; i < 5; i++) {
-    const phase = ((age / SMOKE_MS) * 1.5 + i * 0.2) % 1;
-    const rise = phase * h * 2.4;
-    const drift = Math.sin(phase * 3.2 + box.mid + i) * h * 0.45;
-    drawSmoke(box.mid + drift, cy - h * 0.2 - rise,
-              h * (0.3 + phase * 0.85), (1 - phase) * life * 1.15 * alpha);
-  }
-}
-
-
-/* The heading sticks above the projects for the whole run, then has to leave with the last
-   one. Sticky alone releases at its container's edge — a screen too late — and scroll
-   progress saturates before the stage has finished moving, so neither can express it. What
-   works is copying the pinned block: once it starts climbing past its own sticky top, the
-   heading climbs by exactly the same amount. */
-let projHeading = null;
-let projPin = null;
-function rideHeadingOut() {
-  if (projHeading === null) {
-    projHeading = document.querySelector('#projects .chapter-title') || false;
-    projPin = document.querySelector('.proj-pin') || false;
-  }
-  if (!projHeading || !projPin) return;
-  const room = parseFloat(getComputedStyle(projPin).top) || 0;
-  const delta = Math.min(0, projPin.getBoundingClientRect().top - room);
-  projHeading.style.transform = delta < 0 ? `translateY(${delta.toFixed(1)}px)` : '';
-}
-
-function draw(rafTime) {
-  // Every ambient motion in the scene reads `time`; the scroll choreography reads scrollTop.
-  // Freezing the clock under prefers-reduced-motion stops the drift, flapping, shimmer and
-  // sketch boil while leaving the scroll-driven sunset fully intact.
-  const time = reduceMotion ? 0 : rafTime;
-  state.time = time;
-  ctx.clearRect(0, 0, width, height);
-  const scrollTop = window.scrollY;
-
-  // Sky-to-ground scroll progress (0 = top of page, 1 = bottom)
-  const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
-  const rawProgress = scrollMax > 0 ? Math.min(Math.max(scrollTop / scrollMax, 0), 1) : 0;
-  const sceneProgress = easeInOutQuad(rawProgress);
-
-  // 1. Draw watercolor sky background; gradient's middle stop migrates downward as we descend
-  const grad = ctx.createLinearGradient(0, 0, 0, height);
-  const skyMidStop = Math.min(0.6 + sceneProgress * 0.35, 0.95);
-  // how far into the sunset we are — eased so the turn is gradual, capped short of full
-  // saturation so the page never gets dark
-  const duskT = Math.min(Math.max((rawProgress - 0.12) / 0.62, 0), 1);
-  const dusk = duskT * duskT * (3 - 2 * duskT) * 0.92;
-  grad.addColorStop(0, mix(skyStops[0], sunsetStops[0], dusk));
-  grad.addColorStop(skyMidStop, mix(skyStops[1], sunsetStops[1], dusk));
-  grad.addColorStop(1, mix(skyStops[2], sunsetStops[2], dusk));
-
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, width, height);
-
-  // Trigger wobbly sketch jitter state swap at 12fps (80ms interval) on desktop.
-  // Disabled on mobile to prevent garbage collection spikes and keep fast scrolls fluid.
-  if (!isMobile && (time - lastJitterUpdate > 80)) {
-    jitterSeed = Math.random() * 5000;
-    lastJitterUpdate = time;
-    updateCachedPaths();
-  }
-
-  // 1b, 2 & 3. Draw the ambient sun and clouds, fading out as we descend below them
-  const skyFade = 1 - Math.min(Math.max((sceneProgress - 0.3) / 0.2, 0), 1);
-  // Clouds stay for the whole page but soften as you descend, so they read as
-  // depth behind the content instead of competing with it. One number to tune:
-  const DECOR_MAX_BLUR_PX = 14;
-  const decorBlur = DECOR_MAX_BLUR_PX * Math.min(Math.max(rawProgress, 0), 1);
-  {
-    // Blur the element, not the context: WebKit ignores canvas ctx.filter entirely.
-    if (Math.abs(decorBlur - lastDecorBlur) > 0.05) {
-      decorCanvas.style.filter = decorBlur > 0.1 ? `blur(${decorBlur.toFixed(2)}px)` : 'none';
-      lastDecorBlur = decorBlur;
-    }
-    decorCtx.clearRect(0, 0, width, height);
-    // The decor helpers all draw to the module-level ctx, so point it at the decor canvas
-    // for this block rather than threading a target through four call layers.
-    const mainCtx = ctx;
-    ctx = decorCtx;
-    // Scroll opens the sky: the clouds draw apart and thin out, while the sun climbs to
-    // the top centre. The blur ramp above is untouched — this is position and opacity only.
-
-    // Two clocks. The clouds run on scroll distance so they part early no matter how long
-    // the page gets; the sun keeps to overall page progress so it lands up top at the end.
-    const cloudT = Math.min(Math.max(scrollTop / (height * 1.15), 0), 1);
-    const cloudEase = cloudT * cloudT * (3 - 2 * cloudT);
-
-    const sunT = Math.min(Math.max(rawProgress / 0.85, 0), 1);
-    const sunEase = sunT * sunT * (3 - 2 * sunT);
-
-    // the sun slides to centre and sinks to meet the sea
-    const sunX = sun.x + (width * 0.5 - sun.x) * sunEase;
-    const sunY = sun.y + (height * 0.60 - sun.y) * sunEase;
-    sunScreenX = sunX;      // the burn beam is fired from wherever the sun actually is
-    sunScreenY = sunY;
-    drawSun(decorCtx, sunX, sunY, 0.9, time);
-
-    const ease = cloudEase;
-    const cloudAlpha = 0.75 * (1 - ease);
-    if (cloudAlpha > 0.004) {
-      clouds.forEach((cloud, index) => {
-        if (!reduceMotion) cloud.x += cloud.speed;
-        if (cloud.x > width + 120) {
-          cloud.x = -120 - Math.random() * 180;
-          cloud.y = height * (0.05 + Math.random() * 0.20);
-        }
-        // each cloud is shoved toward whichever edge it already favours
-        const side = cloud.bx < 0.5 ? -1 : 1;
-        const bias = 0.45 + Math.abs(cloud.bx - 0.5);    // outer clouds leave faster
-        const part = side * width * bias * ease;
-        drawSketchedCloudCached(index, cloud.x + part, cloud.y, cloudAlpha);
+  fetch('projects.json', { cache: 'no-cache' })
+    .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(({ projects }) => {
+      track.innerHTML = projects.map(itemHTML).join('');
+      items = $$('.item', track);
+      const byId = Object.fromEntries(projects.map((p) => [p.id, p]));
+      items.forEach((it, i) => {
+        const sleeve = $('.sleeve', it);
+        sleeve.addEventListener('click', () => openGatefold(byId[it.dataset.id], sleeve));
+        sleeve.addEventListener('focus', () => {
+          if (!cinema() || open) return;
+          const y = marks.item(i);
+          if (Math.abs(window.scrollY - y) > 4) scrollToY(y, false);
+        });
       });
-    }
-
-    ctx = mainCtx; // hand the sky canvas back before anything else draws
-  }
-
-  // The sea occupies the lower third, fading in as you descend. Drawn on the sky canvas
-  // so the sun's glitter can sit on top of it.
-  const seaReveal = Math.min(Math.max((rawProgress - 0.45) / 0.4, 0), 1);
-  const seaEase = seaReveal * seaReveal * (3 - 2 * seaReveal);
-  // A real horizon doesn't slide. The sea sits at a fixed waterline and fades in
-  // instead of rising, so the line never travels up the screen.
-  const seaHeight = 0.38 * height;
-  const horizonY = height - seaHeight;
-
-  if (seaEase > 0.01) {
-    ctx.save();
-    ctx.globalAlpha = seaEase;
-    const seaGrad = ctx.createLinearGradient(0, horizonY, 0, height);
-    const seaTop = parseColor(mix(seaStops[0], '#e8b391', dusk * 0.55));  // warm at the horizon
-    // feather the top ~5% so sky meets water in a soft band, not a hard cut
-    seaGrad.addColorStop(0, `rgba(${seaTop.r}, ${seaTop.g}, ${seaTop.b}, 0)`);
-    seaGrad.addColorStop(0.05, `rgb(${seaTop.r}, ${seaTop.g}, ${seaTop.b})`);
-    seaGrad.addColorStop(0.45, seaStops[1]);
-    seaGrad.addColorStop(1, seaStops[2]);
-    ctx.fillStyle = seaGrad;
-    ctx.fillRect(0, horizonY, width, seaHeight);
-
-    // the sun's path on the water
-    const seaKey = width + 'x' + height;
-    if (glintKey !== seaKey) {
-      glintCache = buildGlints(width, seaHeight);
-      glintKey = seaKey;
-    }
-    const glowX = width * 0.5;
-
-    ctx.lineCap = 'round';
-    for (const g of glintCache) {
-      const alpha = (1 - g.depth * 0.75) * 0.6 * (0.35 + dusk * 0.65);
-      if (alpha < 0.012) continue;
-      const y = horizonY + g.depth * seaHeight;
-      const cx = glowX + g.x + Math.sin(time * g.speed + g.phase) * g.sway;
-      const half = g.len * 0.5 * (0.85 + Math.sin(time * g.speed * 1.7 + g.phase) * 0.15);
-      const dy = half * g.tilt;
-      ctx.beginPath();
-      ctx.moveTo(cx - half, y - dy);
-      ctx.quadraticCurveTo(cx, y + g.kink, cx + half, y + dy);
-      /* Each dash is stroked with a gradient that runs out to nothing at both ends. A flat
-         colour with a round cap gave every glint two hard little edges, which is what made
-         the water look chopped up instead of lit. */
-      const fade = ctx.createLinearGradient(cx - half, y, cx + half, y);
-      const soft = (a) => {
-        fade.addColorStop(0, 'rgba(255, 228, 186, 0)');
-        fade.addColorStop(0.5, `rgba(255, 240, 214, ${a.toFixed(3)})`);
-        fade.addColorStop(1, 'rgba(255, 228, 186, 0)');
-        return fade;
-      };
-      ctx.strokeStyle = soft(alpha * 0.24);
-      ctx.lineWidth = 8 + g.depth * 8;
-      ctx.stroke();
-      const core = ctx.createLinearGradient(cx - half, y, cx + half, y);
-      core.addColorStop(0, 'rgba(255, 240, 214, 0)');
-      core.addColorStop(0.5, `rgba(255, 246, 226, ${(alpha * 0.4).toFixed(3)})`);
-      core.addColorStop(1, 'rgba(255, 240, 214, 0)');
-      ctx.strokeStyle = core;
-      ctx.lineWidth = 2.5 + g.depth * 2.5;
-      ctx.stroke();
-    }
-    ctx.restore();
-  }
-  if (cachedFooter) {
-    // Gate on the last piece of visible contact content, not the section box — the box runs
-    // far below its own text, which cost a screenful of dead scroll to clear. Measured
-    // against the boat's own top, so overlap still can't happen.
-    const linksRect = cachedContactLinks && cachedContactLinks.getBoundingClientRect();
-    const wanted = linksRect && linksRect.bottom < cachedFooter.getBoundingClientRect().top - 32 ? 1 : 0;
-    if (wanted !== lastFooterOn) {
-      cachedFooter.style.opacity = wanted;
-      // the bob (and the SVG filter it drags along) only runs while the boat is visible
-      cachedFooter.classList.toggle('is-sailing', wanted === 1);
-      lastFooterOn = wanted;
-    }
-  }
-
-  // Horizon line fades in with the sea, at the same fixed waterline.
-  const horizonAlpha = seaEase;
-  if (horizonAlpha > 0.01) {
-    const key = width + 'x' + height;
-    if (horizonStrokeKey !== key) {
-      const prevSeed = jitterSeed;
-      jitterSeed = 1337;
-      horizonStrokeCache = generateSketchedPath([
-        { x: -20, y: horizonY },
-        { x: width * 0.3, y: horizonY - 4 },
-        { x: width * 0.6, y: horizonY + 3 },
-        { x: width + 20, y: horizonY }
-      ], 2.5, 2);
-      jitterSeed = prevSeed;
-      horizonStrokeKey = key;
-    }
-    const horizonStrokes = horizonStrokeCache;
-    // ctx.filter is a no-op in WebKit, so the blur is faked: wide faint passes
-    // underneath a narrow one. Reads soft instead of inked.
-    const ink = horizonAlpha * 0.34;
-    for (const [w, k] of [[40, 0.03], [30, 0.035], [22, 0.04], [15, 0.045], [9, 0.05], [5, 0.05]])
-      drawCachedStrokes(horizonStrokes, `rgba(28, 24, 18, ${(ink * k).toFixed(3)})`, w, ctx);
-  }
-
-
-  rideHeadingOut();
-
-  // 6. Compute name typography layout values
-  const clientWidth = document.documentElement.clientWidth;
-  // The name is treated exactly like the hero text below it: it keeps its size, scrolls
-  // away with the page, and only fades. No travel to the navbar, no shrink.
-  // (the canvas is viewport-fixed, so subtract scrollTop to anchor it to the document)
-  const textX = clientWidth / 2;
-  const textY = height / 2 - 30 - scrollTop;
-  const fontSize = Math.max(48, Math.min(width * 0.09, height * 0.12, 105));
-
-  // Measure text dimensions for hover bounding box
-  logoCtx.font = `bold ${fontSize}px ${LOGO_FONT}`;
-  const textWidth = logoCtx.measureText("Mark Anjoul").width;
-  const textHeight = fontSize * 0.85;
-
-  /* No poof on phones. The hover query alone is not enough — a desktop window dragged down
-     to phone width still reports hover:hover — so the 760px breakpoint the stylesheet uses
-     is checked too, live, rather than once at load. */
-  const canPoof = hoverPointer.matches && wideEnough.matches;
-
-  // Check if cursor is hovering over the name text
-  const isHovered = canPoof &&
-                    mouseX >= textX - textWidth / 2 - 20 &&
-                    mouseX <= textX + textWidth / 2 + 20 &&
-                    mouseY >= textY - textHeight / 2 - 20 &&
-                    mouseY <= textY + textHeight / 2 + 20;
-
-  /* The cursor drives the burn: how far right it has reached across the name is how far the
-     sun has got. It ratchets — sliding back left does not un-burn a letter — and leaving
-     resets to the plain name with no reverse animation. */
-  if (isHovered) {
-    const reach = (mouseX - (textX - textWidth / 2)) / textWidth;
-    poofT = Math.max(poofT, Math.min(1, Math.max(0, reach)));
-  }
-  // Pointer away: the rays stop, but whatever was burnt stays burnt. Pick it up again by
-  // coming back to the name.
-  if (isHovered !== lastHoverState) { lastHoverState = isHovered; logoRepaint = true; }
-
-  const logoHoverScaleTarget = isHovered ? 1.15 : 1.0;
-  logoHoverScale += (logoHoverScaleTarget - logoHoverScale) * 0.16;
-
-  const dx = mouseX - textX;
-  const targetTilt = isHovered ? Math.max(-4.5, Math.min(4.5, (dx / (textWidth / 2)) * 4.0)) : 0;
-  logoTilt += (targetTilt - logoTilt) * 0.12;
-
-  if (isHovered) {
-    logoCanvas.classList.add('hovered');
-    logoCanvas.style.pointerEvents = 'auto';
-  } else {
-    logoCanvas.classList.remove('hovered');
-    logoCanvas.style.pointerEvents = 'none';
-  }
-
-  // Redraw logo canvas ONLY when position/size changes OR hover scale/tilt updates OR mouse moves while hovering OR matrix scramble is active
-  let logoMoved = logoRepaint || Math.abs(textX - lastLogoX) > 0.01 ||
-                  Math.abs(textY - lastLogoY) > 0.01 ||
-                  Math.abs(fontSize - lastLogoSize) > 0.01 ||
-                  Math.abs(state.logoTransition - lastLogoTransition) > 0.01 ||
-                  Math.abs(logoHoverScale - lastLogoHoverScale) > 0.001 ||
-                  Math.abs(logoTilt - lastLogoTilt) > 0.01 ||
-                  Math.abs(poofT - lastPoofT) > 0.002 ||
-                  ((isHovered && poofT > 0 && poofT < 1) || time - lastBurnTime < SMOKE_MS) ||
-                  skyFade > 0.01 || // keep redrawing while the sun's idle pulse/ray rotation is visible
-                  (isHovered && (Math.abs(mouseX - lastMouseX) > 0.5 || Math.abs(mouseY - lastMouseY) > 0.5));
-
-  if (logoMoved && logoFontReady) {
-    logoRepaint = false;
-    logoCtx.clearRect(0, 0, width, height);
-
-    const text = "Mark Anjoul";
-
-    logoCtx.textAlign = 'center';
-    logoCtx.textBaseline = 'middle';
-
-    // ponytail: the name simply fades as you scroll. The old per-letter version set
-    // logoCtx.filter = blur() for every character on every frame — very expensive.
-    /* The untouched name clears out of the way a little faster than the text under it —
-       once it has been burned to code it fades on the same curve as everything else, since
-       that state is the thing worth looking at. */
-    const heroGone = Math.min(1, heroFadeTween.progress() * (poofT > 0 ? 1 : 1.5));
-    const alpha = skyFade * (1 - heroGone);
-    if (alpha > 0.01) {
-      const nameFont = `bold ${fontSize}px ${LOGO_FONT}`;
-      const codeFont = `bold ${fontSize * 0.82}px "Share Tech Mono", monospace`;
-      const nameBoxes = letterBoxes(text, nameFont, textX, 0);
-      const codeBoxes = codeBoxesOver(nameBoxes, codeFont);
-      const burnX = textX - textWidth / 2 + poofT * textWidth;
-
-      // note the moment each letter catches, so it can scorch and smoke on its own clock
-      nameBoxes.forEach((b, k) => {
-        if (nameBurnAt[k] === undefined && b.mid <= burnX) { nameBurnAt[k] = time; lastBurnTime = time; }
-      });
-      codeBoxes.forEach((b, k) => {
-        // tail glyphs have no letter to burn, so they follow the last one that did
-        const gate = k < nameBoxes.length ? b.mid : nameBoxes[nameBoxes.length - 1].mid;
-        if (codeBurnAt[k] === undefined && gate <= burnX) codeBurnAt[k] = time + (k - nameBoxes.length + 1) * 60;
-      });
-
-      logoCtx.save();
-      logoCtx.globalAlpha = alpha;
-      logoCtx.textAlign = 'left';
-      logoCtx.textBaseline = 'middle';
-
-      // the name, letter by letter: untouched, charring, then gone
-      logoCtx.font = nameFont;
-      nameBoxes.forEach((b, k) => {
-        const at = nameBurnAt[k];
-        const p = at === undefined ? 0 : Math.min(1, (time - at) / BURN_MS);
-        if (p >= 1) return;
-        logoCtx.save();
-        // fades where it stands — dropping the letter read as gravity, not heat
-        logoCtx.globalAlpha = alpha * (1 - swapAt(p));
-        // ink darkening through scorch brown as the heat takes it, and no halo of any kind
-        logoCtx.fillStyle = p > 0 ? `rgb(${28 + p * 78}, ${24 + p * 34}, ${18 + p * 10})` : '#1c1812';
-        logoCtx.fillText(b.ch, b.x, textY);
-        logoCtx.restore();
-      });
-
-      // the code, arriving one glyph at a time behind the burn
-      logoCtx.font = codeFont;
-      codeBoxes.forEach((b, k) => {
-        const at = codeBurnAt[k];
-        if (at === undefined) return;
-        const p = Math.min(1, (time - at) / BURN_MS);
-        const ease = 1 - Math.pow(1 - p, 3);
-        logoCtx.save();
-        // the exact complement of the name letter, off the same curve: between them there
-        // is always one letter's worth of ink, never two and never none
-        logoCtx.globalAlpha = alpha * swapAt(p);
-        /* Struck white-hot, cooling to the settled yellow over the same beat. That yellow is
-           the site's #ffd400 lifted two points of lightness, so it holds against the sky a
-           little better than the flat brand colour. */
-        const cool = Math.min(1, p * 1.8);
-        logoCtx.fillStyle = `rgb(255, ${255 - cool * 40}, ${245 - cool * 235})`;
-        // the glow while it is still cooling, and nothing once it has settled
-        logoCtx.shadowColor = `rgba(255, 224, 130, ${(1 - cool) * 0.9})`;
-        logoCtx.shadowBlur = fontSize * 0.3 * (1 - cool);
-        logoCtx.translate(b.x + b.w / 2, textY);
-        logoCtx.scale(b.scale * (0.94 + ease * 0.06), 0.94 + ease * 0.06);
-        logoCtx.textAlign = 'center';
-        logoCtx.fillText(b.ch, 0, 0);
-        /* Share Tech Mono ships one weight and its @font-face covers 100-900, so asking for
-           bold changes nothing — the stroke is purely what thickens it to sit beside Llewie.
-           It is stroked in the fill's own colour: a darker edge reads as a grey rim around
-           every letter. */
-        logoCtx.strokeStyle = logoCtx.fillStyle;
-        logoCtx.lineWidth = fontSize * 0.035;
-        logoCtx.lineJoin = 'round';
-        logoCtx.strokeText(b.ch, 0, 0);
-        logoCtx.restore();
-      });
-      logoCtx.restore();
-
-      // smoke from every letter that has caught, then the rays doing the work
-      nameBoxes.forEach((b, k) => {
-        if (nameBurnAt[k] !== undefined) {
-          drawLetterSmoke(b, textY, textHeight, time - nameBurnAt[k], time, alpha);
-        }
-      });
-      /* Rays only while there is still something to burn. Once the name is fully code,
-         hovering it does nothing — the sun has finished its work. */
-      if (isHovered && poofT > 0 && poofT < 1) drawSunBeam(burnX, textY, time, alpha);
-    }
-
-    lastLogoX = textX;
-    lastLogoY = textY;
-    lastLogoSize = fontSize;
-    lastLogoTransition = state.logoTransition;
-    lastLogoHoverScale = logoHoverScale;
-    lastLogoTilt = logoTilt;
-    lastMouseX = mouseX;
-    lastMouseY = mouseY;
-    lastPoofT = poofT;
-  }
-
-  // 7. Fade out hero elements on scroll
-  if (cachedHeroContent) {
-    const heroFade = Math.max(0, 1 - (scrollTop / (window.innerHeight * 0.5)));
-    // ponytail: only touch the DOM when the value actually moved — this ran every frame
-    if (Math.abs(heroFade - lastHeroFade) > 0.002) {
-      cachedHeroContent.style.opacity = heroFade;
-      lastHeroFade = heroFade;
-    }
-  }
-
-
-
-  // Fade in the top blur header overlay on scroll to avoid text overlap
-  if (cachedTopBlur) {
-    const blurOpacity = Math.min(scrollTop / 60, 1);
-    if (Math.abs(blurOpacity - lastBlurOpacity) > 0.002) {
-      cachedTopBlur.style.opacity = blurOpacity;
-      lastBlurOpacity = blurOpacity;
-    }
-  }
-
-  // Fade in and slide the navigation capsule quickly on scroll
-  if (cachedNavInner) {
-    // the bar holds off until the hero has properly started leaving: nothing from a third
-    // of a screen down, then it fades in over the next half screen
-    const navFade = clamp01((scrollTop - window.innerHeight * 0.35) / (window.innerHeight * 0.5));
-    if (Math.abs(navFade - lastNavFade) > 0.002) {
-    lastNavFade = navFade;
-    gsap.set(cachedNavInner, {
-      opacity: navFade,
-      y: (1 - navFade) * -15,
-      pointerEvents: navFade > 0.8 ? 'auto' : 'none'
+      if (!reduce) {
+        build();
+        let w = innerWidth;
+        addEventListener('resize', () => {
+          if (innerWidth === w) return;
+          w = innerWidth;
+          clearTimeout(build.t);
+          build.t = setTimeout(() => { build(); ScrollTrigger.refresh(); }, 200);
+        });
+      }
+      ScrollTrigger.refresh();
+    })
+    .catch(() => {
+      track.outerHTML = `<p class="vinyls-error">The projects didn’t load. Everything is also on <a href="https://github.com/marcanjoul">GitHub</a>.</p>`;
     });
-    }
-  }
 
-
-  requestAnimationFrame(draw);
-}
-
-// Start visual frame loop once fonts are loaded
-document.fonts.ready.then(() => {
-  requestAnimationFrame(draw);
-});
-
-/* ---------- nav: highlight the section on screen ---------- */
-// The current section is the last one whose top has passed the middle of the viewport;
-// at the very bottom the short Contact chapter can't reach the middle, so it wins there.
-const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
-const navSections = [...document.querySelectorAll('section[id]')];
-function updateActiveNav() {
-  const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
-  let current = atBottom ? navSections[navSections.length - 1] : null;
-  if (!current) navSections.forEach((sec) => { if (sec.getBoundingClientRect().top <= window.innerHeight / 2) current = sec; });
-  navLinks.forEach((a) => a.classList.toggle('active', !!current && a.getAttribute('href') === `#${current.id}`));
-}
-window.addEventListener('scroll', updateActiveNav, { passive: true });
-updateActiveNav();
+  /* ---------- copy email (pointer devices); phones keep mailto ---------- */
+  const status = $('#copy-status');
+  $$('[data-copy]').forEach((a) => {
+    if (!fine || !navigator.clipboard) return;
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      navigator.clipboard.writeText(a.dataset.copy).then(() => {
+        const label = a.textContent;
+        a.textContent = 'Copied';
+        status.textContent = 'Email address copied';
+        setTimeout(() => { a.textContent = label; status.textContent = ''; }, 1800);
+      }, () => { location.href = a.href; });
+    });
+  });
+})();
