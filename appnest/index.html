@@ -59,7 +59,7 @@
         <div class="cs-meta-full"><dt>Built with</dt><dd>SwiftUI, SwiftData, Apple's Natural Language framework, regular expressions, native iOS APIs</dd></div>
       </dl>
       <p><a class="proj-cta" href="https://github.com/marcanjoul/app-nest" target="_blank" rel="noopener">View the code on GitHub →</a></p>
-      <p class="cs-note cs-shots-note">Screens are from the November 2026 build running in the iOS Simulator with made-up sample data. Without a logo service key, companies show initials.</p>
+      <p class="cs-note cs-shots-note">Shown with sample data.</p>
     </div>
   </section>
 
@@ -143,30 +143,26 @@
     <div class="cs-wrap cs-wrap-wide">
       <h3 class="cs-h3 cs-sub">Around the application</h3>
       <table class="cs-table">
-        <caption class="sr-only">Supporting features and how finished each one is</caption>
+        <caption class="sr-only">Supporting features and what each one does</caption>
         <thead>
-          <tr><th scope="col">Feature</th><th scope="col">What it does</th><th scope="col">Where it stands</th></tr>
+          <tr><th scope="col">Feature</th><th scope="col">What it does</th></tr>
         </thead>
         <tbody>
           <tr>
             <td data-label="Feature">Interview prep notes</td>
             <td data-label="What it does">Two note fields on each application: company research, and interview prep such as stories, questions and talking points</td>
-            <td data-label="Where it stands">Working</td>
           </tr>
           <tr>
             <td data-label="Feature">Reminders</td>
-            <td data-label="What it does">A local notification on the day I plan to apply, at a time I choose</td>
-            <td data-label="Where it stands">Working, for jobs marked To Apply</td>
+            <td data-label="What it does">For a job marked To Apply, a local notification on the day I plan to apply, at a time I choose</td>
           </tr>
           <tr>
             <td data-label="Feature">Company logos</td>
             <td data-label="What it does">Looked up from Logo.dev and kept with the job; I can also upload my own</td>
-            <td data-label="Where it stands">Working, needs a connection</td>
           </tr>
           <tr>
             <td data-label="Feature">Share extension</td>
-            <td data-label="What it does">Sends a job link or selected email text from another app's share sheet into Add a Job, where it's parsed</td>
-            <td data-label="Where it stands">In the code, still being refined</td>
+            <td data-label="What it does">Sends a job link or selected email text from another app's share sheet into Add a Job, where it's parsed. I'm still refining this one.</td>
           </tr>
         </tbody>
       </table>
@@ -188,7 +184,7 @@
         <div class="cs-flow-media">
           <figure class="cs-shot">
             <video data-demo controls muted playsinline preload="none" width="600" height="1304" poster="../assets/appnest/demos/parse-email.webp"
-                   aria-label="Screen recording, no sound: a fictional email is pasted and parsed, the matches are shown in color, the filled-in fields are reviewed, Fall is added as a second season, and the saved application appears in the list.">
+                   aria-label="Screen recording, no sound: an email is pasted and parsed, the matches are shown in color, the filled-in fields are reviewed, Fall is added as a second season, and the saved application appears in the list.">
               <source src="../assets/appnest/demos/parse-email.mp4" type="video/mp4">
               <a href="../assets/appnest/demos/gif/parse-email.gif">Watch this recording as a GIF</a>
             </video>
@@ -235,7 +231,7 @@
           <li>
             <img src="../assets/appnest/app/link-paste.webp" width="560" height="1218" loading="lazy" decoding="async"
                  alt="The Paste Job Link card open with a Greenhouse link and a Parse Link button.">
-            <p><b>2</b> Paste a posting. This one is a real Greenhouse listing.</p>
+            <p><b>2</b> Paste a posting, here from Greenhouse.</p>
           </li>
           <li>
             <img src="../assets/appnest/app/link-result.webp" width="560" height="1218" loading="lazy" decoding="async"
@@ -248,7 +244,7 @@
 
       <div class="cs-flow">
         <h3 class="cs-card-title">Bring the old spreadsheet along</h3>
-        <p class="cs-flow-lede">Column names don't have to match. My sample file says Stage and Term, and they land in Status and Season: headers are compared by meaning with Apple's on-device word embeddings, with a list of known names as backup.</p>
+        <p class="cs-flow-lede">Column names don't have to match. A column called Stage lands in Status, and Term lands in Season: headers are compared by meaning with Apple's on-device word embeddings, with a list of known names as backup.</p>
         <div class="cs-flow-media">
           <figure class="cs-shot">
             <video data-demo controls muted playsinline preload="none" width="600" height="1304" poster="../assets/appnest/demos/csv-import.webp"
@@ -256,7 +252,7 @@
               <source src="../assets/appnest/demos/csv-import.mp4" type="video/mp4">
               <a href="../assets/appnest/demos/gif/csv-import.gif">Watch this recording as a GIF</a>
             </video>
-            <figcaption>Importing a sample file, 17 sec</figcaption>
+            <figcaption>Importing a CSV, 17 sec</figcaption>
           </figure>
         <ol class="cs-steps" tabindex="0" aria-label="Import a CSV, 3 screens">
           <li>
@@ -285,7 +281,7 @@
     <div class="cs-wrap">
       <p class="cs-num" aria-hidden="true">04</p>
       <h2 id="cs-decisions" class="cs-h2">Simple, visual, interactive</h2>
-      <p>That's how I wanted AppNest to feel. The visual design evolved directly in SwiftUI: I didn't make Figma designs or wireframes first. These were my own calls as the person using it, and I haven't run formal usability studies on them.</p>
+      <p>That's how I wanted AppNest to feel. The visual design evolved directly in SwiftUI: I didn't make Figma designs or wireframes first. I made these decisions as the person using it.</p>
     </div>
 
     <div class="cs-wrap cs-wrap-wide">
@@ -489,7 +485,7 @@ func hypotheticalIsNotStatus() {
     let email = "Thank you for applying. If you are selected for an interview, we will be in touch."
     #expect(parser.parse(email).status == .applied)
 }</code></pre>
-      <p class="cs-note">From EmailParserTests.swift. Its cases cover company, position, status, type, season, date, location and whole emails. Other tests cover link parsing, CSV seasons, data backup and the share extension's handoff. I don't have a measured accuracy figure, so I won't quote one.</p>
+      <p class="cs-note">From EmailParserTests.swift. Its cases cover company, position, status, type, season, date, location and whole emails. Other tests cover link parsing, CSV seasons, data backup and the share extension's handoff.</p>
     </div>
   </section>
 
@@ -497,7 +493,7 @@ func hypotheticalIsNotStatus() {
   <section class="cs-section cs-reveal" aria-labelledby="cs-evolution">
     <div class="cs-wrap">
       <p class="cs-num" aria-hidden="true">07</p>
-      <h2 id="cs-evolution" class="cs-h2">How it grew, from the Git history</h2>
+      <h2 id="cs-evolution" class="cs-h2">How it grew</h2>
 
       <ol class="cs-timeline">
         <li>
@@ -508,12 +504,12 @@ func hypotheticalIsNotStatus() {
         <li>
           <p class="cs-when">March 2026</p>
           <h3 class="cs-card-title">Major expansion</h3>
-          <p>SwiftData persistence, an expanded profile dashboard, CSV export and the first on-device email parser. Cards and theme were redesigned, with sorting and filtering. Search work ran from February into April.</p>
+          <p>SwiftData persistence, an expanded profile dashboard, CSV export and the first on-device email parser. Cards and theme were redesigned, with sorting and filtering. Search took shape from February into April.</p>
         </li>
         <li>
           <p class="cs-when">May–June 2026</p>
           <h3 class="cs-card-title">Whole workflows</h3>
-          <p>CSV import with a preview, job-link parsing, cycles, reminders, interview prep and company logos. Plus a lot of work on navigation, haptics, animations, gestures and feedback. A first share extension was added in May and removed four days later.</p>
+          <p>CSV import with a preview, job-link parsing, cycles, reminders, interview prep and company logos. Plus a lot of work on navigation, haptics, animations, gestures and feedback. An early share extension was tried and removed.</p>
         </li>
         <li>
           <p class="cs-when">September–November 2026</p>
@@ -522,8 +518,8 @@ func hypotheticalIsNotStatus() {
         </li>
       </ol>
 
-      <h3 class="cs-h3 cs-sub">The same two flows in May 2026</h3>
-      <p>These are demo recordings from the repository. Compare them with the screens above to see how far the interface has moved since.</p>
+      <h3 class="cs-h3 cs-sub">The same two flows, back in May 2026</h3>
+      <p>Email and link parsing as they looked six months before the screens above.</p>
       <div class="cs-compare cs-clips">
         <figure class="cs-shot">
           <video controls muted playsinline preload="none" width="480" height="1038" poster="../assets/appnest/video/parse-email-may-2026.webp"
@@ -548,7 +544,7 @@ func hypotheticalIsNotStatus() {
     <div class="cs-wrap">
       <p class="cs-num" aria-hidden="true">08</p>
       <h2 id="cs-outcome" class="cs-h2">I haven't gone back to the CSV</h2>
-      <p>I use AppNest to track my own job applications. Since adopting it, I have not returned to my old CSV workflow. That's one user, me, and I'm not claiming more than that.</p>
+      <p>I use AppNest to track my own job applications. Since adopting it, I have not returned to my old CSV workflow.</p>
 
       <h3 class="cs-h3 cs-sub">What I learned</h3>
       <blockquote class="cs-question">
@@ -557,7 +553,7 @@ func hypotheticalIsNotStatus() {
       <p>There are always ways to refine features, address issues and improve the experience. Building AppNest reinforced that I should keep improving a product that already works, instead of treating the first implementation as final.</p>
 
       <h3 class="cs-h3 cs-sub">What I'd do differently</h3>
-      <p>I didn't do these at the start of AppNest. If I started again, I would:</p>
+      <p>If I started AppNest again, I would:</p>
       <ul class="cs-list">
         <li>Conduct user research earlier.</li>
         <li>Create initial wireframes.</li>
@@ -570,7 +566,7 @@ func hypotheticalIsNotStatus() {
       <ul class="cs-list">
         <li>Additional visual refinements.</li>
         <li>More automation.</li>
-        <li><strong>A smoother email-sharing workflow</strong>, so relevant email content goes through the iOS share sheet straight into AppNest. The share extension can already pass along a link or selected text. For an email, I still have to select the text first, and if iOS won't open the app, it copies the text for me to paste.</li>
+        <li><strong>A smoother email-sharing workflow</strong>, so relevant email content goes through the iOS share sheet straight into AppNest. The share extension already passes along a link or selected text. Next is making an email just as easy.</li>
       </ul>
 
       <p class="cs-end"><a class="proj-cta" href="https://github.com/marcanjoul/app-nest" target="_blank" rel="noopener">View the code on GitHub →</a></p>
