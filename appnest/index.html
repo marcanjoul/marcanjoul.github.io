@@ -43,7 +43,7 @@
       <img src="../assets/appnest/app/list.webp" width="560" height="1218" fetchpriority="high"
            alt="Applications list: a search field, status chips with counts, and a card for each job showing its position, company, date, status and job type.">
       <img src="../assets/appnest/app/email-highlights.webp" width="560" height="1218"
-           alt="Parse Email after parsing: the status phrase, company, position and date are colored inside the email, above a Review and Edit form filled in with Product Design Intern at Marlowe.">
+           alt="Parse Email after parsing: the status phrase, company, position and date are colored inside the email, above a Review and Edit form filled in with Product Design Intern at Northstar Labs.">
       <img src="../assets/appnest/app/detail.webp" width="560" height="1218"
            alt="Job detail for iOS Engineer Intern at Northlight, with color-coded pills for job type, status and season.">
       <img src="../assets/appnest/app/list-dark.webp" width="560" height="1218"
@@ -119,6 +119,25 @@
           </ul>
         </div>
       </div>
+
+      <div class="cs-compare cs-clips">
+        <figure class="cs-shot">
+          <video data-demo controls muted playsinline preload="none" width="600" height="1304" poster="../assets/appnest/demos/dashboard.webp"
+                 aria-label="Screen recording, no sound: the applications list is scrolled, filtered to interviews with a status pill, searched for “design,” and an application is opened.">
+            <source src="../assets/appnest/demos/dashboard.mp4" type="video/mp4">
+            <a href="../assets/appnest/demos/gif/dashboard.gif">Watch this recording as a GIF</a>
+          </video>
+          <figcaption>The dashboard: filter, search, open</figcaption>
+        </figure>
+        <figure class="cs-shot">
+          <video data-demo controls muted playsinline preload="none" width="600" height="1304" poster="../assets/appnest/demos/manage.webp"
+                 aria-label="Screen recording, no sound: an application is opened, its status changes from Interview to Offer, a note is added, changes are saved, and the list shows the new status.">
+            <source src="../assets/appnest/demos/manage.mp4" type="video/mp4">
+            <a href="../assets/appnest/demos/gif/manage.gif">Watch this recording as a GIF</a>
+          </video>
+          <figcaption>Managing one: status, notes, save</figcaption>
+        </figure>
+      </div>
     </div>
 
     <div class="cs-wrap cs-wrap-wide">
@@ -162,10 +181,19 @@
       <p>Everything starts from the green + button. Whichever way a job comes in, I get to check it and edit it before it's saved.</p>
     </div>
 
-    <div class="cs-wrap cs-wrap-wide">
+    <div class="cs-wrap cs-wrap-media">
       <div class="cs-flow">
         <h3 class="cs-card-title">Paste an email</h3>
         <p class="cs-flow-lede">My favorite feature, and the one I'm most proud of. Pasting the update replaces typing it in.</p>
+        <div class="cs-flow-media">
+          <figure class="cs-shot">
+            <video data-demo controls muted playsinline preload="none" width="600" height="1304" poster="../assets/appnest/demos/parse-email.webp"
+                   aria-label="Screen recording, no sound: a fictional email is pasted and parsed, the matches are shown in color, the filled-in fields are reviewed, Fall is added as a second season, and the saved application appears in the list.">
+              <source src="../assets/appnest/demos/parse-email.mp4" type="video/mp4">
+              <a href="../assets/appnest/demos/gif/parse-email.gif">Watch this recording as a GIF</a>
+            </video>
+            <figcaption>Running the parser, 23 sec</figcaption>
+          </figure>
         <ol class="cs-steps" tabindex="0" aria-label="Paste an email, 3 screens">
           <li>
             <img src="../assets/appnest/app/email-paste.webp" width="560" height="1218" loading="lazy" decoding="async"
@@ -174,20 +202,30 @@
           </li>
           <li>
             <img src="../assets/appnest/app/email-highlights.webp" width="560" height="1218" loading="lazy" decoding="async"
-                 alt="The parsed email with “Thank you for applying,” “Marlowe,” “Product Design Intern” and “November 20, 2026” each in a different color.">
+                 alt="The parsed email with “Thank you for applying,” “Northstar Labs,” “Product Design Intern” and “November 20, 2026” each colored by field.">
             <p><b>2</b> What it found is colored in the email itself, so I can see where each answer came from.</p>
           </li>
           <li>
             <img src="../assets/appnest/app/email-review.webp" width="560" height="1218" loading="lazy" decoding="async"
-                 alt="The review form with Internship, Applied, Summer, Hybrid and Austin, TX already filled in.">
+                 alt="The review form with Internship, Applied, Summer, Hybrid and Austin, TX filled in from the email, and Fall added by hand.">
             <p><b>3</b> Type, status, season and location are filled in. I fix anything that's off, then save.</p>
           </li>
         </ol>
+        </div>
       </div>
 
       <div class="cs-flow">
         <h3 class="cs-card-title">Paste a job link</h3>
         <p class="cs-flow-lede">Each job board needs its own strategy. Greenhouse, Lever and Ashby links are looked up on that board's public API. Workday details are read from the URL. LinkedIn hides the job in its links, so AppNest says it can't read them and asks for the real application link.</p>
+        <div class="cs-flow-media">
+          <figure class="cs-shot">
+            <video data-demo controls muted playsinline preload="none" width="600" height="1304" poster="../assets/appnest/demos/parse-link.webp"
+                   aria-label="Screen recording, no sound: a Greenhouse link is pasted and parsed, and the form opens with Stripe, Data Analyst, Intern and Internship filled in.">
+              <source src="../assets/appnest/demos/parse-link.mp4" type="video/mp4">
+              <a href="../assets/appnest/demos/gif/parse-link.gif">Watch this recording as a GIF</a>
+            </video>
+            <figcaption>Parsing a live link, 9 sec</figcaption>
+          </figure>
         <ol class="cs-steps" tabindex="0" aria-label="Paste a job link, 3 screens">
           <li>
             <img src="../assets/appnest/app/add.webp" width="560" height="1218" loading="lazy" decoding="async"
@@ -205,11 +243,21 @@
             <p><b>3</b> Company, title and job type are filled in.</p>
           </li>
         </ol>
+        </div>
       </div>
 
       <div class="cs-flow">
         <h3 class="cs-card-title">Bring the old spreadsheet along</h3>
         <p class="cs-flow-lede">Column names don't have to match. My sample file says Stage and Term, and they land in Status and Season: headers are compared by meaning with Apple's on-device word embeddings, with a list of known names as backup.</p>
+        <div class="cs-flow-media">
+          <figure class="cs-shot">
+            <video data-demo controls muted playsinline preload="none" width="600" height="1304" poster="../assets/appnest/demos/csv-import.webp"
+                   aria-label="Screen recording, no sound: a sample CSV is chosen, 10 mapped rows are previewed, the one row that needs attention gets a job type, the rows are imported, and they appear in the list.">
+              <source src="../assets/appnest/demos/csv-import.mp4" type="video/mp4">
+              <a href="../assets/appnest/demos/gif/csv-import.gif">Watch this recording as a GIF</a>
+            </video>
+            <figcaption>Importing a sample file, 17 sec</figcaption>
+          </figure>
         <ol class="cs-steps" tabindex="0" aria-label="Import a CSV, 3 screens">
           <li>
             <img src="../assets/appnest/app/csv-file.webp" width="560" height="1218" loading="lazy" decoding="async"
@@ -227,6 +275,7 @@
             <p><b>3</b> Rows become cards.</p>
           </li>
         </ol>
+        </div>
       </div>
     </div>
   </section>
@@ -308,11 +357,13 @@
       <p>The parser is a hybrid. No single technique handles recruiting emails well, so it layers several and runs all of them on the device, with no external NLP service.</p>
 
       <figure class="cs-shot cs-shot-wide">
-        <img src="../assets/appnest/app/email-crop.webp" width="900" height="560" loading="lazy" decoding="async"
-             alt="Close-up of a parsed email. “Thank you for applying” is the status, “Marlowe” the company, “Product Design Intern” the position and “November 20, 2026” the date, each in its own color.">
+        <img src="../assets/appnest/app/email-crop.webp" width="900" height="639" loading="lazy" decoding="async"
+             alt="Close-up of a parsed email. “Thank you for applying” is the status, “Northstar Labs” the company, “Product Design Intern” the position and “November 20, 2026” the date, each in its own color.">
         <figcaption>Four colors: status, company, position, date</figcaption>
       </figure>
+    </div>
 
+    <div class="cs-wrap cs-wrap-wide cs-parser">
       <ol class="cs-findings">
         <li>
           <h3 class="cs-card-title">Patterns that know the context</h3>
@@ -331,6 +382,14 @@
           <p>Job IDs, locations and seasons come off the title. A title that reads like a sentence, or repeats the company, is thrown out: a blank is better than a wrong answer. Then I review it.</p>
         </li>
       </ol>
+      <figure class="cs-shot">
+        <video data-demo controls muted playsinline preload="none" width="600" height="1304" poster="../assets/appnest/demos/parser-close.webp"
+               aria-label="Screen recording, no sound: the same email is parsed. Four matches turn color in the text, the full email is expanded, and the form below shows the extracted company, position, type, status and season.">
+          <source src="../assets/appnest/demos/parser-close.mp4" type="video/mp4">
+          <a href="../assets/appnest/demos/gif/parse-email.gif">Watch this recording as a GIF</a>
+        </video>
+        <figcaption>The same email, parsed locally</figcaption>
+      </figure>
     </div>
 
     <div class="cs-wrap cs-wrap-wide">
@@ -530,6 +589,38 @@ func hypotheticalIsNotStatus() {
       if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
     }));
     document.querySelectorAll('.cs-reveal').forEach((el) => { el.classList.add('pre'); io.observe(el); });
+  }
+
+  // Recordings: one plays at a time. With reduced motion (or no observer) nothing starts by itself.
+  const clips = [...document.querySelectorAll('video')];
+  clips.forEach((v) => v.addEventListener('play', () => clips.forEach((o) => { if (o !== v) hush(o); })));
+  function hush(v) { if (!v.paused) { v.dataset.auto = '1'; v.pause(); } }
+
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+    const demos = clips.filter((v) => 'demo' in v.dataset);
+    const seen = new Set(), held = new Set();   // on screen; paused by the reader
+    const start = (after) => {
+      const n = demos.length, from = after ? demos.indexOf(after) + 1 : 0;
+      for (let i = 0; i < n; i++) {
+        const v = demos[(from + i) % n];
+        if (seen.has(v) && !held.has(v)) { v.play().catch(() => {}); return; }
+      }
+    };
+    demos.forEach((v) => {
+      v.addEventListener('play', () => held.delete(v));
+      v.addEventListener('pause', () => {
+        const ours = v.dataset.auto; delete v.dataset.auto;
+        if (!ours && !v.ended) held.add(v);
+      });
+      v.addEventListener('ended', () => start(v));   // next one on screen, or this one again
+    });
+    const watch = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) seen.add(e.target); else { seen.delete(e.target); hush(e.target); }
+      });
+      if (!clips.some((v) => !v.paused)) start();
+    }, { threshold: 0.6 });
+    demos.forEach((v) => watch.observe(v));
   }
 </script>
 </body>

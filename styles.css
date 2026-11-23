@@ -1575,3 +1575,11 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   width: 100%; max-width: 300px; height: auto; display: block; margin-inline: auto; background: #000;
   border: 1.5px solid var(--ink); border-radius: 16px; box-shadow: var(--project-shadow);
 }
+/* a recording beside the numbered stills; stacked once the row gets too tight to read */
+.cs-wrap-media { max-width: 1128px; }
+.cs-flow-media { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: clamp(1.25rem, 3vw, 2.25rem); align-items: start; margin-top: 1.5rem; }
+.cs-flow-media .cs-steps { margin-top: 0; min-width: 0; }
+.cs-parser { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 300px); gap: clamp(1.5rem, 5vw, 4rem); align-items: center; }
+@media (max-width: 860px) {
+  .cs-flow-media, .cs-parser { grid-template-columns: minmax(0, 1fr); }
+}
