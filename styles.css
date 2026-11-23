@@ -1540,3 +1540,38 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   .hero-label-wrapper { font-size: 0.875rem; }
   .chapter-hero h2.split { font-size: 0.8rem; }
 }
+
+/* ---------- appnest/ additions ---------- */
+.cs-appnest .cs-h2 { text-wrap: balance; }
+.cs-meta-full { grid-column: 1 / -1; }
+.cs-shots-note { margin-top: 1rem; max-width: 62ch; }
+.cs-section .cs-gap { margin-top: 1.5rem; }
+.cs-end { margin-top: 2.5rem; }
+.cs code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.9em; }
+.cs-shot-wide { margin: 2rem 0; }
+.cs-shot-wide img { max-width: 620px; border-radius: var(--detail-radius); }
+/* unlike AirBorder's trio, all three screens matter here: stack them instead of hiding one */
+@media (max-width: 560px) {
+  .cs-trio-all { grid-template-columns: 1fr; gap: 2rem; }
+  .cs-trio-all figure:first-child { display: block; }
+  .cs-trio-all img { max-width: 240px; }
+}
+.cs-sample { padding: 0.6rem 0.8rem; border: 1px solid var(--rule); border-radius: 8px; overflow-wrap: anywhere; }
+.cs-sample mark { background: var(--yellow); color: var(--ink); padding-inline: 0.15em; }
+.cs-code {
+  margin: 1.25rem 0; padding: 1rem 1.2rem; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6;
+  background: var(--ink); color: var(--paper); border-radius: var(--detail-radius);
+}
+.cs-code code { font-size: 0.85rem; }
+.cs-timeline { list-style: none; margin-left: 0.45rem; border-left: 1.5px solid var(--ink); display: grid; gap: 2rem; }
+.cs-timeline li { position: relative; padding-left: 1.75rem; }
+.cs-timeline li::before {
+  content: ''; position: absolute; left: -0.5rem; top: 0.4rem; width: 0.9rem; height: 0.9rem;
+  border-radius: 50%; background: var(--yellow); border: 1.5px solid var(--ink);
+}
+.cs-timeline .cs-when { font-size: 0.9rem; color: var(--ink-3); margin-bottom: 0.1rem; }
+.cs-timeline p:last-child { margin-bottom: 0; }
+.cs-shot video {
+  width: 100%; max-width: 300px; height: auto; display: block; margin-inline: auto; background: #000;
+  border: 1.5px solid var(--ink); border-radius: 16px; box-shadow: var(--project-shadow);
+}

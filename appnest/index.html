@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AppNest, product engineering and iOS | Mark Anjoul</title>
+<meta name="description" content="A mobile-first job application tracker I designed in code and built in SwiftUI, with email parsing that runs on the phone. How it started, how the parser works, and what I'd change.">
+<meta name="theme-color" content="#f3ede0">
+<link rel="canonical" href="https://markanjoul.com/appnest/">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://markanjoul.com/appnest/">
+<meta property="og:title" content="AppNest: an iOS job application tracker">
+<meta property="og:description" content="I replaced my job application CSV with a native iOS app that reads the emails for me.">
+<meta property="og:image" content="https://markanjoul.com/assets/appnest/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://markanjoul.com/assets/appnest/og.jpg">
+
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/Llewie.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="../assets/fonts/WinkyRough-VariableFont_wght.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="cs cs-appnest">
+<div class="paper-grain" aria-hidden="true"></div>
+
+<header class="cs-top">
+  <a class="cs-back" href="../#projects">← All projects</a>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="cs-hero" aria-labelledby="cs-title">
+    <div class="cs-wrap">
+      <p class="cs-kicker"><span class="hand-note"><svg class="hand-note-arrow" viewBox="0 0 46 40" aria-hidden="true"><path d="M44 4 C 30 2, 20 8, 22 18 C 24 26, 12 30, 6 34 M6 34 l 8 -1 M6 34 l 2 -8"/></svg>product engineering, iOS</span></p>
+      <h1 id="cs-title" class="cs-h1"><img class="proj-logo" src="../assets/appnest/icon.webp" alt="" width="40" height="40">AppNest</h1>
+      <p class="cs-lede">A mobile-first job application tracker that simplifies application management through intelligent email parsing.</p>
+    </div>
+
+    <div class="cs-hero-shots">
+      <img src="../assets/appnest/app/list.webp" width="560" height="1218" fetchpriority="high"
+           alt="Applications list: a search field, status chips with counts, and a card for each job showing its position, company, date, status and job type.">
+      <img src="../assets/appnest/app/email-highlights.webp" width="560" height="1218"
+           alt="Parse Email after parsing: the status phrase, company, position and date are colored inside the email, above a Review and Edit form filled in with Product Design Intern at Marlowe.">
+      <img src="../assets/appnest/app/detail.webp" width="560" height="1218"
+           alt="Job detail for iOS Engineer Intern at Northlight, with color-coded pills for job type, status and season.">
+      <img src="../assets/appnest/app/list-dark.webp" width="560" height="1218"
+           alt="The same applications list in dark mode.">
+    </div>
+
+    <div class="cs-wrap">
+      <dl class="cs-meta">
+        <div><dt>Category</dt><dd>Product Engineering / iOS Development</dd></div>
+        <div><dt>Role</dt><dd>Independent personal project</dd></div>
+        <div><dt>Platform</dt><dd>Native iOS</dd></div>
+        <div><dt>Timeline</dt><dd>September 2025 to now</dd></div>
+        <div class="cs-meta-full"><dt>Built with</dt><dd>SwiftUI, SwiftData, Apple's Natural Language framework, regular expressions, native iOS APIs</dd></div>
+      </dl>
+      <p><a class="proj-cta" href="https://github.com/marcanjoul/app-nest" target="_blank" rel="noopener">View the code on GitHub →</a></p>
+      <p class="cs-note cs-shots-note">Screens are from the November 2026 build running in the iOS Simulator with made-up sample data. Without a logo service key, companies show initials.</p>
+    </div>
+  </section>
+
+  <!-- 1. PROBLEM + MOTIVATION -->
+  <section class="cs-section cs-reveal" aria-labelledby="cs-problem">
+    <div class="cs-wrap">
+      <p class="cs-num" aria-hidden="true">01</p>
+      <h2 id="cs-problem" class="cs-h2">My CSV didn't work on the go</h2>
+      <p>I used to track my job applications in a CSV database. It got frustrating:</p>
+      <ul class="cs-list">
+        <li>There were too many columns to navigate.</li>
+        <li>Searching for an application was difficult.</li>
+        <li>Manually entering every job was tedious.</li>
+        <li>It wasn't particularly user-friendly.</li>
+        <li>It was hard to review anything quickly on my phone.</li>
+      </ul>
+      <p class="cs-gap">I needed mobile access most when I was away from my laptop and an application update came in. I also wanted an easy way to show other people which positions I had applied for. I wanted something <strong>more visual, more intuitive and convenient to use on the go.</strong></p>
+
+      <h3 class="cs-h3 cs-sub">Why native iOS</h3>
+      <p>I took CodePath's iOS 101 course and really enjoyed it. It made me want to learn more SwiftUI and build more native iOS apps, and I've always enjoyed Apple's app ecosystem. AppNest let me learn iOS development by solving a problem from my own life.</p>
+
+      <div class="cs-insight-lead">
+        <h3 class="cs-card-title">First priority: make jobs easier to add</h3>
+        <p>Typing in every detail was one of the biggest frustrations with the CSV, so two features came out of it. Both cut repetitive entry and make tracking more convenient.</p>
+        <p><strong>Job-link parsing:</strong> paste a supported job posting link and AppNest fills in the application.</p>
+        <p><strong>Email parsing:</strong> paste a job-related email and AppNest pulls out the relevant details.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. OVERVIEW -->
+  <section class="cs-section cs-reveal" aria-labelledby="cs-overview">
+    <div class="cs-wrap">
+      <p class="cs-num" aria-hidden="true">02</p>
+      <h2 id="cs-overview" class="cs-h2">What AppNest does</h2>
+
+      <div class="cs-compare">
+        <div class="cs-card">
+          <h3 class="cs-card-title">Keeping track</h3>
+          <ul class="cs-list">
+            <li>A card for every application</li>
+            <li>Company, position and status, with a date for each</li>
+            <li>Search, sorting and filtering</li>
+            <li>Job application cycles, like “Summer 2027”</li>
+            <li>Editing and deleting, one at a time or in bulk</li>
+            <li>Notes, application details and a resume attachment</li>
+          </ul>
+        </div>
+        <div class="cs-card cs-card-accent">
+          <h3 class="cs-card-title">Getting jobs in, and out</h3>
+          <ul class="cs-list">
+            <li>Email parsing</li>
+            <li>Job-link parsing for Greenhouse, Lever, Ashby and Workday</li>
+            <li>CSV import, with a preview to fix rows first</li>
+            <li>Manual entry</li>
+            <li>CSV export, of everything or just what's filtered</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="cs-wrap cs-wrap-wide">
+      <h3 class="cs-h3 cs-sub">Around the application</h3>
+      <table class="cs-table">
+        <caption class="sr-only">Supporting features and how finished each one is</caption>
+        <thead>
+          <tr><th scope="col">Feature</th><th scope="col">What it does</th><th scope="col">Where it stands</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="Feature">Interview prep notes</td>
+            <td data-label="What it does">Two note fields on each application: company research, and interview prep such as stories, questions and talking points</td>
+            <td data-label="Where it stands">Working</td>
+          </tr>
+          <tr>
+            <td data-label="Feature">Reminders</td>
+            <td data-label="What it does">A local notification on the day I plan to apply, at a time I choose</td>
+            <td data-label="Where it stands">Working, for jobs marked To Apply</td>
+          </tr>
+          <tr>
+            <td data-label="Feature">Company logos</td>
+            <td data-label="What it does">Looked up from Logo.dev and kept with the job; I can also upload my own</td>
+            <td data-label="Where it stands">Working, needs a connection</td>
+          </tr>
+          <tr>
+            <td data-label="Feature">Share extension</td>
+            <td data-label="What it does">Sends a job link or selected email text from another app's share sheet into Add a Job, where it's parsed</td>
+            <td data-label="Where it stands">In the code, still being refined</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 3. CORE EXPERIENCE -->
+  <section class="cs-section cs-reveal" aria-labelledby="cs-flows">
+    <div class="cs-wrap">
+      <p class="cs-num" aria-hidden="true">03</p>
+      <h2 id="cs-flows" class="cs-h2">Four ways to add a job, one screen</h2>
+      <p>Everything starts from the green + button. Whichever way a job comes in, I get to check it and edit it before it's saved.</p>
+    </div>
+
+    <div class="cs-wrap cs-wrap-wide">
+      <div class="cs-flow">
+        <h3 class="cs-card-title">Paste an email</h3>
+        <p class="cs-flow-lede">My favorite feature, and the one I'm most proud of. Pasting the update replaces typing it in.</p>
+        <ol class="cs-steps" tabindex="0" aria-label="Paste an email, 3 screens">
+          <li>
+            <img src="../assets/appnest/app/email-paste.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="The Parse Email card open with an email in the text box and a Parse Email button.">
+            <p><b>1</b> Paste the email and tap Parse.</p>
+          </li>
+          <li>
+            <img src="../assets/appnest/app/email-highlights.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="The parsed email with “Thank you for applying,” “Marlowe,” “Product Design Intern” and “November 20, 2026” each in a different color.">
+            <p><b>2</b> What it found is colored in the email itself, so I can see where each answer came from.</p>
+          </li>
+          <li>
+            <img src="../assets/appnest/app/email-review.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="The review form with Internship, Applied, Summer, Hybrid and Austin, TX already filled in.">
+            <p><b>3</b> Type, status, season and location are filled in. I fix anything that's off, then save.</p>
+          </li>
+        </ol>
+      </div>
+
+      <div class="cs-flow">
+        <h3 class="cs-card-title">Paste a job link</h3>
+        <p class="cs-flow-lede">Each job board needs its own strategy. Greenhouse, Lever and Ashby links are looked up on that board's public API. Workday details are read from the URL. LinkedIn hides the job in its links, so AppNest says it can't read them and asks for the real application link.</p>
+        <ol class="cs-steps" tabindex="0" aria-label="Paste a job link, 3 screens">
+          <li>
+            <img src="../assets/appnest/app/add.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="Add a Job: Paste Job Link, Parse Email, Import CSV and Add Manually.">
+            <p><b>1</b> All four ways in. Add Manually opens a blank form.</p>
+          </li>
+          <li>
+            <img src="../assets/appnest/app/link-paste.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="The Paste Job Link card open with a Greenhouse link and a Parse Link button.">
+            <p><b>2</b> Paste a posting. This one is a real Greenhouse listing.</p>
+          </li>
+          <li>
+            <img src="../assets/appnest/app/link-result.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="A new application filled in with Stripe, Data Analyst, Intern and the Internship type.">
+            <p><b>3</b> Company, title and job type are filled in.</p>
+          </li>
+        </ol>
+      </div>
+
+      <div class="cs-flow">
+        <h3 class="cs-card-title">Bring the old spreadsheet along</h3>
+        <p class="cs-flow-lede">Column names don't have to match. My sample file says Stage and Term, and they land in Status and Season: headers are compared by meaning with Apple's on-device word embeddings, with a list of known names as backup.</p>
+        <ol class="cs-steps" tabindex="0" aria-label="Import a CSV, 3 screens">
+          <li>
+            <img src="../assets/appnest/app/csv-file.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="The iOS file picker with a CSV file named applications.">
+            <p><b>1</b> Pick a CSV from Files.</p>
+          </li>
+          <li>
+            <img src="../assets/appnest/app/csv-preview.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="Import Preview: 10 rows, 9 ready and 1 needing attention, with an Import button.">
+            <p><b>2</b> Preview before importing. One row has no job type, so it's flagged.</p>
+          </li>
+          <li>
+            <img src="../assets/appnest/app/list.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="The applications list after import, with a card for each job.">
+            <p><b>3</b> Rows become cards.</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. DESIGN DECISIONS -->
+  <section class="cs-section cs-reveal" aria-labelledby="cs-decisions">
+    <div class="cs-wrap">
+      <p class="cs-num" aria-hidden="true">04</p>
+      <h2 id="cs-decisions" class="cs-h2">Simple, visual, interactive</h2>
+      <p>That's how I wanted AppNest to feel. The visual design evolved directly in SwiftUI: I didn't make Figma designs or wireframes first. These were my own calls as the person using it, and I haven't run formal usability studies on them.</p>
+    </div>
+
+    <div class="cs-wrap cs-wrap-wide">
+      <article class="cs-decision">
+        <div class="cs-decision-text">
+          <h3 class="cs-card-title">Cards instead of columns</h3>
+          <p>Cards are the main way applications appear. They organize the important information visually and keep each application easy to tell apart and review.</p>
+          <p>Position comes first, then company and how long ago I applied, then status and job type. Everything else waits in the detail view.</p>
+        </div>
+        <figure class="cs-shot">
+          <img src="../assets/appnest/app/list-dark.webp" width="560" height="1218" loading="lazy" decoding="async"
+               alt="Application cards in dark mode, each led by its position title.">
+        </figure>
+      </article>
+
+      <article class="cs-decision cs-decision-wide">
+        <div class="cs-decision-text">
+          <h3 class="cs-card-title">Pills and color, for telling apart and getting around</h3>
+          <p>I wanted pill-shaped filters and color coordination throughout. The pills separate one kind of information from another, and they're also how you move through the list: tap a status chip to filter, or tap a card's status to change it in place. Type, season and work mode filters stay on screen as chips you can remove.</p>
+          <p>Each status keeps its color everywhere, always next to an icon and a word.</p>
+        </div>
+        <div class="cs-trio cs-trio-all">
+          <figure class="cs-shot">
+            <img src="../assets/appnest/app/chip.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="The Interview chip selected, with the list showing only the two interview applications.">
+            <figcaption>Filter by status</figcaption>
+          </figure>
+          <figure class="cs-shot">
+            <img src="../assets/appnest/app/status.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="A card's status menu open over a dimmed list, offering To Apply, Interview, Offer, Rejected, Ghosted and Job Removed.">
+            <figcaption>Change it in place</figcaption>
+          </figure>
+          <figure class="cs-shot">
+            <img src="../assets/appnest/app/filter.webp" width="560" height="1218" loading="lazy" decoding="async"
+                 alt="The filter menu with Internship checked and a removable Internship chip above the list.">
+            <figcaption>Filter by type</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <article class="cs-decision cs-decision-flip">
+        <div class="cs-decision-text">
+          <h3 class="cs-card-title">Interaction first, sometimes ahead of looks</h3>
+          <p>I prioritized the experience and the interactions, sometimes even more than the purely visual appearance. A swipe deletes a card and offers Undo. Deleting a whole cycle means holding the button down. Opening a status menu gives a light tap, saving gives a success pattern, and a link it can't use gives a warning.</p>
+          <p>Text scales with Dynamic Type, press animations respect Reduce Motion, and there's a light and a dark theme.</p>
+          <p>I keep iterating on:</p>
+          <ul class="cs-list">
+            <li>Haptic feedback</li>
+            <li>Navigation and interaction flow</li>
+            <li>Visual feedback</li>
+            <li>Ease of use</li>
+            <li>Interface clarity</li>
+            <li>General visual refinement</li>
+          </ul>
+        </div>
+        <figure class="cs-shot">
+          <img src="../assets/appnest/app/undo.webp" width="560" height="1218" loading="lazy" decoding="async"
+               alt="After a swipe to delete: a bar at the bottom reads “Deleted Kestrel Labs” with an Undo button.">
+        </figure>
+      </article>
+    </div>
+  </section>
+
+  <!-- 5. TECHNICAL DEEP DIVE -->
+  <section class="cs-section cs-reveal" aria-labelledby="cs-tech">
+    <div class="cs-wrap">
+      <p class="cs-num" aria-hidden="true">05</p>
+      <h2 id="cs-tech" class="cs-h2">Reading an email on the phone</h2>
+      <p>The parser is a hybrid. No single technique handles recruiting emails well, so it layers several and runs all of them on the device, with no external NLP service.</p>
+
+      <figure class="cs-shot cs-shot-wide">
+        <img src="../assets/appnest/app/email-crop.webp" width="900" height="560" loading="lazy" decoding="async"
+             alt="Close-up of a parsed email. “Thank you for applying” is the status, “Marlowe” the company, “Product Design Intern” the position and “November 20, 2026” the date, each in its own color.">
+        <figcaption>Four colors: status, company, position, date</figcaption>
+      </figure>
+
+      <ol class="cs-findings">
+        <li>
+          <h3 class="cs-card-title">Patterns that know the context</h3>
+          <p>Regular expressions look for the phrasings recruiters use, like “role at…” or “your application for the…”, roughly from most specific to least. They go first because they're the most precise.</p>
+        </li>
+        <li>
+          <h3 class="cs-card-title">Apple's Natural Language framework as backup</h3>
+          <p>If no pattern finds the company, <code>NLTagger</code> looks for organization names. Job sites like LinkedIn and Indeed are ignored, and so are job titles it mistakes for companies.</p>
+        </li>
+        <li>
+          <h3 class="cs-card-title">Foundation for dates</h3>
+          <p><code>NSDataDetector</code> finds the date. It assumes a bare “March 3” is the next one, but an application date is in the past, so the parser moves it back a year.</p>
+        </li>
+        <li>
+          <h3 class="cs-card-title">Cleanup, then a person</h3>
+          <p>Job IDs, locations and seasons come off the title. A title that reads like a sentence, or repeats the company, is thrown out: a blank is better than a wrong answer. Then I review it.</p>
+        </li>
+      </ol>
+    </div>
+
+    <div class="cs-wrap cs-wrap-wide">
+      <table class="cs-table">
+        <caption class="sr-only">What the parser extracts, how it reads each field, and a mistake it guards against</caption>
+        <thead>
+          <tr><th scope="col">It extracts</th><th scope="col">By looking for</th><th scope="col">Without falling for</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="It extracts">Company name</td>
+            <td data-label="By looking for">Known phrasings, then the sign-off line, then <code>NLTagger</code></td>
+            <td data-label="Without falling for">“Stripe Talent Community” as the name of a company</td>
+          </tr>
+          <tr>
+            <td data-label="It extracts">Position title</td>
+            <td data-label="By looking for">Known phrasings, or a title on its own line</td>
+            <td data-label="Without falling for">“our open position” as a job called “open”</td>
+          </tr>
+          <tr>
+            <td data-label="It extracts">Application status</td>
+            <td data-label="By looking for">Offer, rejection, interview and confirmation phrases</td>
+            <td data-label="Without falling for">“If you are selected for an interview…” as an interview</td>
+          </tr>
+          <tr>
+            <td data-label="It extracts">Employment type and season</td>
+            <td data-label="By looking for">Words like internship, co-op or new grad; a season name</td>
+            <td data-label="Without falling for">“if your skills fall short” as the fall season</td>
+          </tr>
+          <tr>
+            <td data-label="It extracts">Application date</td>
+            <td data-label="By looking for">A date from <code>NSDataDetector</code>, or today if there isn't one</td>
+            <td data-label="Without falling for">An application date in the future</td>
+          </tr>
+          <tr>
+            <td data-label="It extracts">Location and work mode</td>
+            <td data-label="By looking for">A U.S. “City, ST” and phrases like “hybrid role”</td>
+            <td data-label="Without falling for">Two capitals that aren't a state</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cs-wrap">
+      <div class="cs-compare">
+        <div class="cs-card cs-card-accent">
+          <h3 class="cs-card-title">Stays on the phone</h3>
+          <p>The text of the email, and all the parsing. Applications are stored on the device with SwiftData.</p>
+        </div>
+        <div class="cs-card">
+          <h3 class="cs-card-title">Uses the network</h3>
+          <p>Job-board lookups (Greenhouse, Lever, Ashby), company logos and name suggestions from Logo.dev, including for a company found in an email, and city suggestions from Apple Maps.</p>
+        </div>
+      </div>
+
+      <h3 class="cs-h3 cs-sub">How the app is put together</h3>
+      <ul class="cs-list">
+        <li><strong>SwiftUI</strong> draws the whole interface.</li>
+        <li><strong>SwiftData</strong> saves applications, cycles and resumes. Screens read them with <code>@Query</code>, so a change in one place shows up everywhere without extra wiring.</li>
+        <li>An <strong><code>@Observable</code> view model</strong> handles the email form, the most complex one. It holds the draft until I save, separate from stored data.</li>
+        <li><strong>Native iOS APIs</strong> cover haptics, local notifications and the share sheet, along with system search, swipe actions and file picking.</li>
+        <li><strong>The parser</strong> is plain text in, structured result out. It knows nothing about the interface, which makes it easy to test.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 6. ENGINEERING CHALLENGES -->
+  <section class="cs-section cs-reveal" aria-labelledby="cs-challenges">
+    <div class="cs-wrap">
+      <p class="cs-num" aria-hidden="true">06</p>
+      <h2 id="cs-challenges" class="cs-h2">The hardest part was accuracy</h2>
+      <p>Getting extraction to work across different recruiting email formats was the hardest technical challenge. Two problems kept coming back.</p>
+
+      <div class="cs-compare">
+        <div class="cs-card">
+          <h3 class="cs-card-title">It took too much</h3>
+          <p>Sometimes it extracted too much text, and the position title came out overly long, with unrelated parts of the email in it.</p>
+          <p class="cs-card-label">A line from the tests</p>
+          <p class="cs-sample"><mark>Machine Learning Intern</mark> - Full-Time - United States - July Start 210774111</p>
+          <p>The title should stop after “Intern.”</p>
+        </div>
+        <div class="cs-card">
+          <h3 class="cs-card-title">It found nothing</h3>
+          <p>Sometimes it failed to extract information because the email used an unfamiliar structure.</p>
+          <p class="cs-card-label">A line from the tests</p>
+          <p class="cs-sample">…our open position ( 01884409 <mark>Systems Engineer Intern</mark> ).</p>
+          <p>The title is in brackets behind a job number, and the company is named only in the sign-off.</p>
+        </div>
+      </div>
+
+      <p>I experimented with real job application emails and refined the parsing logic to handle more variations. I used <strong>Claude Code and ChatGPT as development assistants</strong> to help test example emails, diagnose parsing mistakes and refine the code.</p>
+
+      <h3 class="cs-h3 cs-sub">Keeping old fixes fixed</h3>
+      <p>A wrong company name looks exactly like a right one, and a pattern that fixes one email format can quietly break another. So the project has automated tests, written with Swift's Testing framework and AI assistance. Each one gives the parser an email or a sentence and states what should come out. When a pattern changes, the older cases show whether something that used to work broke.</p>
+      <pre class="cs-code"><code>@Test("a hypothetical interview is not an interview")
+func hypotheticalIsNotStatus() {
+    let email = "Thank you for applying. If you are selected for an interview, we will be in touch."
+    #expect(parser.parse(email).status == .applied)
+}</code></pre>
+      <p class="cs-note">From EmailParserTests.swift. Its cases cover company, position, status, type, season, date, location and whole emails. Other tests cover link parsing, CSV seasons, data backup and the share extension's handoff. I don't have a measured accuracy figure, so I won't quote one.</p>
+    </div>
+  </section>
+
+  <!-- 7. EVOLUTION -->
+  <section class="cs-section cs-reveal" aria-labelledby="cs-evolution">
+    <div class="cs-wrap">
+      <p class="cs-num" aria-hidden="true">07</p>
+      <h2 id="cs-evolution" class="cs-h2">How it grew, from the Git history</h2>
+
+      <ol class="cs-timeline">
+        <li>
+          <p class="cs-when">September 2025</p>
+          <h3 class="cs-card-title">Foundations</h3>
+          <p>Basic application models, a job detail screen, date selection, status controls and early UI refinements. It was mostly about managing applications by hand. Pill pickers, notes and resume upload arrived by the end of the month, and cards followed in early October.</p>
+        </li>
+        <li>
+          <p class="cs-when">March 2026</p>
+          <h3 class="cs-card-title">Major expansion</h3>
+          <p>SwiftData persistence, an expanded profile dashboard, CSV export and the first on-device email parser. Cards and theme were redesigned, with sorting and filtering. Search work ran from February into April.</p>
+        </li>
+        <li>
+          <p class="cs-when">May–June 2026</p>
+          <h3 class="cs-card-title">Whole workflows</h3>
+          <p>CSV import with a preview, job-link parsing, cycles, reminders, interview prep and company logos. Plus a lot of work on navigation, haptics, animations, gestures and feedback. A first share extension was added in May and removed four days later.</p>
+        </li>
+        <li>
+          <p class="cs-when">September–November 2026</p>
+          <h3 class="cs-card-title">Reliability and refinement</h3>
+          <p>Parser tests and more patterns, recovery for a database that won't open, title lookups for Lever and Ashby, VoiceOver labels on icon-only buttons, and a rebuilt share extension.</p>
+        </li>
+      </ol>
+
+      <h3 class="cs-h3 cs-sub">The same two flows in May 2026</h3>
+      <p>These are demo recordings from the repository. Compare them with the screens above to see how far the interface has moved since.</p>
+      <div class="cs-compare cs-clips">
+        <figure class="cs-shot">
+          <video controls muted playsinline preload="none" width="480" height="1038" poster="../assets/appnest/video/parse-email-may-2026.webp"
+                 aria-label="Screen recording, no sound: a rejection email is pasted and parsed, the filled-in form is reviewed, and the application is added.">
+            <source src="../assets/appnest/video/parse-email-may-2026.mp4" type="video/mp4">
+          </video>
+          <figcaption>Parsing an email, 16 sec</figcaption>
+        </figure>
+        <figure class="cs-shot">
+          <video controls muted playsinline preload="none" width="480" height="1038" poster="../assets/appnest/video/parse-link-may-2026.webp"
+                 aria-label="Screen recording, no sound: a job link is pasted and parsed, the filled-in form is reviewed, and the application is added.">
+            <source src="../assets/appnest/video/parse-link-may-2026.mp4" type="video/mp4">
+          </video>
+          <figcaption>Parsing a job link, 13 sec</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. OUTCOME + REFLECTION -->
+  <section class="cs-section cs-reveal" aria-labelledby="cs-outcome">
+    <div class="cs-wrap">
+      <p class="cs-num" aria-hidden="true">08</p>
+      <h2 id="cs-outcome" class="cs-h2">I haven't gone back to the CSV</h2>
+      <p>I use AppNest to track my own job applications. Since adopting it, I have not returned to my old CSV workflow. That's one user, me, and I'm not claiming more than that.</p>
+
+      <h3 class="cs-h3 cs-sub">What I learned</h3>
+      <blockquote class="cs-question">
+        <p><span>Iteration and testing matter. A product is never truly finished.</span></p>
+      </blockquote>
+      <p>There are always ways to refine features, address issues and improve the experience. Building AppNest reinforced that I should keep improving a product that already works, instead of treating the first implementation as final.</p>
+
+      <h3 class="cs-h3 cs-sub">What I'd do differently</h3>
+      <p>I didn't do these at the start of AppNest. If I started again, I would:</p>
+      <ul class="cs-list">
+        <li>Conduct user research earlier.</li>
+        <li>Create initial wireframes.</li>
+        <li>Prototype interactions before coding.</li>
+        <li>Use Figma as part of the design process.</li>
+        <li>Plan the app's architecture more deliberately.</li>
+      </ul>
+
+      <h3 class="cs-h3 cs-sub">What's next</h3>
+      <ul class="cs-list">
+        <li>Additional visual refinements.</li>
+        <li>More automation.</li>
+        <li><strong>A smoother email-sharing workflow</strong>, so relevant email content goes through the iOS share sheet straight into AppNest. The share extension can already pass along a link or selected text. For an email, I still have to select the text first, and if iOS won't open the app, it copies the text for me to paste.</li>
+      </ul>
+
+      <p class="cs-end"><a class="proj-cta" href="https://github.com/marcanjoul/app-nest" target="_blank" rel="noopener">View the code on GitHub →</a></p>
+    </div>
+  </section>
+</main>
+
+<footer class="cs-foot">
+  <a class="cs-back" href="../#projects">← Back to all projects</a>
+</footer>
+
+<script>
+  // same entrance as airborder/: JS adds the hidden state, so with no JS everything just shows
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    }));
+    document.querySelectorAll('.cs-reveal').forEach((el) => { el.classList.add('pre'); io.observe(el); });
+  }
+</script>
+</body>
+</html>

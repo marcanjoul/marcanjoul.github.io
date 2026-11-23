@@ -50,33 +50,23 @@
     {
       "id": "appnest",
       "title": "AppNest",
-      "type": "iOS, software engineering, interaction design",
-      "shortType": "iOS, interaction design",
-      "stack": "SwiftUI, SwiftData, NaturalLanguage, Figma",
+      "type": "Product Engineering / iOS Development",
+      "shortType": "Product engineering, iOS",
+      "stack": "SwiftUI, SwiftData, NaturalLanguage",
       "tags": [
-        "UI/UX",
-        "SWE"
+        "SWE",
+        "UI/UX"
       ],
-      "tagline": "Job tracker that parses emails on-device. Designed in Figma, built in SwiftUI.",
+      "tagline": "A mobile-first job tracker that reads your application emails on the phone.",
       "thumbnail": {
-        "image": "assets/appnest/screens/01-applications.webp"
+        "image": "assets/appnest/app/list.webp"
       },
       "size": "lg",
-      "about": "An iOS job application tracker I designed and built end to end. Paste a confirmation email and Apple's on-device NaturalLanguage framework pulls out the company, role, status and pay, with no API calls and no account. Paste a Greenhouse, Lever or Ashby link and it looks the posting up on that board's public API to fill in the real job title. Everything is stored locally with SwiftData. The UI runs on a token-based design system that I mirrored in Figma: light and dark modes as one variable switch, a six-step type scale (DM Sans for headlines over SF Pro), and components mapped to their Swift views.",
-      "features": [
-        "On-device email parsing with NLTagger, regex and NSDataDetector: nothing leaves the phone",
-        "ATS link parsing: Greenhouse, Lever and Ashby pull the job title from each board's public API; Workday reads it from the URL",
-        "CSV import with a forgiving column mapper and an editable preview, plus CSV export",
-        "Search cycles (\"Summer 2026\") with bulk edit, move and delete",
-        "Per-application interview prep notes and follow-up reminders",
-        "Figma design system: semantic color tokens with light/dark modes, six type roles as text styles, components mapped 1:1 to SwiftUI views",
-        "Native iOS 26 chrome: Liquid Glass, system search and toolbar close buttons, tinted to the app's green",
-        "Dynamic Type throughout and 44pt minimum touch targets"
-      ],
+      "caseStudy": "appnest/",
       "links": [
         {
           "label": "View on GitHub →",
-          "href": "https://github.com/marcanjoul/AppNest"
+          "href": "https://github.com/marcanjoul/app-nest"
         }
       ],
       "gallery": {
@@ -85,50 +75,18 @@
         "items": [
           {
             "label": "Applications",
-            "src": "assets/appnest/screens/01-applications.webp",
-            "dark": "assets/appnest/screens/01-applications-dark.webp"
-          },
-          {
-            "label": "Add a job",
-            "src": "assets/appnest/screens/02-add-job.webp",
-            "dark": "assets/appnest/screens/02-add-job-dark.webp"
-          },
-          {
-            "label": "Job detail",
-            "src": "assets/appnest/screens/03-job-detail.webp",
-            "dark": "assets/appnest/screens/03-job-detail-dark.webp"
+            "src": "assets/appnest/app/list.webp"
           },
           {
             "label": "Parse email",
-            "src": "assets/appnest/screens/08-parse-email.webp",
-            "dark": "assets/appnest/screens/08-parse-email-dark.webp"
+            "src": "assets/appnest/app/email-highlights.webp"
           },
           {
-            "label": "CSV import",
-            "src": "assets/appnest/screens/09-csv-import.webp",
-            "dark": "assets/appnest/screens/09-csv-import-dark.webp"
-          },
-          {
-            "label": "Profile",
-            "src": "assets/appnest/screens/04-profile.webp",
-            "dark": "assets/appnest/screens/04-profile-dark.webp"
+            "label": "Job detail",
+            "src": "assets/appnest/app/detail.webp"
           }
         ]
       },
-      "notes": [
-        {
-          "text": "parses a pasted email\nwith zero API calls",
-          "x": 58,
-          "y": 16,
-          "from": "right"
-        },
-        {
-          "text": "stored on-device —\nno server, no account",
-          "x": 14,
-          "y": 80,
-          "from": "left"
-        }
-      ],
       "logo": "assets/appnest/icon.webp"
     },
     {
