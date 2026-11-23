@@ -1634,3 +1634,54 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   .cs-timeline li { padding: 0 0 0 1.75rem; }
   .cs-timeline li::before { left: -0.5rem; top: 0.4rem; }
 }
+
+/* ---------- appnest/ on small screens ---------- */
+@media (min-width: 641px) and (max-width: 900px) {
+  .cs-demos .cs-shot video { max-width: 240px; }
+}
+/* a recording always fits the screen it's on, with room for the browser's bars (landscape too) */
+@media (max-width: 640px), (max-height: 500px) {
+  .cs-appnest .cs-shot video { max-width: min(300px, calc(80vh * 0.46)); max-width: min(300px, calc(80svh * 0.46)); }
+}
+
+@media (max-width: 640px) {
+  .cs-appnest { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+  /* hero: the four phones become one swipe row, so the overview is on the first screen */
+  .cs-appnest .cs-hero { padding-top: 1rem; }
+  .cs-appnest .cs-h1 { white-space: nowrap; margin-bottom: 0.75rem; }
+  .cs-appnest .cs-hero-shots {
+    grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: min(36vw, 150px); gap: 1rem;
+    margin-block: 0.5rem 0.25rem; padding: 0.6rem 1.5rem 1.4rem;
+    overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scroll-padding-inline: 1.5rem;
+    scrollbar-width: none;
+  }
+  .cs-appnest .cs-hero-shots::-webkit-scrollbar { display: none; }
+  .cs-appnest .cs-hero-shots img { scroll-snap-align: start; border-radius: 14px; }
+  .cs-appnest .cs-hero-shots img:nth-child(even) { transform: rotate(1deg) translateY(0.6rem); }
+  .cs-hero-cta { row-gap: 0; }
+  .cs-glance { margin: 1rem 0 1.5rem; gap: 1rem; }
+
+  /* lead demo: heading first, then the recording, then the steps */
+  .cs-lead { gap: 0.75rem; padding: 1.25rem; margin-bottom: 1.75rem; }
+  .cs-lead > div { display: contents; }
+  .cs-lead-title, .cs-lead > div > p { order: -1; margin-bottom: 0; }
+  .cs-lead .cs-findings { margin-top: 0.75rem; }
+  .cs-appnest .cs-findings li { grid-template-columns: 1.6rem 1fr; column-gap: 0.6rem; }
+  .cs-appnest .cs-findings li::before { font-size: 1.6rem; }
+
+  /* supporting recordings: edge to edge, one at a time with a peek at the next */
+  .cs-appnest .cs-demos {
+    grid-auto-columns: 82%; margin-inline: -1.5rem; padding: 0.25rem 1.5rem 0.5rem; scroll-padding-inline: 1.5rem;
+    scrollbar-width: none;
+  }
+  .cs-appnest .cs-demos::-webkit-scrollbar { display: none; }
+  .cs-appnest .cs-demos p { margin-bottom: 0; }
+
+  .cs-appnest .cs-sub { margin-top: 2rem; }
+  .cs-appnest figcaption { text-wrap: balance; }
+  .cs-crop-status { aspect-ratio: 5 / 4.3; object-position: 0 77%; }   /* keeps the last pill whole */
+}
+@media (max-width: 360px) {
+  .cs-appnest .cs-h1 { font-size: 2.75rem; }
+}

@@ -39,7 +39,7 @@
       <p class="cs-lede">A mobile-first job application tracker that simplifies application management through intelligent email parsing.</p>
     </div>
 
-    <div class="cs-hero-shots">
+    <div class="cs-hero-shots" role="group" aria-label="Four AppNest screens">
       <img src="../assets/appnest/app/list.webp" width="560" height="1218" fetchpriority="high"
            alt="Applications list: a search field, status chips with counts, and a card for each job showing its position, company, date, status and job type.">
       <img src="../assets/appnest/app/email-highlights.webp" width="560" height="1218"
@@ -127,7 +127,7 @@
     </div>
 
     <div class="cs-wrap">
-      <ul class="cs-steps cs-demos" tabindex="0" aria-label="Four more recordings">
+      <ul class="cs-steps cs-demos" aria-label="Four more recordings">
         <li>
           <figure class="cs-shot">
             <video data-demo controls muted playsinline preload="none" width="600" height="1304" poster="../assets/appnest/demos/dashboard.webp"
@@ -471,8 +471,9 @@ func hypotheticalIsNotStatus() {
   clips.forEach((v) => v.addEventListener('play', () => clips.forEach((o) => { if (o !== v) hush(o); })));
   function hush(v) { if (!v.paused) { v.dataset.auto = '1'; v.pause(); } }
 
-  if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
-    const demos = clips.filter((v) => 'demo' in v.dataset);
+  if ('IntersectionObserver' in window) {
+    const auto = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const demos = auto ? clips.filter((v) => 'demo' in v.dataset) : [];
     const seen = new Set(), held = new Set();   // on screen; paused by the reader
     const start = (after) => {
       const n = demos.length, from = after ? demos.indexOf(after) + 1 : 0;
@@ -489,14 +490,24 @@ func hypotheticalIsNotStatus() {
       });
       v.addEventListener('ended', () => start(v));   // next one on screen, or this one again
     });
+    // every recording stops once it's off screen; only the demos start by themselves
     const watch = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
-        if (e.isIntersecting) seen.add(e.target); else { seen.delete(e.target); hush(e.target); }
+        const v = e.target, inView = e.intersectionRatio >= 0.6;
+        if (inView && demos.includes(v)) seen.add(v); else seen.delete(v);
+        if (!e.isIntersecting || (demos.includes(v) && !inView)) hush(v);
       });
       if (!clips.some((v) => !v.paused)) start();
-    }, { threshold: 0.6 });
-    demos.forEach((v) => watch.observe(v));
+    }, { threshold: [0, 0.6] });
+    clips.forEach((v) => watch.observe(v));
   }
+
+  // rows that scroll sideways take keyboard focus, but only at widths where they do scroll
+  const rows = document.querySelectorAll('.cs-hero-shots, .cs-demos');
+  const reach = () => rows.forEach((el) => {
+    if (el.scrollWidth > el.clientWidth + 1) el.tabIndex = 0; else el.removeAttribute('tabindex');
+  });
+  reach(); addEventListener('load', reach); addEventListener('resize', reach);
 
   // closing a section stops whatever was playing inside it
   document.querySelectorAll('details').forEach((d) => d.addEventListener('toggle', () => {
