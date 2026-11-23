@@ -1542,20 +1542,59 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
 }
 
 /* ---------- appnest/ additions ---------- */
+.cs-appnest .cs-wrap { max-width: 1080px; }   /* one left edge, shared with the hero phones and the back link */
 .cs-appnest .cs-h2 { text-wrap: balance; }
+.cs-appnest .cs-section { padding-top: clamp(2.75rem, 6vw, 4.5rem); }
+.cs-appnest .cs-compare { margin: 1.5rem auto; }
 .cs-meta-full { grid-column: 1 / -1; }
-.cs-shots-note { margin-top: 1rem; max-width: 62ch; }
-.cs-section .cs-gap { margin-top: 1.5rem; }
-.cs-end { margin-top: 2.5rem; }
+.cs-appnest .cs-meta { margin-bottom: 0; }
+.cs-section .cs-gap { margin-top: 1.25rem; }
 .cs code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.9em; }
-.cs-shot-wide { margin: 2rem 0; }
-.cs-shot-wide img { max-width: 620px; border-radius: var(--detail-radius); }
-/* unlike AirBorder's trio, all three screens matter here: stack them instead of hiding one */
-@media (max-width: 560px) {
-  .cs-trio-all { grid-template-columns: 1fr; gap: 2rem; }
-  .cs-trio-all figure:first-child { display: block; }
-  .cs-trio-all img { max-width: 240px; }
+
+.cs-hero-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
+.cs-glance { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem 2rem; margin: 2rem 0; }
+.cs-glance dt { font-family: var(--font-head); font-weight: 700; font-size: 1.2rem; line-height: 1.2; margin-bottom: 0.35rem; }
+.cs-glance dd { color: var(--ink-2); line-height: 1.55; }
+@media (max-width: 760px) { .cs-glance { grid-template-columns: 1fr; } }
+
+/* the lead demo: one framed panel, bigger than everything around it */
+.cs-lead {
+  display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: clamp(1.5rem, 5vw, 4rem); align-items: center;
+  margin: 1.5rem 0 2.5rem; padding: clamp(1.25rem, 3.5vw, 2.5rem);
+  border: 1.5px solid var(--ink); border-radius: var(--detail-radius); background: var(--paper); box-shadow: var(--project-shadow);
 }
+.cs-lead-title { font-family: var(--font-head); font-weight: 700; font-size: clamp(1.8rem, 1.4rem + 1.6vw, 2.5rem); line-height: 1.1; margin-bottom: 0.6rem; }
+.cs-lead .cs-findings { margin: 1.5rem 0 0; gap: 1rem; }
+.cs-lead .cs-shot video { max-width: 340px; }
+.cs-shot video {
+  width: 100%; max-width: 300px; height: auto; display: block; margin-inline: auto; background: #000;
+  border: 1.5px solid var(--ink); border-radius: 16px; box-shadow: var(--project-shadow);
+}
+
+/* four supporting recordings: a row, then two by two, then the swipe row .cs-steps already has */
+.cs-demos p { margin-top: 0.35rem; text-align: center; }
+@media (min-width: 641px) and (max-width: 900px) {
+  .cs-demos { grid-auto-flow: row; grid-template-columns: 1fr 1fr; row-gap: 2rem; }
+}
+
+/* design decisions, each with a close-up cropped from the full screenshot */
+.cs-choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem 2rem; margin: 1.5rem 0; }
+.cs-choices img {
+  width: 100%; height: auto; aspect-ratio: 5 / 4; object-fit: cover; display: block; margin-bottom: 1rem;
+  border: 1.5px solid var(--ink); border-radius: var(--detail-radius);
+}
+.cs-crop-card { object-position: 0 37%; }
+.cs-crop-status { object-position: 0 76%; }
+.cs-crop-undo { object-position: 0 100%; }
+.cs-choices p { font-size: 0.98rem; margin-bottom: 0; }
+@media (max-width: 760px) { .cs-choices { grid-template-columns: 1fr; gap: 2rem; } }
+
+.cs-parser { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 3rem); align-items: center; }
+.cs-parser .cs-findings { margin: 1rem 0; }
+.cs-parser .cs-shot img { max-width: 460px; aspect-ratio: 900 / 575; object-fit: cover; object-position: top; }
+@media (max-width: 860px) { .cs-parser { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 640px) { .cs-lead { grid-template-columns: minmax(0, 1fr); } }
+
 .cs-sample { padding: 0.6rem 0.8rem; border: 1px solid var(--rule); border-radius: 8px; overflow-wrap: anywhere; }
 .cs-sample mark { background: var(--yellow); color: var(--ink); padding-inline: 0.15em; }
 .cs-code {
@@ -1563,23 +1602,35 @@ footer { text-align: center; padding: 4rem 1.5rem; color: var(--ink-3); font-siz
   background: var(--ink); color: var(--paper); border-radius: var(--detail-radius);
 }
 .cs-code code { font-size: 0.85rem; }
-.cs-timeline { list-style: none; margin-left: 0.45rem; border-left: 1.5px solid var(--ink); display: grid; gap: 2rem; }
-.cs-timeline li { position: relative; padding-left: 1.75rem; }
+
+/* expandable detail */
+.cs-more { border-top: 1.5px solid var(--ink); }
+.cs-more:last-of-type { border-bottom: 1.5px solid var(--ink); }
+.cs-more:first-of-type { margin-top: 2rem; }
+.cs-more summary {
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem; min-height: 3.25rem; padding-block: 0.6rem; cursor: pointer; list-style: none;
+  font-family: var(--font-head); font-weight: 700; font-size: 1.2rem; line-height: 1.2;
+}
+.cs-more summary::-webkit-details-marker { display: none; }
+.cs-more summary::after { content: '+'; font-size: 1.6rem; line-height: 1; color: var(--accent); }
+.cs-more[open] summary::after { content: '\2212'; }
+@media (hover: hover) and (pointer: fine) { .cs-more summary:hover { color: var(--accent); } }
+.cs-more[open] { padding-bottom: 1.5rem; }
+.cs-more-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem 2rem; padding-top: 0.5rem; }
+.cs-more-cols li { font-size: 0.95rem; line-height: 1.55; }
+@media (max-width: 760px) { .cs-more-cols { grid-template-columns: 1fr; } }
+
+/* timeline: four across, or a rail down the side on a phone */
+.cs-timeline { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; border-top: 1.5px solid var(--ink); margin: 1.75rem 0 2rem; }
+.cs-timeline li { position: relative; padding-top: 1.4rem; }
 .cs-timeline li::before {
-  content: ''; position: absolute; left: -0.5rem; top: 0.4rem; width: 0.9rem; height: 0.9rem;
+  content: ''; position: absolute; left: 0; top: -0.5rem; width: 0.9rem; height: 0.9rem;
   border-radius: 50%; background: var(--yellow); border: 1.5px solid var(--ink);
 }
+.cs-timeline p { font-size: 0.95rem; line-height: 1.6; margin-bottom: 0; }
 .cs-timeline .cs-when { font-size: 0.9rem; color: var(--ink-3); margin-bottom: 0.1rem; }
-.cs-timeline p:last-child { margin-bottom: 0; }
-.cs-shot video {
-  width: 100%; max-width: 300px; height: auto; display: block; margin-inline: auto; background: #000;
-  border: 1.5px solid var(--ink); border-radius: 16px; box-shadow: var(--project-shadow);
-}
-/* a recording beside the numbered stills; stacked once the row gets too tight to read */
-.cs-wrap-media { max-width: 1128px; }
-.cs-flow-media { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: clamp(1.25rem, 3vw, 2.25rem); align-items: start; margin-top: 1.5rem; }
-.cs-flow-media .cs-steps { margin-top: 0; min-width: 0; }
-.cs-parser { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 300px); gap: clamp(1.5rem, 5vw, 4rem); align-items: center; }
 @media (max-width: 860px) {
-  .cs-flow-media, .cs-parser { grid-template-columns: minmax(0, 1fr); }
+  .cs-timeline { grid-template-columns: 1fr; gap: 1.5rem; border-top: 0; border-left: 1.5px solid var(--ink); margin-left: 0.45rem; }
+  .cs-timeline li { padding: 0 0 0 1.75rem; }
+  .cs-timeline li::before { left: -0.5rem; top: 0.4rem; }
 }
