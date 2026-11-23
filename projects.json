@@ -8,7 +8,8 @@
     "sticker is the hype sticker on the shrink-wrap: five words max. label.color is the record's center label.",
     "role / team / timeline / status / stack fill the credits in the Details panel. Values in [brackets] are placeholders waiting on Mark.",
     "intersects lists personal interests a project genuinely touches. Omit it when there are none.",
-    "about / features / gallery / notes / links fill the Details panel. caseStudy adds a Case study link. gallery items with a dark src get a Light/Dark switch."
+    "about / features / gallery / notes / links fill the Details panel. caseStudy adds a Case study link. gallery items with a dark src get a Light/Dark switch.",
+    "tour drives the zoom inside the gatefold: each stop is an image, the x/y point (in % of the image) to zoom to, the scale s, and a caption. Captions state facts already in the project copy."
   ],
   "projects": [
     {
@@ -53,7 +54,23 @@
       "label": {
         "color": "oklch(86% 0.05 220)"
       },
-      "catalog": "MA-001"
+      "catalog": "MA-001",
+      "tour": [
+        {
+          "src": "assets/airborder/main-flight.webp",
+          "x": 70,
+          "y": 51,
+          "s": 2.4,
+          "text": "Gate and departure time, always in view"
+        },
+        {
+          "src": "assets/airborder/main-flight.webp",
+          "x": 45,
+          "y": 83,
+          "s": 2.2,
+          "text": "The deadline that matters: when the gate closes"
+        }
+      ]
     },
     {
       "id": "appnest",
@@ -142,7 +159,30 @@
       "label": {
         "color": "oklch(93% 0.05 165)"
       },
-      "catalog": "MA-002"
+      "catalog": "MA-002",
+      "tour": [
+        {
+          "src": "assets/appnest/screens/01-applications.webp",
+          "x": 45,
+          "y": 17,
+          "s": 2.4,
+          "text": "Every application, counted by status"
+        },
+        {
+          "src": "assets/appnest/screens/01-applications.webp",
+          "x": 55,
+          "y": 35,
+          "s": 2.2,
+          "text": "Status chips you can read at a glance"
+        },
+        {
+          "src": "assets/appnest/screens/08-parse-email.webp",
+          "x": 50,
+          "y": 52,
+          "s": 1.9,
+          "text": "Paste an email and it’s parsed on-device, with no API calls"
+        }
+      ]
     },
     {
       "id": "ois",
@@ -234,7 +274,23 @@
       "label": {
         "color": "oklch(84% 0.1 318)"
       },
-      "catalog": "MA-003"
+      "catalog": "MA-003",
+      "tour": [
+        {
+          "src": "assets/hco-ois/mobile-leaderboard.webp",
+          "x": 50,
+          "y": 28,
+          "s": 1.9,
+          "text": "An end-of-competition podium"
+        },
+        {
+          "src": "assets/hco-ois/mobile-leaderboard.webp",
+          "x": 55,
+          "y": 62,
+          "s": 2,
+          "text": "Sales per hour, live for the whole team (names blurred)"
+        }
+      ]
     },
     {
       "id": "groov",
@@ -312,7 +368,23 @@
       "intersects": [
         "music"
       ],
-      "catalog": "MA-004"
+      "catalog": "MA-004",
+      "tour": [
+        {
+          "src": "assets/groov/discover.webp",
+          "x": 50,
+          "y": 30,
+          "s": 1.9,
+          "text": "Trending albums from the Last.fm API"
+        },
+        {
+          "src": "assets/groov/detail.webp",
+          "x": 50,
+          "y": 54,
+          "s": 2.4,
+          "text": "Rate it, or add it to To Listen"
+        }
+      ]
     },
     {
       "id": "spotify",
@@ -388,7 +460,23 @@
       "intersects": [
         "music"
       ],
-      "catalog": "MA-005"
+      "catalog": "MA-005",
+      "tour": [
+        {
+          "src": "assets/hit-predictor/correlation-heatmap.webp",
+          "x": 55,
+          "y": 82,
+          "s": 2.2,
+          "text": "No audio feature tops 0.10 correlation with a hit"
+        },
+        {
+          "src": "assets/hit-predictor/roc-curve.webp",
+          "x": 80,
+          "y": 84,
+          "s": 2.6,
+          "text": "AUC 0.53: barely above chance, and that was the finding"
+        }
+      ]
     },
     {
       "id": "noteweb",

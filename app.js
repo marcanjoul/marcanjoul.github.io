@@ -1,7 +1,7 @@
-/* The living room: TV credits, records on the wall, gatefolds. */
+/* The living room: TV credits, records on the wall, tri-fold gatefolds. */
 (() => {
-  const { gsap, ScrollTrigger, Draggable } = window;
-  gsap.registerPlugin(ScrollTrigger, Draggable, window.InertiaPlugin);
+  const { gsap, ScrollTrigger } = window;
+  gsap.registerPlugin(ScrollTrigger);
 
   const root = document.documentElement;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -9,8 +9,6 @@
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const esc = (s = '') => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const lightness = (c = '') => parseFloat((c.match(/oklch\(\s*([\d.]+)%/) || [])[1] || 70);
-  const shade = (c, d) => c.replace(/oklch\(\s*([\d.]+)%/, (_, l) => `oklch(${Math.max(0, l - d)}%`);
 
   /* ---------- smooth scroll ---------- */
   let lenis = null;
@@ -30,7 +28,7 @@
     root.classList.toggle('is-dark', !on);
   });
 
-  /* ---------- credits roll forever: a second copy follows the first ---------- */
+  /* ---------- credits roll forever ---------- */
   const roll = $('.credits-roll');
   if (!reduce) {
     const copy = $('.credits-list', roll).cloneNode(true);
@@ -38,24 +36,33 @@
     roll.append(copy);
   }
 
-  /* ---------- sleeves ---------- */
-  const sleeveHTML = (p, tag, extra = '') => {
-    const s = p.sleeve || {};
-    const ink = lightness(s.color) < 66 ? 'var(--paper)' : 'var(--ink)';
-    const title = esc(p.shortTitle || p.title);
-    let cover = `<span class="sleeve-title">${title}</span>`;
-    if (s.layout === 'phone') {
-      cover += `<img class="sleeve-shot" src="${esc(s.image)}" alt="" loading="lazy" decoding="async">` +
-        (p.logo ? `<img class="sleeve-icon" src="${esc(p.logo)}" alt="" loading="lazy">` : '');
-    } else if (s.layout === 'crop') {
-      cover = `<img class="sleeve-shot" src="${esc(s.image)}" alt="" loading="lazy" decoding="async" style="object-position:${esc(s.position || '50% 50%')}">` + cover;
-    }
-    return `<${tag} class="sleeve sleeve--${esc(s.layout || 'type')}${s.tone === 'invert' ? ' is-invert' : ''}" ${extra}
-      style="--c:${esc(s.color)};--c2:${esc(shade(s.color || '', 14))};--sleeve-ink:${ink}">
-      <span class="sleeve-cat">${esc(p.catalog)}</span>${cover}
-      ${p.sticker ? `<span class="sleeve-sticker">${esc(p.sticker)}</span>` : ''}
-      <span class="sleeve-mark">MA</span></${tag}>`;
+  /* ---------- icons for projects that don't ship one ---------- */
+  const ICONS = {
+    ois: `<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#0e1b45"/><rect width="100" height="100" fill="url(#oisGlow)"/><defs><radialGradient id="oisGlow" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#2a3f8f"/><stop offset="1" stop-color="#0e1b45" stop-opacity="0"/></radialGradient></defs><rect x="9" y="9" width="82" height="82" rx="7" fill="none" stroke="#3fa8ff" stroke-width="2.2"/><path d="M17 24 V17 H24 M76 17 H83 V24 M83 76 V83 H76 M24 83 H17 V76" stroke="#ffd23f" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M39 33 l5 -8 l6 6 l6 -6 l5 8 v4 h-22 z" fill="#ffd23f"/><text x="50" y="66" text-anchor="middle" font-family="Mona Sans, sans-serif" font-weight="800" font-size="27" letter-spacing="1" fill="#ffd23f" style="font-stretch:75%">OIS</text><rect x="30" y="72" width="40" height="3" rx="1.5" fill="#e14bd1"/></svg>`,
+    groov: `<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#f2e3cc"/><circle cx="50" cy="50" r="36" fill="#1d1a18"/><g fill="none" stroke="#3a3532" stroke-width=".8"><circle cx="50" cy="50" r="31"/><circle cx="50" cy="50" r="27"/><circle cx="50" cy="50" r="23"/><circle cx="50" cy="50" r="19"/></g><path d="M24 32 A32 32 0 0 1 44 18" stroke="#fff" stroke-opacity=".35" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="50" cy="50" r="12" fill="#d9613a"/><circle cx="50" cy="50" r="2.2" fill="#f2e3cc"/></svg>`,
+    spotify: `<svg viewBox="0 0 100 100"><defs><linearGradient id="hitG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5a4e"/><stop offset="1" stop-color="#b8231d"/></linearGradient></defs><rect width="100" height="100" fill="url(#hitG)"/><g fill="#fff"><rect x="18" y="52" width="9" height="26" rx="4.5"/><rect x="31" y="38" width="9" height="40" rx="4.5"/><rect x="44" y="28" width="9" height="50" rx="4.5"/><rect x="57" y="44" width="9" height="34" rx="4.5"/></g><rect x="70.5" y="22.5" width="8" height="55" rx="4" fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="3 2.4"/><text x="74.5" y="18" text-anchor="middle" font-family="Mona Sans, sans-serif" font-weight="800" font-size="13" fill="#fff">?</text></svg>`,
+    noteweb: `<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#3f4a1f"/><g stroke="#e8e39a" stroke-opacity=".55" stroke-width="1.4"><path d="M50 50 L24 28 M50 50 L78 26 M50 50 L80 70 M50 50 L22 72 M50 50 L50 18 M24 28 L50 18 L78 26 M22 72 L50 84 L80 70"/></g><g fill="#e8e39a"><circle cx="24" cy="28" r="4"/><circle cx="78" cy="26" r="4"/><circle cx="80" cy="70" r="4"/><circle cx="22" cy="72" r="4"/><circle cx="50" cy="18" r="3"/><circle cx="50" cy="84" r="3"/></g><rect x="40" y="38" width="20" height="25" rx="2.5" fill="#fbf8e4"/><path d="M44 45 h12 M44 50 h12 M44 55 h8" stroke="#3f4a1f" stroke-width="1.6" stroke-linecap="round"/></svg>`,
   };
+  const iconHTML = (p) => (p.logo ? `<img src="${esc(p.logo)}" alt="" loading="lazy" decoding="async">` : ICONS[p.id] || '');
+
+  /* cover backdrops: each project gets its own world behind the icon */
+  const ART = {
+    airborder: `<svg class="cover-art" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="runway" d="M0 92 L100 74 M0 97 L100 82"/><path d="M-4 86 C 18 44, 58 10, 104 16"/></svg>`,
+    spotify: `<svg class="cover-art" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect x="6" y="70" width="8" height="30"/><rect x="18" y="58" width="8" height="42"/><rect x="30" y="76" width="8" height="24"/><rect x="42" y="64" width="8" height="36"/><rect x="54" y="80" width="8" height="20"/><rect x="66" y="68" width="8" height="32"/><rect x="78" y="74" width="8" height="26"/><path d="M0 100 L100 0"/></svg>`,
+    noteweb: `<svg class="cover-art" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="8" y1="12" x2="30" y2="26"/><line x1="30" y1="26" x2="18" y2="52"/><line x1="18" y1="52" x2="10" y2="86"/><line x1="70" y1="10" x2="92" y2="24"/><line x1="92" y1="24" x2="84" y2="58"/><line x1="84" y1="58" x2="94" y2="90"/><line x1="30" y1="26" x2="70" y2="10"/><line x1="18" y1="52" x2="50" y2="94"/><line x1="84" y1="58" x2="50" y2="94"/><circle cx="8" cy="12" r="1.2"/><circle cx="30" cy="26" r="1.4"/><circle cx="18" cy="52" r="1.2"/><circle cx="10" cy="86" r="1"/><circle cx="70" cy="10" r="1.2"/><circle cx="92" cy="24" r="1.4"/><circle cx="84" cy="58" r="1.2"/><circle cx="94" cy="90" r="1"/><circle cx="50" cy="94" r="1.4"/></svg>`,
+  };
+
+  const sleeveHTML = (p, tag, extra = '') => `
+    <${tag} class="sleeve cover--${esc(p.id)}" ${extra}>
+      ${ART[p.id] || ''}
+      <span class="sleeve-cat">${esc(p.catalog)}</span>
+      <span class="icon-tile">${iconHTML(p)}</span>
+      <span class="sleeve-title">${esc(p.shortTitle || p.title)}</span>
+      <span class="sleeve-sub">${esc(p.shortType || p.type)}</span>
+      ${p.sticker ? `<span class="sleeve-sticker">${esc(p.sticker)}</span>` : ''}
+      <span class="sleeve-mark">MA</span>
+    </${tag}>`;
+
   const itemHTML = (p) => `
     <li class="item" data-id="${esc(p.id)}" style="--label:${esc(p.label?.color || '')}">
       <div class="item-art">
@@ -68,148 +75,205 @@
       </div>
     </li>`;
 
-  /* ---------- gatefold ---------- */
+  /* ---------- the gatefold ---------- */
   const layer = $('.gf-layer');
+  const gfScroll = $('.gf-scroll', layer);
+  const gfTrack = $('.gf-track', layer);
   const gf = $('.gf', layer);
-  const cover = $('.gf-cover', gf);
+  const center = $('.gf-center', gf);
+  const flapL = $('.gf-flap--left', gf);
+  const flapR = $('.gf-flap--right', gf);
   const front = $('.gf-front', gf);
-  const inside = $('.gf-inside', gf);
-  const right = $('.gf-right', gf);
-  const gRecord = $('.gf-record', gf);
-  const gSpin = $('.record-spin', gf);
-  let open = null, spinTween = null, scratch = null;
+  const leftP = $('.gf-left', gf);
+  const rightP = $('.gf-right', gf);
+  const hint = $('.gf-hint-scroll', layer);
+  let open = null, tourST = null;
 
   const linkLabel = (l) => (/github/i.test(l.label) ? 'GitHub' : /live/i.test(l.label) ? 'Live site' : l.label);
-  const insideHTML = (p) => {
+  const leftHTML = (p) => {
     const credits = [['Role', p.role], ['Team', p.team], ['Timeline', p.timeline], ['Tools', p.stack], ['Status', p.status]]
       .filter(([, v]) => v).map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('');
     const links = [];
     if (p.caseStudy) links.push(`<a class="btn btn-primary" href="${esc(p.caseStudy)}">Read the case study&nbsp;↗</a>`);
     (p.links || []).forEach((l) => links.push(`<a class="btn btn-secondary" href="${esc(l.href)}" target="_blank" rel="noopener">${esc(linkLabel(l))}&nbsp;↗</a>`));
-    return `<p class="gf-meta">${esc(p.shortType || p.type)} · ${esc(p.year)}</p>
-      <h2 class="gf-title" id="gf-title">${esc(p.title)}</h2>
+    return `<div class="gf-icon">${iconHTML(p)}</div>
+      <p class="gf-meta">${esc(p.shortType || p.type)} · ${esc(p.year)}</p>
+      <h2 class="gf-title" id="gf-title" tabindex="-1">${esc(p.title)}</h2>
       <p class="gf-tagline">${esc(p.tagline)}</p>
       <dl class="gf-credits">${credits}</dl>
-      ${links.length ? `<div class="gf-links">${links.join('')}</div>` : ''}
-      ${fine && !reduce ? '<p class="gf-hint">Grab the record to spin it.</p>' : ''}`;
+      ${links.length ? `<div class="gf-links">${links.join('')}</div>` : ''}`;
   };
-  const rightHTML = (p) => {
+  const shotsHTML = (p) => {
     const g = p.gallery || { items: [] };
     const wide = g.frame !== 'phone';
     const hasDark = g.items.some((it) => it.dark);
     const shots = g.items.map((it) => `<figure class="${wide ? 'wide' : ''}"><img src="${esc(it.src)}" ${it.dark ? `data-light="${esc(it.src)}" data-dark="${esc(it.dark)}"` : ''} alt="${esc(p.title)}: ${esc(it.label)}" loading="lazy" decoding="async"><figcaption>${esc(it.label)}</figcaption></figure>`)
       .concat((p.screens || []).map((it) => `<figure><img src="${esc(it.src)}" alt="${esc(p.title)}: ${esc(it.label)}" loading="lazy" decoding="async"><figcaption>${esc(it.label)}</figcaption></figure>`)).join('');
-    const about = p.about || `${p.tagline} The full process, from interviews to edge cases, is in the case study.`;
-    return `<h3 class="gf-h">About</h3><p>${esc(about)}</p>
-      ${p.features ? `<h3 class="gf-h">Features</h3><ol class="gf-features">${p.features.map((f) => `<li>${esc(f)}</li>`).join('')}</ol>` : ''}
-      ${shots ? `<div class="gf-screens-head"><h3 class="gf-h">Screens</h3>${hasDark ? `<button class="slide-switch" type="button" role="switch" aria-checked="false"><span class="track-sw"><span class="nub"></span></span>Dark mode</button>` : ''}</div><div class="gf-screens">${shots}</div>` : ''}`;
+    return shots ? `<div class="gf-screens-head"><h3 class="gf-h">Screens</h3>${hasDark ? `<button class="slide-switch" type="button" role="switch" aria-checked="false"><span class="track-sw"><span class="nub"></span></span>Dark mode</button>` : ''}</div><div class="gf-screens">${shots}</div>` : '';
+  };
+  const aboutText = (p) => p.about || `${p.tagline} The full process, from interviews to edge cases, is in the case study.`;
+  const featuresHTML = (p) => (p.features ? `<h3 class="gf-h">Features</h3><ol class="gf-features">${p.features.map((f) => `<li>${esc(f)}</li>`).join('')}</ol>` : '');
+
+  /* center panel: a zoom tour through the screens, driven by scrolling */
+  const buildTour = (p) => {
+    const stops = p.tour || [];
+    if (!stops.length) {
+      center.innerHTML = `<div class="gf-panel" style="position:absolute;inset:0;width:auto;height:auto;left:0"><h3 class="gf-h">About</h3><p class="gf-about-big">${esc(aboutText(p))}</p></div>`;
+      gfTrack.style.height = '100%';
+      return;
+    }
+    const srcs = [...new Set(stops.map((s) => s.src))];
+    center.innerHTML = `<div class="tour">
+      ${srcs.map((src) => `<img class="tour-img" src="${esc(src)}" alt="">`).join('')}
+      <p class="tour-step">Detail <span class="tour-n">1</span> of ${stops.length}</p>
+      <div class="tour-dots" aria-hidden="true">${stops.map(() => '<i></i>').join('')}</div>
+      <p class="tour-cap" aria-live="polite"></p>
+    </div>`;
+    const imgs = Object.fromEntries(srcs.map((src, i) => [src, $$('.tour-img', center)[i]]));
+    const cap = $('.tour-cap', center), dots = $$('.tour-dots i', center), num = $('.tour-n', center);
+    const first = imgs[stops[0].src];
+    gsap.set(Object.values(imgs), { transformOrigin: '0 0', x: 0, y: 0, scale: 1, opacity: 0 });
+    gsap.set(first, { opacity: 1 });
+
+    if (reduce) {
+      cap.textContent = stops.map((s) => s.text).join(' · ');
+      gsap.set(cap, { opacity: 1 });
+      gfTrack.style.height = '100%';
+      return;
+    }
+
+    const ready = Promise.all(Object.values(imgs).map((im) => im.decode().catch(() => {})));
+    ready.then(() => {
+      Object.values(imgs).forEach((im) => im.classList.toggle('is-wide', im.naturalWidth > im.naturalHeight));
+      const vh = innerHeight;
+      gfTrack.style.height = `${vh + stops.length * vh * 0.9 + vh * 0.5}px`;
+      const target = (s) => () => {
+        const im = imgs[s.src];
+        const cw = center.clientWidth, ch = center.clientHeight;
+        return { x: cw / 2 - im.offsetLeft - s.s * im.offsetWidth * (s.x / 100), y: ch / 2 - im.offsetTop - s.s * im.offsetHeight * (s.y / 100) };
+      };
+      const spans = [];
+      const tl = gsap.timeline({ defaults: { ease: 'power2.inOut' } });
+      let cur = first;
+      stops.forEach((s, i) => {
+        const im = imgs[s.src];
+        if (im !== cur) {
+          tl.to(cur, { x: 0, y: 0, scale: 1, duration: 0.5 })
+            .to(cur, { opacity: 0, duration: 0.25 })
+            .fromTo(im, { opacity: 0, x: 0, y: 0, scale: 1 }, { opacity: 1, duration: 0.25 }, '<');
+          cur = im;
+        }
+        const t = target(s);
+        const start = tl.duration();
+        tl.to(im, { x: () => t().x, y: () => t().y, scale: s.s, duration: 1 });
+        tl.to({}, { duration: 0.6 });
+        spans.push([start + 0.55, tl.duration() + 0.1, i]);
+      });
+      tl.to(cur, { x: 0, y: 0, scale: 1, duration: 0.8 });
+      let shown = -1;
+      tl.eventCallback('onUpdate', () => {
+          const t = tl.time();
+          const hit = spans.find(([a, b]) => t >= a && t <= b);
+          const idx = hit ? hit[2] : -1;
+          if (idx !== shown) {
+            shown = idx;
+            if (idx >= 0) { cap.textContent = stops[idx].text; num.textContent = idx + 1; }
+            gsap.to(cap, { opacity: idx >= 0 ? 1 : 0, y: idx >= 0 ? 0 : 6, duration: 0.25, overwrite: 'auto' });
+            dots.forEach((d, k) => d.classList.toggle('is-on', k === idx));
+          }
+      });
+      tourST = ScrollTrigger.create({
+        scroller: gfScroll, trigger: gfTrack, start: 'top top', end: 'bottom bottom', scrub: 0.5, animation: tl, invalidateOnRefresh: true,
+        onUpdate: () => { if (gfScroll.scrollTop > 20) gsap.to(hint, { opacity: 0, duration: 0.3, overwrite: 'auto' }); },
+      });
+    });
   };
 
   const vertical = () => innerWidth < 760 || innerWidth / innerHeight < 1;
-  const P = () => cover.offsetWidth;
-
-  const startSpin = () => {
-    spinTween && spinTween.kill();
-    spinTween = gsap.to(gSpin, { rotation: '+=360', duration: open?.format === 'single' ? 1.33 : 1.8, ease: 'none', repeat: -1 });
-  };
+  const rot = (v, side, openIt) => (v ? { rotationX: openIt ? (side === 'L' ? -180 : 180) : 0, rotationY: 0 } : { rotationY: openIt ? (side === 'L' ? -180 : 180) : 0, rotationX: 0 });
 
   const openGatefold = (p, sleeve) => {
-    open = { ...p, sleeve };
+    open = { p, sleeve };
     front.innerHTML = sleeveHTML(p, 'div', 'aria-hidden="true"');
-    inside.innerHTML = insideHTML(p);
-    right.innerHTML = rightHTML(p);
-    const rec = $('.record', gf);
-    rec.style.setProperty('--label', p.label?.color || '');
-    rec.style.setProperty('--label-ink', lightness(p.label?.color) < 55 ? 'var(--paper)' : 'var(--ink)');
-    $('.label-title', gf).textContent = p.shortTitle || p.title;
-    $('.label-meta', gf).textContent = `${p.catalog} · ${p.format === 'single' ? '45' : '33⅓'} rpm`;
-    const sw = $('.slide-switch', right);
+    leftP.innerHTML = leftHTML(p);
+    rightP.innerHTML = p.tour
+      ? `<h3 class="gf-h">About</h3><p>${esc(aboutText(p))}</p>${featuresHTML(p)}${shotsHTML(p)}`
+      : `${featuresHTML(p)}${shotsHTML(p)}`;
+    const sw = $('.slide-switch', rightP);
     if (sw) sw.addEventListener('click', () => {
       const dark = sw.getAttribute('aria-checked') !== 'true';
       sw.setAttribute('aria-checked', String(dark));
-      $$('img[data-dark]', right).forEach((img) => { img.src = dark ? img.dataset.dark : img.dataset.light; });
+      $$('img[data-dark]', rightP).forEach((img) => { img.src = dark ? img.dataset.dark : img.dataset.light; });
     });
 
     const v = vertical();
     gf.classList.toggle('is-vertical', v);
     layer.hidden = false;
+    gfScroll.scrollTop = 0;
+    leftP.scrollTop = rightP.scrollTop = 0;
     lenis && lenis.stop();
     root.style.overflow = 'hidden';
-    right.scrollTop = inside.scrollTop = 0;
+    buildTour(p);
 
-    const p0 = P();
-    const shut = v ? { x: 0, y: -p0 / 2 } : { x: -p0 / 2, y: 0 };
-    const axis = v ? 'rotationX' : 'rotationY';
-    gsap.set(gf, { transformOrigin: v ? '50% 75%' : '75% 50%', ...shut, scale: 1 });
-    gsap.set(cover, { rotationX: 0, rotationY: 0 });
-    gsap.set(gRecord, { yPercent: 0 });
-    const cr = cover.getBoundingClientRect();
+    gsap.set(gf, { x: 0, y: 0, scale: 1, transformOrigin: '50% 50%' });
+    gsap.set(flapL, { ...rot(v, 'L', false), z: 2 });
+    gsap.set(flapR, { ...rot(v, 'R', false), z: 1 });
+    gsap.set(hint, { opacity: 0 });
+    const cr = flapL.getBoundingClientRect();
     const sr = sleeve.getBoundingClientRect();
-    const from = { x: shut.x + (sr.left + sr.width / 2) - (cr.left + cr.width / 2), y: shut.y + (sr.top + sr.height / 2) - (cr.top + cr.height / 2), scale: sr.width / cr.width };
+    const from = { x: sr.left + sr.width / 2 - (cr.left + cr.width / 2), y: sr.top + sr.height / 2 - (cr.top + cr.height / 2), scale: sr.width / cr.width };
     sleeve.style.visibility = 'hidden';
 
     if (reduce) {
-      gsap.set(cover, { [axis]: v ? 180 : -180 });
-      gsap.set(gf, { x: 0, y: 0 });
+      gsap.set(flapL, rot(v, 'L', true));
+      gsap.set(flapR, rot(v, 'R', true));
       gsap.fromTo(layer, { opacity: 0 }, { opacity: 1, duration: 0.15 });
     } else {
       gsap.timeline()
         .fromTo('.gf-backdrop', { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'quart.out' }, 0)
-        .fromTo(gf, from, { ...shut, scale: 1, duration: 0.65, ease: 'expo.out' }, 0)
-        .to(cover, { [axis]: v ? 180 : -180, duration: 0.95, ease: 'quart.inOut' }, 0.5)
-        .to(gf, { x: 0, y: 0, duration: 0.95, ease: 'quart.inOut' }, 0.5)
-        .to(gRecord, { yPercent: -30, duration: 0.7, ease: 'expo.out' }, 1.2)
-        .call(startSpin, null, 1.2);
+        .fromTo(gf, from, { x: 0, y: 0, scale: 1, duration: 0.65, ease: 'expo.out' }, 0)
+        .to(flapL, { ...rot(v, 'L', true), duration: 0.85, ease: 'quart.inOut' }, 0.45)
+        .to(flapR, { ...rot(v, 'R', true), duration: 0.85, ease: 'quart.inOut' }, 0.85)
+        .to(hint, { opacity: p.tour ? 1 : 0, duration: 0.4 }, 1.6);
     }
-    if (fine && !reduce && !scratch) {
-      [scratch] = Draggable.create(gSpin, {
-        type: 'rotation', inertia: true,
-        onPress: () => spinTween && spinTween.kill(),
-        onRelease() { if (!this.isThrowing) startSpin(); },
-        onThrowComplete: startSpin,
-      });
-    }
-    const title = $('#gf-title');
-    title.setAttribute('tabindex', '-1');
-    setTimeout(() => title.focus({ preventScroll: true }), reduce ? 0 : 900);
+    setTimeout(() => $('#gf-title').focus({ preventScroll: true }), reduce ? 0 : 1000);
   };
 
   const closeGatefold = () => {
     if (!open) return;
     const { sleeve } = open;
     const v = gf.classList.contains('is-vertical');
-    const axis = v ? 'rotationX' : 'rotationY';
     const done = () => {
+      tourST && tourST.kill(); tourST = null;
       layer.hidden = true;
       sleeve.style.visibility = '';
-      spinTween && spinTween.kill();
       root.style.overflow = '';
       lenis && lenis.start();
       sleeve.focus({ preventScroll: true });
       open = null;
     };
     if (reduce) return done();
-    const p0 = P();
-    const shut = v ? { x: 0, y: -p0 / 2 } : { x: -p0 / 2, y: 0 };
+    tourST && tourST.disable(false);
     const sr = sleeve.getBoundingClientRect();
     gsap.timeline({ onComplete: done })
-      .to(gRecord, { yPercent: 0, duration: 0.35, ease: 'quart.in' }, 0)
-      .to(cover, { [axis]: 0, duration: 0.7, ease: 'quart.inOut' }, 0.15)
-      .to(gf, { ...shut, duration: 0.7, ease: 'quart.inOut' }, 0.15)
+      .to(hint, { opacity: 0, duration: 0.2 }, 0)
+      .to(flapR, { ...rot(v, 'R', false), duration: 0.6, ease: 'quart.inOut' }, 0)
+      .to(flapL, { ...rot(v, 'L', false), duration: 0.6, ease: 'quart.inOut' }, 0.35)
       .add(() => {
-        const cr = cover.getBoundingClientRect();
-        gsap.to(gf, { x: shut.x + (sr.left + sr.width / 2) - (cr.left + cr.width / 2), y: shut.y + (sr.top + sr.height / 2) - (cr.top + cr.height / 2), scale: sr.width / cr.width, duration: 0.5, ease: 'expo.inOut' });
-      }, 0.85)
-      .to('.gf-backdrop', { opacity: 0, duration: 0.4 }, 0.95)
-      .to({}, { duration: 0.01 }, 1.35);
+        const cr = flapL.getBoundingClientRect();
+        gsap.to(gf, { x: `+=${sr.left + sr.width / 2 - (cr.left + cr.width / 2)}`, y: `+=${sr.top + sr.height / 2 - (cr.top + cr.height / 2)}`, scale: sr.width / cr.width, duration: 0.5, ease: 'expo.inOut' });
+      }, 0.95)
+      .to('.gf-backdrop', { opacity: 0, duration: 0.4 }, 1.05)
+      .to({}, { duration: 0.01 }, 1.45);
   };
 
   $('.gf-close').addEventListener('click', closeGatefold);
   $('.gf-backdrop').addEventListener('click', closeGatefold);
+  gfScroll.addEventListener('click', (e) => { if (e.target === gfScroll || e.target.classList.contains('gf-stage')) closeGatefold(); });
   layer.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') return closeGatefold();
     if (e.key !== 'Tab') return;
-    const f = $$('a, button, [tabindex="0"]', layer).filter((el) => el.offsetParent !== null);
+    const f = $$('a, button', layer).filter((el) => el.offsetParent !== null);
     const first = f[0], last = f[f.length - 1];
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
@@ -276,7 +340,6 @@
     };
   };
 
-  /* nav jumps land on the right moment in the room */
   const cinema = () => room.classList.contains('is-cinema') && st;
   $$('[data-jump]').forEach((a) => a.addEventListener('click', (e) => {
     if (!cinema()) return;

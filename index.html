@@ -44,17 +44,64 @@
   <main>
     <section class="room" id="top" aria-label="Mark's living room">
       <div class="scene">
-        <div class="wall" aria-hidden="true"></div>
+        <div class="wall" aria-hidden="true">
+          <div class="window">
+            <svg class="window-view" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8cc3e6"/><stop offset=".7" stop-color="#cfe3ea"/><stop offset="1" stop-color="#f7e2bf"/></linearGradient>
+                <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d7aa0"/><stop offset="1" stop-color="#6cbcc9"/></linearGradient>
+                <linearGradient id="sandg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6cf9f"/><stop offset="1" stop-color="#d6b67f"/></linearGradient>
+                <radialGradient id="sun"><stop offset="0" stop-color="#fffbe8"/><stop offset=".45" stop-color="#fff1c4" stop-opacity=".9"/><stop offset="1" stop-color="#ffe7a8" stop-opacity="0"/></radialGradient>
+              </defs>
+              <rect width="300" height="250" fill="url(#sky)"/>
+              <circle cx="212" cy="168" r="70" fill="url(#sun)"/>
+              <g class="clouds" fill="#fff" opacity=".85"><ellipse cx="70" cy="80" rx="38" ry="9"/><ellipse cx="95" cy="74" rx="22" ry="8"/><ellipse cx="230" cy="58" rx="30" ry="7"/><ellipse cx="160" cy="118" rx="26" ry="5"/></g>
+              <rect y="236" width="300" height="70" fill="url(#sea)"/>
+              <g class="waves" stroke="#d9f1f4" stroke-width="1.6" stroke-linecap="round" opacity=".75">
+                <path d="M-40 250 h40 M30 258 h60 M120 248 h34 M190 262 h70 M-20 272 h50 M80 280 h44 M170 276 h60 M250 288 h50 M20 294 h70 M140 298 h40 M320 250 h40 M350 272 h50"/>
+              </g>
+              <path class="foam" d="M0 306 C 40 300, 80 312, 120 304 S 200 300, 240 308 S 290 302, 300 306 V 314 H 0 Z" fill="#f4efe2"/>
+              <rect y="310" width="300" height="90" fill="url(#sandg)"/>
+              <path d="M58 400 C 62 340, 78 290, 104 238" fill="none" stroke="#6b4a2b" stroke-width="7" stroke-linecap="round"/>
+              <g fill="#2f5d3a"><path d="M104 238 C 80 222, 52 226, 34 246 C 58 232, 82 236, 104 240 Z"/><path d="M104 238 C 118 214, 146 208, 168 220 C 144 216, 124 226, 106 242 Z"/><path d="M104 238 C 96 210, 104 186, 124 172 C 112 192, 110 214, 107 240 Z"/><path d="M104 238 C 84 244, 70 262, 66 284 C 80 264, 92 252, 106 242 Z"/><path d="M104 238 C 130 236, 152 250, 160 272 C 144 256, 126 248, 104 242 Z"/></g>
+            </svg>
+            <span class="window-glass"></span>
+            <span class="window-mullions"></span>
+            <span class="window-sill"></span>
+          </div>
+          <span class="curtain-rod"></span>
+          <span class="curtain curtain--l"></span>
+          <span class="curtain curtain--r"></span>
+          <span class="baseboard"></span>
+        </div>
         <div class="glow" aria-hidden="true"></div>
-        <div class="floor" aria-hidden="true"></div>
+        <div class="floor" aria-hidden="true">
+          <div class="floor-plane"><span class="floor-sun"></span><span class="rug"></span></div>
+        </div>
 
         <button class="lamp" type="button" aria-pressed="true" aria-label="Lamp">
           <svg viewBox="0 0 240 640" aria-hidden="true">
-            <ellipse class="lamp-pool" cx="120" cy="628" rx="110" ry="10"/>
-            <path class="lamp-pole" d="M54 620 V150 C 54 60, 120 30, 186 92 L 196 104"/>
-            <rect class="lamp-base" x="24" y="612" width="60" height="12" rx="6"/>
-            <path class="lamp-shade" d="M156 112 C 166 84, 230 84, 238 116 L 240 128 H 154 Z"/>
-            <ellipse class="lamp-bulb" cx="197" cy="129" rx="22" ry="4"/>
+            <defs>
+              <linearGradient id="brass" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="#7a5a24"/><stop offset=".35" stop-color="#e6c77a"/><stop offset=".55" stop-color="#b8903f"/><stop offset="1" stop-color="#6b4c1c"/>
+              </linearGradient>
+              <radialGradient id="shade" cx=".35" cy=".25" r=".9">
+                <stop offset="0" stop-color="#f1d79a"/><stop offset=".35" stop-color="#c49a46"/><stop offset=".8" stop-color="#7d5a22"/><stop offset="1" stop-color="#4e3712"/>
+              </radialGradient>
+              <radialGradient id="inside" cx=".5" cy="0" r="1">
+                <stop offset="0" stop-color="#fff6d8"/><stop offset=".6" stop-color="#f3d28c"/><stop offset="1" stop-color="#c99a4a"/>
+              </radialGradient>
+              <pattern id="marble" patternUnits="userSpaceOnUse" width="160" height="160"><image href="assets/textures/marble.webp" width="160" height="160"/></pattern>
+            </defs>
+            <ellipse class="lamp-pool" cx="80" cy="628" rx="90" ry="9"/>
+            <path class="lamp-pole" d="M54 618 V150 C 54 60, 120 30, 186 92 L 196 104" stroke="url(#brass)"/>
+            <path d="M54 618 V150 C 54 60, 120 30, 186 92" fill="none" stroke="#fff3c8" stroke-opacity=".55" stroke-width="1.2" transform="translate(-1 0)"/>
+            <ellipse cx="54" cy="622" rx="34" ry="8" fill="#6f6a64"/>
+            <path class="lamp-base" d="M20 610 Q20 604 28 604 H80 Q88 604 88 610 V620 Q54 630 20 620 Z" fill="url(#marble)"/>
+            <path d="M20 610 Q54 616 88 610" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1"/>
+            <path class="lamp-inside" d="M156 126 Q197 136 240 126 L238 121 Q197 128 158 121 Z" fill="url(#inside)"/>
+            <path class="lamp-shade" d="M156 122 C 162 82, 232 80, 240 122 Q197 130 156 122 Z" fill="url(#shade)"/>
+            <ellipse class="lamp-bulb" cx="197" cy="127" rx="20" ry="3.5"/>
           </svg>
           <span class="lamp-label">Lamp</span>
         </button>
@@ -96,9 +143,37 @@
         </div>
 
         <div class="console" aria-hidden="true">
-          <span class="console-slot"></span>
-          <span class="console-door"></span><span class="console-door"></span><span class="console-door"></span>
+          <div class="console-body">
+            <span class="console-slot"></span>
+            <span class="console-door"><i class="pull"></i></span><span class="console-door"><i class="pull"></i></span><span class="console-door"><i class="pull"></i></span>
+          </div>
+          <span class="leg leg--1"></span><span class="leg leg--2"></span><span class="leg leg--3"></span><span class="leg leg--4"></span>
+          <div class="books"><span class="book book--1"></span><span class="book book--2"></span><span class="book book--3"></span><span class="bowl"></span></div>
+          <svg class="vase" viewBox="0 0 120 200">
+            <path class="branch" d="M58 120 C 54 80, 40 50, 22 18 M57 96 C 66 70, 80 48, 104 30 M50 70 C 44 60, 34 56, 26 52 M70 62 C 78 54, 82 44, 86 34"/>
+            <g class="buds"><circle cx="22" cy="18" r="3"/><circle cx="104" cy="30" r="3"/><circle cx="26" cy="52" r="2.4"/><circle cx="86" cy="34" r="2.4"/><circle cx="34" cy="36" r="2.2"/><circle cx="92" cy="40" r="2"/></g>
+            <defs><linearGradient id="clay" x1="0" x2="1"><stop offset="0" stop-color="#9b8a76"/><stop offset=".4" stop-color="#d8cbb8"/><stop offset=".75" stop-color="#b9a991"/><stop offset="1" stop-color="#7e6f5d"/></linearGradient></defs>
+            <path d="M44 112 Q40 128 34 150 Q28 182 46 196 H74 Q92 182 86 150 Q80 128 76 112 Z" fill="url(#clay)"/>
+            <ellipse cx="60" cy="112" rx="16" ry="3.5" fill="#6d604f"/>
+          </svg>
         </div>
+
+        <svg class="plant" viewBox="0 0 220 340" aria-hidden="true">
+          <defs>
+            <linearGradient id="leaf" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#5c8f4e"/><stop offset="1" stop-color="#2c5530"/></linearGradient>
+            <linearGradient id="leaf2" x1="1" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#6fa05c"/><stop offset="1" stop-color="#335f36"/></linearGradient>
+            <pattern id="weave" width="10" height="8" patternUnits="userSpaceOnUse"><rect width="10" height="8" fill="#c9a46d"/><path d="M0 4 Q5 0 10 4 M0 8 Q5 4 10 8" stroke="#9c7a45" stroke-width="1.4" fill="none"/></pattern>
+          </defs>
+          <g stroke="#3d5c34" stroke-width="2.2" fill="none" stroke-linecap="round"><path d="M110 250 C 104 200, 70 160, 40 130"/><path d="M110 250 C 112 190, 120 130, 108 70"/><path d="M110 250 C 120 200, 160 170, 188 140"/><path d="M110 250 C 96 214, 76 200, 52 196"/><path d="M110 250 C 130 220, 158 214, 176 214"/></g>
+          <path d="M40 130 C 4 120, 0 70, 30 56 C 52 70, 64 104, 40 130 Z" fill="url(#leaf)"/>
+          <path d="M108 70 C 80 52, 84 8, 110 0 C 136 10, 138 52, 108 70 Z" fill="url(#leaf2)"/>
+          <path d="M188 140 C 216 120, 222 80, 196 66 C 170 78, 162 112, 188 140 Z" fill="url(#leaf)"/>
+          <path d="M52 196 C 22 196, 10 164, 26 146 C 50 150, 64 176, 52 196 Z" fill="url(#leaf2)"/>
+          <path d="M176 214 C 206 212, 214 180, 198 164 C 174 168, 162 194, 176 214 Z" fill="url(#leaf2)"/>
+          <path d="M30 56 L 40 130 M110 0 L108 70 M196 66 L188 140" stroke="#a9c99a" stroke-width="1.2" opacity=".6"/>
+          <path d="M62 244 H158 L148 330 Q110 340 72 330 Z" fill="url(#weave)"/>
+          <path d="M58 238 H162 V252 H58 Z" fill="#b58e55"/>
+        </svg>
 
         <p class="scroll-cue" aria-hidden="true">Scroll</p>
       </div>
@@ -128,18 +203,22 @@
 
   <div class="gf-layer" hidden>
     <div class="gf-backdrop"></div>
-    <div class="gf" role="dialog" aria-modal="true" aria-labelledby="gf-title">
-      <div class="gf-record" aria-hidden="true">
-        <div class="record">
-          <div class="record-spin"><div class="record-label"><span class="label-title"></span><span class="label-meta"></span></div></div>
-          <div class="record-sheen"></div>
-          <div class="spindle"></div>
+    <div class="gf-scroll">
+      <div class="gf-track">
+        <div class="gf-stage">
+          <div class="gf" role="dialog" aria-modal="true" aria-labelledby="gf-title">
+            <div class="gf-panel gf-center"></div>
+            <div class="gf-flap gf-flap--right">
+              <div class="gf-face gf-out"></div>
+              <div class="gf-panel gf-face gf-in gf-right"></div>
+            </div>
+            <div class="gf-flap gf-flap--left">
+              <div class="gf-face gf-out gf-front"></div>
+              <div class="gf-panel gf-face gf-in gf-left"></div>
+            </div>
+          </div>
+          <p class="gf-hint-scroll" aria-hidden="true">Scroll to zoom into the details <span>↓</span></p>
         </div>
-      </div>
-      <div class="gf-panel gf-right" tabindex="0"></div>
-      <div class="gf-cover">
-        <div class="gf-front"></div>
-        <div class="gf-panel gf-inside"></div>
       </div>
     </div>
     <button class="gf-close btn btn-light" type="button">Close</button>
@@ -148,8 +227,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/ScrollTrigger.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/Draggable.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/InertiaPlugin.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.27/dist/lenis.min.js"></script>
   <script src="app.js"></script>
 </body>
